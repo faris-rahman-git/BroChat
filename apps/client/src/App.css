@@ -1,0 +1,36 @@
+/* Hide arrows on number input (Chrome, Safari, Edge) */
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Hide arrows on Firefox */
+input[type='number'] {
+  -moz-appearance: textfield;
+}
+
+/* Hide arrows on IE */
+input[type='number']::-ms-clear,
+input[type='number']::-ms-reveal {
+  display: none;
+}
+
+/* In your global CSS file */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px; /* Reduce width */
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  cursor: pointer;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}

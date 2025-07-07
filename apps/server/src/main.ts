@@ -1,21 +1,28 @@
-/**
- * This is not a production server yet!
- * This is only a minimal backend to get started.
- */
+import http from 'http';
+import dotenv from 'dotenv';
+dotenv.config();
+import app from './app';
+import connectMongo from './config/db';
+import { Server } from 'socket.io';
+import { setupSocket } from './infrastructure/socket';
+const PORT = process.env.PORT || 5000;
 
-import express from 'express';
-import * as path from 'path';
+// Create HTTP server using Express app
+const server = http.createServer(app);
 
-const app = express();
-
-app.use('/assets', express.static(path.join(__dirname, 'assets')));
-
-app.get('/api', (req, res) => {
-  res.send({ message: 'Welcome to server!' });
+// Setup all socket handlers
+export const io = new Server(server, {
+  cors: {
+    origin: process.env.CLIENT_URL,
+    credentials: true,
+  },
+  pingInterval: 3000, // send ping every 5 seconds
+  pingTimeout: 2000, // disconnect if no pong within 3s
 });
+setupSocket(io);
 
-const port = process.env.PORT || 3333;
-const server = app.listen(port, () => {
-  console.log(`Listening at http://localhost:${port}/api`);
+connectMongo();
+
+server.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
 });
-server.on('error', console.error);

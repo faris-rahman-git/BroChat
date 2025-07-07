@@ -1,0 +1,79 @@
+import { useState } from 'react';
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogTitle,
+  DialogDescription,
+} from '@client/components/ui/dialog';
+import { Button } from '@client/components/ui/button';
+import ButtonIcon from './ButtonIcon';
+
+interface ConfirmActionButtonProps {
+  buttonIcon: React.ElementType;
+  buttonClassName: string;
+  buttonContent: string;
+  modalTitle: string;
+  modalDescription: string;
+  onConfirm: () => void;
+}
+
+const ConfirmActionButton = ({
+  buttonIcon,
+  buttonClassName,
+  buttonContent,
+  modalTitle,
+  modalDescription,
+  onConfirm,
+}: ConfirmActionButtonProps) => {
+  const [open, setOpen] = useState(false);
+
+  const handleConfirm = () => {
+    onConfirm();
+    setOpen(false);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <ButtonIcon
+          Icon={buttonIcon}
+          label={buttonContent}
+          className={`w-[110px] h-[40px] text-white flex justify-center items-center hover:text-white px-4 py-[6px] ${buttonClassName}`}
+        >
+          <div className="flex w-full justify-between items-center">
+            <span className="whitespace-nowrap">{buttonContent}</span>
+          </div>
+        </ButtonIcon>
+      </DialogTrigger>
+
+      <DialogContent className="sm:max-w-[400px]">
+        <DialogHeader>
+          <DialogTitle>{modalTitle}</DialogTitle>
+          <DialogDescription className="py-3">
+            {modalDescription}
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <Button
+            variant="outline"
+            className="hover:cursor-pointer"
+            onClick={() => setOpen(false)}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleConfirm}
+            className="bg-red-600 hover:bg-red-700 text-white hover:cursor-pointer"
+          >
+            Confirm
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+export default ConfirmActionButton;

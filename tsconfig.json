@@ -5,6 +5,12 @@
   "references": [
     {
       "path": "./apps/server"
+    },
+    {
+      "path": "./apps/client"
+    },
+    {
+      "path": "./libs/shared"
     }
   ]
 }

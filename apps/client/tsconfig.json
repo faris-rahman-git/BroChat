@@ -1,0 +1,19 @@
+{
+  "files": [],
+  "include": [],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@client/*": ["src/*"]
+    }
+  },
+  "references": [
+    {
+      "path": "../../libs/shared"
+    },
+    {
+      "path": "./tsconfig.app.json"
+    }
+  ],
+  "extends": "../../tsconfig.base.json"
+}
