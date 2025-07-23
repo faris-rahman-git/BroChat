@@ -8,6 +8,7 @@ const UserSchema = new Schema({
   password: String,
   role: { type: String, enum: ['admin', 'user'], default: 'user' },
   avatar: { type: String, default: '' },
+  about: { type: String, default: '' },
   isBlocked: { type: Boolean, default: false },
   blockedAt: { type: Date },
   isDeleted: { type: Boolean, default: false },
@@ -15,6 +16,8 @@ const UserSchema = new Schema({
   deletedBy: { type: String, enum: ['admin', 'user'] },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date },
+  blockedUsers: [{ type: Schema.Types.ObjectId, ref: 'userModel' }],
+  blockedByUsers: [{ type: Schema.Types.ObjectId, ref: 'userModel' }],
 });
 
 export default model('userModel', UserSchema);

@@ -33,7 +33,7 @@ export const handleMessage = (socket: Socket) => {
           return;
         }
 
-        const { receiverId, savedMessage } = await saveMessages(
+        const { receiversId, savedMessage } = await saveMessages(
           { ...data, status: 'sent' },
           messRepo,
           conRepo
@@ -52,11 +52,13 @@ export const handleMessage = (socket: Socket) => {
         });
 
         // Emit the message to the receiver
-        await emitWithQueueServer({
-          userId: receiverId,
-          event: 'new-message',
-          data: savedMessage,
-          isDirect: true,
+        receiversId.forEach(async (receiverId) => {
+          await emitWithQueueServer({
+            userId: receiverId,
+            event: 'new-message',
+            data: savedMessage,
+            isDirect: true,
+          });
         });
       } catch (err) {
         console.log(err);

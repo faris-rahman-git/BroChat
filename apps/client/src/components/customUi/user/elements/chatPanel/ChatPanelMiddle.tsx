@@ -1,21 +1,26 @@
 import MessageBubble from './ChatPanelMiddle/MessageBubble';
 import avatar from '@client/assets/defaultAvatar/avatar.webp';
-import { useFormattedTimestamp } from '@client/hooks/home/useFormattedTimestamp';
 import { useEffect, useRef, useState } from 'react';
 import { LuLock } from 'react-icons/lu';
 import { MessageType } from '@bro/shared';
 import TypingBubble from './ChatPanelMiddle/TypingBubble';
 import { RootState } from '@client/redux/store';
 import { useSelector } from 'react-redux';
+import { useFormattedTimestamp } from '@client/hooks/commonHooks/useFormattedTimestamp';
+import { selectGroupChatById } from '@client/redux/selectors/groupChatSelectors';
 
 function ChatPanelMiddle({
   messages,
   userId,
   isTyping,
+  isGroup,
+  conversationId,
 }: {
   messages: MessageType[];
   userId: string;
   isTyping: boolean;
+  isGroup: boolean;
+  conversationId: string;
 }) {
   const bottomRef = useRef<HTMLDivElement | null>(null);
   let lastDateLabel = '';
@@ -23,6 +28,8 @@ function ChatPanelMiddle({
   const browserIsOnline = useSelector(
     (state: RootState) => state.browserOnlineStatus.isOnline
   );
+  const group = useSelector(selectGroupChatById(conversationId!));
+
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'instant' });
     const lastMessage = messages[messages.length - 1];
@@ -63,12 +70,20 @@ function ChatPanelMiddle({
                 </div>
               )}
               <MessageBubble
+                messageId={message._id as string}
+                conversationId={message.conversationId as string}
                 isMine={message.senderId === userId}
                 message={message.content as string}
                 time={displayTime}
                 status={message.status}
-                avatarUrl={avatar}
-                showAvatar={isFirstInGroup}
+                avatarUrl={message.senderAvatar as string}
+                senderName={message.senderName as string}
+                showAvatar={showDate ? true : isFirstInGroup}
+                isEdited={message.isEdited}
+                isGroup={isGroup}
+                isAdmin={group?.Admins.includes(userId) ?? true}
+                MessageType={message.MessageType}
+                mediaUrl={message.mediaUrl}
               />
             </div>
           );

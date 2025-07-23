@@ -17,7 +17,7 @@ function WellCome() {
             Send and receive messages seamlessly across all your devices
           </p>
         </div>
-      </div>{' '}
+      </div>
     </div>
   );
 }

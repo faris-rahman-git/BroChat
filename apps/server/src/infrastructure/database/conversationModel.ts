@@ -8,13 +8,18 @@ const conversationSchema = new mongoose.Schema({
       required: true,
     },
   ],
+  Admins: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'userModel',
+      required: true,
+    },
+  ],
   isGroup: { type: Boolean, default: false },
+  avatar: { type: String, default: '' },
   groupName: { type: String },
-  status: {
-    type: String,
-    enum: ['pending', 'accepted', 'blocked'],
-    default: 'pending',
-  },
+  about: { type: String },
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'userModel' },
   createdAt: { type: Date, default: Date.now },
 });
 

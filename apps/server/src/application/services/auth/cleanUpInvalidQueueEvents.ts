@@ -20,7 +20,16 @@ export const cleanUpInvalidQueueEvents = async (
       event !== 'force-logout' &&
       event !== 'new-user-chat' &&
       event !== 'user-offline' &&
-      event !== 'user-online'
+      event !== 'user-online' &&
+      event !== 'new-group-chat' &&
+      event !== 'delete-message' &&
+      event !== 'edit-message-update' &&
+      event !== 'remove-group-chat' &&
+      event !== 'remove-group-member' &&
+      event !== 'make-group-admin' &&
+      event !== 'dismiss-group-admin' &&
+      event !== 'update-group-info' &&
+      event !== 'block-user-update'
     ) {
       await addEventToQueue(userId, event, data);
     }

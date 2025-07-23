@@ -7,7 +7,7 @@ import {
   FindUsernameType,
 } from '../../domain/entities/userModelTypes';
 import userModel from '../database/userModel';
-import { AllUsersType, DeletedUserListType } from '@bro/shared';
+import { AllUsersType, GroupMember } from '@bro/shared';
 
 export class userRepo implements iUserRepo {
   async findEmail(email: string): Promise<FindEmailAndSaveUserType | null> {
@@ -66,8 +66,11 @@ export class userRepo implements iUserRepo {
         username: 1,
         avatar: 1,
         email: 1,
+        about: 1,
         phoneNumber: 1,
         createdAt: 1,
+        blockedUsers: 1,
+        blockedByUsers: 1,
       }
     );
   }
@@ -84,9 +87,12 @@ export class userRepo implements iUserRepo {
           email: 1,
           phoneNumber: 1,
           createdAt: 1,
+          about: 1,
+          blockedUsers: 1,
+          blockedByUsers: 1,
         }
       )
-      .lean())!;
+      .lean())! as unknown as SearchRawType;
   }
 
   async findAllUsersWithSearch(
@@ -98,7 +104,14 @@ export class userRepo implements iUserRepo {
         username: 1,
         email: 1,
         isBlocked: 1,
+        blockedAt: 1,
         createdAt: 1,
+        name: 1,
+        phoneNumber: 1,
+        avatar: 1,
+        isDeleted: 1,
+        deletedAt: 1,
+        deletedBy: 1,
       })
       .lean();
   }
@@ -126,29 +139,67 @@ export class userRepo implements iUserRepo {
     await userModel.findByIdAndDelete(userId);
   }
 
-  async findDeletedUsers(searchValue: string): Promise<DeletedUserListType[]> {
-    return (await userModel
+  async findDeletedUsers(searchValue: string): Promise<AllUsersType[]> {
+    return await userModel
       .find(
         {
-          $and: [
-            {
-              $or: [
-                { email: { $regex: searchValue, $options: 'i' } },
-                { username: { $regex: searchValue, $options: 'i' } },
-              ],
-            },
-            { role: 'user', isDeleted: true },
+          $or: [
+            { email: { $regex: searchValue, $options: 'i' } },
+            { username: { $regex: searchValue, $options: 'i' } },
           ],
+          role: 'user',
+          isDeleted: true,
         },
         {
           _id: 1,
           username: 1,
           email: 1,
+          isBlocked: 1,
+          blockedAt: 1,
           createdAt: 1,
+          name: 1,
+          phoneNumber: 1,
+          avatar: 1,
+          isDeleted: 1,
           deletedAt: 1,
           deletedBy: 1,
         }
       )
-      .lean())!;
+      .sort({ deletedAt: -1 })
+      .lean();
+  }
+
+  async getUsersMinimalDetails(userIds: string[]): Promise<GroupMember[]> {
+    const users = await userModel
+      .find(
+        { _id: { $in: userIds } },
+        { _id: 1, name: 1, avatar: 1, username: 1 }
+      )
+      .lean();
+
+    return users.map((u) => ({
+      _id: String(u._id),
+      name: u.name,
+      avatar: u.avatar,
+      username: u.username,
+    }));
+  }
+
+  async blockUser(userId: string, receiverId: string): Promise<void> {
+    await userModel.findByIdAndUpdate(userId, {
+      $addToSet: { blockedUsers: receiverId },
+    });
+    await userModel.findByIdAndUpdate(receiverId, {
+      $addToSet: { blockedByUsers: userId },
+    });
+  }
+
+  async unblockUser(userId: string, receiverId: string): Promise<void> {
+    await userModel.findByIdAndUpdate(userId, {
+      $pull: { blockedUsers: receiverId },
+    });
+    await userModel.findByIdAndUpdate(receiverId, {
+      $pull: { blockedByUsers: userId },
+    });
   }
 }

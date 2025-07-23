@@ -7,12 +7,12 @@ export const saveMessages = async (
   data: MessageType,
   messRepo: iMessageRepo,
   conRepo: iConversationRepo
-): Promise<{ receiverId: string; savedMessage: MessageType }> => {
-  const savedMessage: MessageType = await messRepo.save(data);
-  const receiverId = await getReceiverId(
+): Promise<{ receiversId: string[]; savedMessage: MessageType }> => {
+  const receiversId = await getReceiverId(
     conRepo,
     data.conversationId as string,
     data.senderId as string
   );
-  return { receiverId, savedMessage };
+  const savedMessage: MessageType = await messRepo.save(data , receiversId);
+  return { receiversId, savedMessage };
 };

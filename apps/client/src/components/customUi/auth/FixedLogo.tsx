@@ -1,4 +1,4 @@
-import logo from "../../../assets/auth/chatLogo.webp";
+import logo from '../../../assets/auth/chatLogo.webp';
 
 function FixedLogo() {
   return (

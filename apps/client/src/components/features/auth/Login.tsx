@@ -4,14 +4,17 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import FixedLogo from '../../customUi/auth/FixedLogo';
 import AuthHeading from '../../customUi/auth/AuthHeading';
-import { loginFormFields } from '../../../constants/authConstants';
+import { loginFormFields } from '../../../constants/authConstant/authConstants';
 import InputBlock from '../../customUi/auth/InputBlock';
 import AuthNextButton from '../../customUi/auth/AuthNextButton';
 import SocialLogin from '../../customUi/auth/SocialLogin';
 import SwitchBWLoginAndRegister from '../../customUi/auth/SwitchBWLoginAndRegister';
 import MainSideImage from '../../customUi/auth/MainSideImage';
 import { loginSchema, type LoginSchemaType } from '@bro/shared';
-import { showLoader, hideLoader } from '@client/redux/features/LoaderSlice';
+import {
+  showLoader,
+  hideLoader,
+} from '@client/redux/features/commonSlices/LoaderSlice';
 import { useEffect } from 'react';
 import { useAppDispatch } from '@client/hooks/commonHooks/useAppDispatch';
 import { useLogin } from '@client/hooks/auth/useLogin';
@@ -19,8 +22,11 @@ import Errorspan from '@client/components/customUi/auth/Errorspan';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
 import { RootState } from '@client/redux/store';
-import { clearError, setError } from '@client/redux/features/errorSlice';
-import { setUser } from '@client/redux/features/userSlice';
+import { setUser } from '@client/redux/features/userSlices/authSlices/userSlice';
+import {
+  setError,
+  clearError,
+} from '@client/redux/features/userSlices/authSlices/errorSlice';
 
 function Login() {
   const {
@@ -41,11 +47,7 @@ function Login() {
   };
 
   useEffect(() => {
-    if (isPending) {
-      dispatch(showLoader());
-    } else {
-      dispatch(hideLoader());
-    }
+    dispatch(isPending ? showLoader() : hideLoader());
   }, [isPending]);
 
   useEffect(() => {

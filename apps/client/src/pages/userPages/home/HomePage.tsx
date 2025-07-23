@@ -4,9 +4,12 @@ import { useLogout } from '@client/hooks/auth/useLogout';
 import { useAppDispatch } from '@client/hooks/commonHooks/useAppDispatch';
 import { useSocket } from '@client/hooks/socket/useSocket';
 import HomeLayout from '@client/layouts/HomeLayout';
-import { setError } from '@client/redux/features/errorSlice';
-import { hideLoader, showLoader } from '@client/redux/features/LoaderSlice';
-import { logout } from '@client/redux/features/userSlice';
+import {
+  showLoader,
+  hideLoader,
+} from '@client/redux/features/commonSlices/LoaderSlice';
+import { setError } from '@client/redux/features/userSlices/authSlices/errorSlice';
+import { logout } from '@client/redux/features/userSlices/authSlices/userSlice';
 import { startQueueProcessor } from '@client/services/socket/startQueueProcessor';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -18,11 +21,8 @@ function HomePage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (isPending || loading) {
-      dispatch(showLoader());
-    } else {
-      dispatch(hideLoader());
-    }
+    const isLoading = isPending || loading;
+    dispatch(isLoading ? showLoader() : hideLoader());
   }, [isPending, loading]);
 
   useEffect(() => {

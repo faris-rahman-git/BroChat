@@ -7,7 +7,3 @@ export type FindReceiverIdType = {
 export type CheckConversationExistsType = {
   _id: ObjectId;
 };
-
-export type CreateNewConversationType = {
-  _id: string;
-};

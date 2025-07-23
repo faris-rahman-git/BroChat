@@ -1,12 +1,12 @@
 import { Card } from '@client/components/ui/card';
-import { useSearchUser } from '@client/hooks/home/useSearchUser';
 import { RefObject, useEffect, useState } from 'react';
 import { Input } from '@client/components/ui/input';
 import ChatTab from '../ChatTab';
 import { Quantum } from 'ldrs/react';
 import { useAppDispatch } from '@client/hooks/commonHooks/useAppDispatch';
-import { setActiveReceiver } from '@client/redux/features/activeReceiverSlice';
+import { setActiveReceiver } from '@client/redux/features/userSlices/homeSlices/commonSlices/activeReceiverSlice';
 import { SearchResultType } from '@bro/shared';
+import { useSearchUser } from '@client/hooks/home/dmHooks/useSearchUser';
 
 function AddUserCard({
   newChatRef,
@@ -78,11 +78,13 @@ function AddUserCard({
             searchResult.map((receiverTab: SearchResultType, index) => (
               <ChatTab
                 key={index}
-                receiverTab={receiverTab}
                 isAddUser={true}
                 className="hover:bg-[#ffffff] "
                 onClick={() => handleAddUser(receiverTab)}
-                onlineStatus = {receiverTab.isOnline}
+                onlineStatus={receiverTab.isOnline}
+                lastMessageOrUserName={receiverTab.username}
+                avatar={receiverTab.avatar || ''}
+                chatName={receiverTab.name || ''}
               />
             ))}
           {(searchValue == '' || searchResult.length == 0) && !isPending && (

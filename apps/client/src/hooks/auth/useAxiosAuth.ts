@@ -1,8 +1,8 @@
 import { useEffect } from "react";
-import { logout } from "@client/redux/features/userSlice";
 import { setAxiosAuthHandler } from "@client/configs/axios";
 import { useAppDispatch } from "../commonHooks/useAppDispatch";
 import { useNavigate } from "react-router-dom";
+import { logout } from "@client/redux/features/userSlices/authSlices/userSlice";
 
 export const useAxiosAuth = () => {
   const dispatch = useAppDispatch();

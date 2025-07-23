@@ -12,28 +12,11 @@ import {
   LuVideo,
 } from 'react-icons/lu';
 import { MdLocationOn, MdOutlinePoll } from 'react-icons/md';
+import { ContentType } from '@bro/shared';
 
-type MessageType =
-  | 'text'
-  | 'image'
-  | 'video'
-  | 'voice'
-  | 'document'
-  | 'sticker'
-  | 'contact'
-  | 'poll'
-  | 'location'
-  | 'voice-call-incoming'
-  | 'voice-call-outgoing'
-  | 'voice-call-missed'
-  | 'voice-call-rejected'
-  | 'video-call-incoming'
-  | 'video-call-outgoing'
-  | 'video-call-missed'
-  | 'video-call-rejected';
 
 interface MessagePreviewProps {
-  type: MessageType;
+  type: ContentType;
   message?: string; // for text
   isOwn?: boolean;
 }
@@ -43,7 +26,7 @@ const icons = {
   video: <LuVideo className="size-4 text-black opacity-50" />,
   voice: <LuMic className="size-4 text-black opacity-50" />,
   document: <LuFileText className="size-4 text-black opacity-50" />,
-  sticker: <LuSticker className="size-4 text-black opacity-50" />,
+  gif: <LuSticker className="size-4 text-black opacity-50" />,
   contact: <LuSquareUserRound className="size-4 text-black opacity-50" />,
   poll: <MdOutlinePoll className="size-4 text-black opacity-50" />,
   location: <MdLocationOn className="size-4 text-black opacity-50" />,
@@ -74,12 +57,12 @@ const icons = {
 };
 
 const labels = {
-  text: (msg?: string) => msg ,
+  text: (msg?: string) => msg,
   image: (msg?: string) => msg || 'Photo',
   video: (msg?: string) => msg || 'Video',
   voice: (msg?: string) => msg || 'Voice message',
   document: (msg?: string) => msg || 'Document',
-  sticker: () => 'Sticker',
+  gif: () => 'Gif',
   contact: (msg?: string) => msg || 'Contact',
   poll: (msg?: string) => msg || 'Poll',
   location: () => 'Location',

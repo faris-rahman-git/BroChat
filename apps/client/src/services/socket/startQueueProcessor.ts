@@ -19,7 +19,7 @@ export const startQueueProcessor = async () => {
       return;
     }
 
-    if (queue.length === 0 ) {
+    if (queue.length === 0) {
       isProcessing = false;
       return;
     }

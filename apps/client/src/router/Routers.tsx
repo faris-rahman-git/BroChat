@@ -7,10 +7,11 @@ import ClearErrorOnBackForward from '@client/components/customUi/auth/ClearError
 import HomePage from '@client/pages/userPages/home/HomePage';
 import { useSelector } from 'react-redux';
 import { RootState } from '@client/redux/store';
-import useSocialAuthFromQuery from '@client/hooks/home/useSocialAuthFromQuery';
 import Loader from '@client/components/features/loading/Loader';
 import { useAxiosAuth } from '@client/hooks/auth/useAxiosAuth';
 import DashboardPage from '@client/pages/userPages/home/DashboardPage';
+import useSocialAuthFromQuery from '@client/hooks/auth/useSocialAuthFromQuery';
+import VideoPlayerPage from '@client/pages/userPages/home/VideoPlayerPage';
 
 function Routers() {
   useAxiosAuth();
@@ -83,11 +84,14 @@ function Routers() {
           path="/"
           element={role == 'user' ? <HomePage /> : <Navigate to="/login" />}
         />
+        <Route path="/video-player" element={<VideoPlayerPage />} />
 
         {/* Admin Routes */}
         <Route
           path="/admin/dashboard"
-          element={role == 'admin' ? <DashboardPage /> : <Navigate to="/login" />}
+          element={
+            role == 'admin' ? <DashboardPage /> : <Navigate to="/login" />
+          }
         />
       </Routes>
     </>

@@ -16,6 +16,8 @@ import { forgotPasswordOtp } from '../../../../application/useCases/auth/forgotP
 import { verifyAndResendTokens } from '../../../../application/useCases/auth/verifyAndResendTokens';
 import { logoutHelper } from '../../../../application/useCases/auth/logoutHelper';
 
+const repo = new userRepo();
+
 export const register = async (
   req: Request,
   res: Response,
@@ -30,7 +32,6 @@ export const register = async (
     }
 
     const { email } = parsed.data;
-    const repo = new userRepo();
     await registerUser(email, repo);
     res.status(200).json({});
   } catch (err) {
@@ -51,7 +52,6 @@ export const otpAndPassword = async (
       return;
     }
 
-    const repo = new userRepo();
     await createUser(parsed.data, repo);
     res.status(200).json({});
   } catch (err) {
@@ -84,7 +84,6 @@ export const login = async (
       res.status(400).json({ error: parsed.error.format() });
       return;
     }
-    const repo = new userRepo();
     const user = await validateLogin(res, parsed.data, repo);
     res.status(200).json({ user });
   } catch (err) {
@@ -100,7 +99,6 @@ export const socialRegisterOrLogin = async (
   try {
     const { email, name } = req.user as { email: string; name: string };
     if (!email || !name) throw new AppError('Something went wrong', 404);
-    const repo = new userRepo();
     const user = await socialAuthHandler(res, email, name, repo);
     if (user?.role === 'user') {
       res.redirect(
@@ -134,7 +132,6 @@ export const forgotPassword = async (
     }
 
     const { email } = parsed.data;
-    const repo = new userRepo();
     await forgotPasswordOtp(email, repo);
     res.status(200).json({});
   } catch (err) {
@@ -155,7 +152,6 @@ export const resetPassword = async (
       return;
     }
 
-    const repo = new userRepo();
     await resetForgotPassword(parsed.data, repo);
     res.status(200).json({});
   } catch (err) {
@@ -192,7 +188,7 @@ export const refreshToken = (
 export const logout = (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.user?.id as string;
-    logoutHelper(res ,userId);
+    logoutHelper(res, userId);
   } catch (err) {
     next(err);
   }

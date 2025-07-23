@@ -1,8 +1,8 @@
 import ButtonIcon from '@client/components/customUi/commonElemets/ButtonIcon';
+import { TopButtonsConstants } from '@client/constants/userConstant/sidebarConstants';
 import { useAppDispatch } from '@client/hooks/commonHooks/useAppDispatch';
-import { setActiveSection } from '@client/redux/features/activeSectionTabSlice';
+import { setActiveSection } from '@client/redux/features/userSlices/homeSlices/commonSlices/activeSectionTabSlice';
 import { RootState } from '@client/redux/store';
-import { LuMenu, LuMessageCircleMore, LuPhone, LuUsers } from 'react-icons/lu';
 import { useSelector } from 'react-redux';
 
 function TopButtons({
@@ -12,13 +12,6 @@ function TopButtons({
   setIsExpanded: React.Dispatch<React.SetStateAction<boolean>>;
   isExpanded: boolean;
 }) {
-  const buttons = [
-    { icon: LuMenu, label: 'Menu' },
-    { icon: LuMessageCircleMore, label: 'DMs' },
-    { icon: LuUsers, label: 'Groups' },
-    { icon: LuPhone, label: 'Calls' },
-  ];
-
   const activeSectionTab = useSelector(
     (state: RootState) => state.activeSectionTab.value
   );
@@ -38,7 +31,7 @@ function TopButtons({
 
   return (
     <div className="flex flex-col gap-7 items-start ps-[6px] w-full">
-      {buttons.map(({ icon: Icon, label }, index) => (
+      {TopButtonsConstants.map(({ icon: Icon, label }, index) => (
         <ButtonIcon
           key={index}
           Icon={Icon}

@@ -1,16 +1,9 @@
 import ButtonIcon from '@client/components/customUi/commonElemets/ButtonIcon';
-import {
-  LuUser,
-  // LuUserMinus,
-  // LuUserPlus,
-  LuUserX,
-  LuUsers,
-} from 'react-icons/lu';
+import { LuUser, LuUserX, LuUsers } from 'react-icons/lu';
 import {
   MdArrowDropDown,
   MdOutlineDashboard,
   MdOutlineReport,
-  MdOutlinePersonSearch,
   MdOutlineReportGmailerrorred,
   MdArrowDropUp,
 } from 'react-icons/md';
@@ -39,8 +32,6 @@ function DashBoardTopButtons() {
       label: 'User Management',
       children: [
         { label: 'All Users', icon: LuUsers },
-        // { label: 'Add New User', icon: LuUserPlus },
-        // { label: 'Blocked Users', icon: LuUserMinus },
         { label: 'Deleted Users', icon: LuUserX },
       ],
     },
@@ -48,8 +39,9 @@ function DashBoardTopButtons() {
       icon: MdOutlineReport,
       label: 'Reports Management',
       children: [
-        { label: 'Sales Reports', icon: MdOutlineReportGmailerrorred },
-        { label: 'User Reports', icon: MdOutlinePersonSearch },
+        { label: 'Pending Reports', icon: MdOutlineReportGmailerrorred },
+        { label: 'Resolved Reports', icon: MdOutlineReportGmailerrorred },
+        { label: 'Deleted Reports', icon: MdOutlineReportGmailerrorred },
       ],
     },
   ];

@@ -1,4 +1,4 @@
-import { getAllUsersApi } from '@client/services/adminServices';
+import { getAllUsersApi } from '@client/services/admin/userServices';
 import { useMutation } from '@tanstack/react-query';
 
 export const useGetAllUsers = () => {

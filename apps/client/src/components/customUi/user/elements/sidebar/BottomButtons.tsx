@@ -3,11 +3,14 @@ import avatar from '@client/assets/defaultAvatar/avatar.webp';
 import { useLogout } from '@client/hooks/auth/useLogout';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch } from '@client/hooks/commonHooks/useAppDispatch';
-import { hideLoader, showLoader } from '@client/redux/features/LoaderSlice';
+import {
+  showLoader,
+  hideLoader,
+} from '@client/redux/features/commonSlices/LoaderSlice';
 import { useEffect } from 'react';
-import { logout } from '@client/redux/features/userSlice';
 import ButtonIcon from '@client/components/customUi/commonElemets/ButtonIcon';
 import { LuLogOut, LuSettings } from 'react-icons/lu';
+import { logout } from '@client/redux/features/userSlices/authSlices/userSlice';
 
 function BottomButtons({ isExpanded }: { isExpanded: boolean }) {
   const dispatch = useAppDispatch();
@@ -15,11 +18,7 @@ function BottomButtons({ isExpanded }: { isExpanded: boolean }) {
   const { isPending, isSuccess, mutate } = useLogout();
 
   useEffect(() => {
-    if (isPending) {
-      dispatch(showLoader());
-    } else {
-      dispatch(hideLoader());
-    }
+    dispatch(isPending ? showLoader() : hideLoader());
   }, [isPending]);
 
   useEffect(() => {

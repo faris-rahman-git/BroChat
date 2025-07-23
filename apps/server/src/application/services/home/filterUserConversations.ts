@@ -14,6 +14,10 @@ export const filterUserConversations = async (
       )!;
 
       const socketId = await getSocketIdByUserId(receiver._id.toString());
+      const blockedUsersStr =
+        receiver.blockedUsers?.map((id) => id.toString()) ?? [];
+      const blockedByUsersStr =
+        receiver.blockedByUsers?.map((id) => id.toString()) ?? [];
 
       return {
         conversationId: Conversation._id.toString(),
@@ -23,8 +27,11 @@ export const filterUserConversations = async (
         phoneNumber: receiver.phoneNumber,
         username: receiver.username,
         avatar: receiver.avatar,
-        createdAt: receiver.createdAt,
+        about: receiver.about,
+        createdAt: Conversation.createdAt,
         isOnline: !!socketId,
+        hasBlockedMe: blockedUsersStr.includes(userId),
+        isBlockedByMe: blockedByUsersStr.includes(userId),
       };
     })
   );

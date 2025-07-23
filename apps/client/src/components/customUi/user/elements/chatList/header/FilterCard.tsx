@@ -1,26 +1,13 @@
 import ButtonIcon from '@client/components/customUi/commonElemets/ButtonIcon';
 import { Card } from '@client/components/ui/card';
+import { filterOptions } from '@client/constants/userConstant/chatListConstants';
 import { RefObject } from 'react';
-import { LuUserRoundCheck, LuUserRoundX } from 'react-icons/lu';
-import {
-  MdOutlineMarkUnreadChatAlt,
-  MdFavoriteBorder,
-  MdEdit,
-} from 'react-icons/md';
 
 function FilterCard({
   filterRef,
 }: {
   filterRef: RefObject<HTMLDivElement | null>;
 }) {
-  const filterOptions = [
-    { icon: MdOutlineMarkUnreadChatAlt, label: 'Unread' },
-    { icon: MdFavoriteBorder, label: 'Favorite' },
-    { icon: LuUserRoundCheck, label: 'Contact' },
-    { icon: LuUserRoundX, label: 'Non-Contact' },
-    { icon: MdEdit, label: 'DraftsDraftsDraftsss' },
-  ];
-
   const handleFilters = (label: string) => {
     // if (label === 'Filter') {
     //   if (activeTab === 'Filter') {

@@ -2,7 +2,7 @@ import ButtonIcon from '@client/components/customUi/commonElemets/ButtonIcon';
 import { Input } from '@client/components/ui/input';
 import { FaSearch } from 'react-icons/fa';
 
-function ChatSearch() {
+function ChatSearch({ tab }: { tab: string }) {
   return (
     <div className="flex flex-col items-start gap-2.5 px-6 py-3 self-stretch w-full">
       <div className="flex h-12 items-center gap-2.5 px-4 py-2.5  self-stretch w-full bg-[#f3f3f3] rounded-[6px] overflow-hidden">
@@ -13,7 +13,13 @@ function ChatSearch() {
         />
         <Input
           className="border-0 bg-transparent h-auto p-1 shadow-none focus-visible:ring-0 placeholder:opacity-40 placeholder:text-black text-sm"
-          placeholder="Search Chat"
+          placeholder={
+            tab === 'DMs'
+              ? 'Search Chats'
+              : tab === 'Groups'
+              ? 'Search Group Chats'
+              : 'Search a Call'
+          }
         />
       </div>
     </div>

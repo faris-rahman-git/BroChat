@@ -14,7 +14,8 @@ type DataTableProps<T> = {
   searchValue: string;
   setSearchValue: React.Dispatch<React.SetStateAction<string>>;
   isPending: boolean;
-  children?: ReactNode; // ✅ for filters/buttons/etc.
+  children?: ReactNode;
+  tableHeader: string;
 };
 
 function DataTable<T extends object>({
@@ -24,6 +25,7 @@ function DataTable<T extends object>({
   setSearchValue,
   isPending,
   children,
+  tableHeader,
 }: DataTableProps<T>) {
   const table = useReactTable({
     columns,
@@ -37,7 +39,7 @@ function DataTable<T extends object>({
         {/* Header Section */}
         <div className="py-4 px-6 border-b border-gray-200 bg-white">
           <div className="flex justify-between items-center">
-            <h4 className="font-medium text-lg">All Users List</h4>
+            <h4 className="font-medium text-lg">{tableHeader}</h4>
             <div>{children}</div>
           </div>
           <div className="mt-4">
@@ -53,7 +55,7 @@ function DataTable<T extends object>({
         {/* Table Section */}
         <div className="px-6 py-4 overflow-y-auto">
           <div className="min-w-[800px] rounded-[6px] overflow-hidden border">
-            <table className="table-auto w-full text-sm text-center border-collapse ">
+            <table className="table-auto w-full text-sm text-center border-collapse overflow-auto">
               <thead className="bg-[#F5F5F5] border-b border-gray-100 h-[50px]">
                 {table.getHeaderGroups().map((headerGroup) => (
                   <tr key={headerGroup.id}>
@@ -113,6 +115,7 @@ function DataTable<T extends object>({
             </table>
           </div>
         </div>
+        
       </div>
     </div>
   );

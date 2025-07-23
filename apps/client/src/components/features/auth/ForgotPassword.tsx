@@ -3,14 +3,17 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import FixedLogo from '../../customUi/auth/FixedLogo';
 import AuthHeading from '../../customUi/auth/AuthHeading';
-import { forgotPasswordFormFields } from '../../../constants/authConstants';
+import { forgotPasswordFormFields } from '../../../constants/authConstant/authConstants';
 import InputBlock from '../../customUi/auth/InputBlock';
 import AuthNextButton from '../../customUi/auth/AuthNextButton';
 import SocialLogin from '../../customUi/auth/SocialLogin';
 import SwitchBWLoginAndRegister from '../../customUi/auth/SwitchBWLoginAndRegister';
 import MainSideImage from '../../customUi/auth/MainSideImage';
 import { forgotPasswordSchema, ForgotPasswordSchemaType } from '@bro/shared';
-import { showLoader, hideLoader } from '@client/redux/features/LoaderSlice';
+import {
+  showLoader,
+  hideLoader,
+} from '@client/redux/features/commonSlices/LoaderSlice';
 import { useEffect } from 'react';
 import { useAppDispatch } from '@client/hooks/commonHooks/useAppDispatch';
 import { useNavigate } from 'react-router-dom';
@@ -18,12 +21,12 @@ import { useForgotPassword } from '@client/hooks/auth/useForgotPassword';
 import {
   clearRegisterData,
   setRegisterData,
-} from '@client/redux/features/authSlice';
+} from '@client/redux/features/userSlices/authSlices/authSlice';
 import Errorspan from '@client/components/customUi/auth/Errorspan';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
 import { RootState } from '@client/redux/store';
-import { setError } from '@client/redux/features/errorSlice';
+import { setError } from '@client/redux/features/userSlices/authSlices/errorSlice';
 
 function ForgotPassword() {
   const {
@@ -51,11 +54,7 @@ function ForgotPassword() {
   };
 
   useEffect(() => {
-    if (isPending) {
-      dispatch(showLoader());
-    } else {
-      dispatch(hideLoader());
-    }
+    dispatch(isPending ? showLoader() : hideLoader());
   }, [isPending]);
 
   useEffect(() => {

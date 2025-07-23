@@ -1,4 +1,4 @@
-import { AllUsersType, DeletedUserListType } from '@bro/shared';
+import { AllUsersType, GroupMember } from '@bro/shared';
 import { saveUserType } from '../../domain/entities/auth';
 import { SearchRawType } from '../../domain/entities/homeTypes';
 import {
@@ -15,7 +15,7 @@ export interface iUserRepo {
   findMatchUsers(searchData: string, userId: string): Promise<SearchRawType[]>;
   findDetailsById(userId: string): Promise<Omit<SearchRawType, '_id'>>;
   findAllUsersWithSearch(query: FilterQuery<any>): Promise<AllUsersType[]>;
-  findDeletedUsers(searchValue: string): Promise<DeletedUserListType[]>;
+  findDeletedUsers(searchValue: string): Promise<AllUsersType[]>;
   updateBlockStatus(userId: string, isBlocked: boolean): Promise<void>;
   updateSoftDeleteStatus(
     userId: string,
@@ -23,4 +23,7 @@ export interface iUserRepo {
     deletedBy: string
   ): Promise<void>;
   deleteUser(userId: string): Promise<void>;
+  getUsersMinimalDetails(userIds: string[]): Promise<GroupMember[]>;
+  blockUser(userId: string, receiverId: string): Promise<void>;
+  unblockUser(userId: string, receiverId: string): Promise<void>;
 }

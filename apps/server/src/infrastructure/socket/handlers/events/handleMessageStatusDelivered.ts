@@ -12,10 +12,12 @@ export const handleMessageStatusDelivered = async (socket: Socket) => {
     ) => {
       try {
         const messRepo = new messageRepo();
+        const receiverId = socket.user?.id as string;
         await updateMessageStatus(
+          messRepo,
           data.messageId,
           data.senderId,
-          messRepo,
+          receiverId,
           data.status
         );
         if (typeof ack === 'function') ack(true);

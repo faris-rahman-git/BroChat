@@ -1,6 +1,6 @@
-import { useEffect } from "react";
-import { useAppDispatch } from "@client/hooks/commonHooks/useAppDispatch";
-import { clearError } from "@client/redux/features/errorSlice";
+import { useEffect } from 'react';
+import { useAppDispatch } from '@client/hooks/commonHooks/useAppDispatch';
+import { clearError } from '@client/redux/features/userSlices/authSlices/errorSlice';
 
 //clear error message on back and forward
 const ClearErrorOnBackForward = () => {
@@ -11,10 +11,10 @@ const ClearErrorOnBackForward = () => {
       dispatch(clearError());
     };
 
-    window.addEventListener("popstate", handlePopState);
+    window.addEventListener('popstate', handlePopState);
 
     return () => {
-      window.removeEventListener("popstate", handlePopState);
+      window.removeEventListener('popstate', handlePopState);
     };
   }, [dispatch]);
 

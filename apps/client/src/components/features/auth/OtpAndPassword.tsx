@@ -4,10 +4,13 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAppDispatch } from '../../../hooks/commonHooks/useAppDispatch';
 import { useOtpAndPassword } from '../../../hooks/auth/useOtpAndPassword';
-import { hideLoader, showLoader } from '../../../redux/features/LoaderSlice';
+import {
+  showLoader,
+  hideLoader,
+} from '@client/redux/features/commonSlices/LoaderSlice';
 import FixedLogo from '../../customUi/auth/FixedLogo';
 import AuthHeading from '../../customUi/auth/AuthHeading';
-import { otpAndPasswordFormFields } from '../../../constants/authConstants';
+import { otpAndPasswordFormFields } from '../../../constants/authConstant/authConstants';
 import InputBlock from '../../customUi/auth/InputBlock';
 import AuthNextButton from '../../customUi/auth/AuthNextButton';
 import MainSideImage from '../../customUi/auth/MainSideImage';
@@ -18,10 +21,10 @@ import {
 import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '@client/redux/store';
-import { clearRegisterData } from '@client/redux/features/authSlice';
+import { clearRegisterData } from '@client/redux/features/userSlices/authSlices/authSlice';
 import Errorspan from '@client/components/customUi/auth/Errorspan';
 import axios from 'axios';
-import { setError } from '@client/redux/features/errorSlice';
+import { setError } from '@client/redux/features/userSlices/authSlices/errorSlice';
 
 function OtpAndPassword() {
   const {
@@ -51,11 +54,7 @@ function OtpAndPassword() {
   };
 
   useEffect(() => {
-    if (isPending) {
-      dispatch(showLoader());
-    } else {
-      dispatch(hideLoader());
-    }
+    dispatch(isPending ? showLoader() : hideLoader());
   }, [isPending]);
 
   useEffect(() => {

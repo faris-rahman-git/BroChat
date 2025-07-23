@@ -16,8 +16,12 @@ interface ConfirmActionButtonProps {
   buttonClassName: string;
   buttonContent: string;
   modalTitle: string;
-  modalDescription: string;
+  modalDescription?: string;
+  confirmButtonContent?: string;
   onConfirm: () => void;
+  children?: React.ReactNode;
+  dialogClassName?: string;
+  isConfirmButtonDisabled?: boolean;
 }
 
 const ConfirmActionButton = ({
@@ -27,6 +31,10 @@ const ConfirmActionButton = ({
   modalTitle,
   modalDescription,
   onConfirm,
+  confirmButtonContent = 'Confirm',
+  children,
+  dialogClassName,
+  isConfirmButtonDisabled = false,
 }: ConfirmActionButtonProps) => {
   const [open, setOpen] = useState(false);
 
@@ -49,13 +57,17 @@ const ConfirmActionButton = ({
         </ButtonIcon>
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-[400px]">
+      <DialogContent className={`sm:max-w-[400px] ${dialogClassName}`}>
         <DialogHeader>
           <DialogTitle>{modalTitle}</DialogTitle>
-          <DialogDescription className="py-3">
-            {modalDescription}
-          </DialogDescription>
+          {modalDescription && (
+            <DialogDescription className="py-3">
+              {modalDescription}
+            </DialogDescription>
+          )}
         </DialogHeader>
+
+        {children}
         <DialogFooter>
           <Button
             variant="outline"
@@ -64,12 +76,14 @@ const ConfirmActionButton = ({
           >
             Cancel
           </Button>
-          <Button
-            onClick={handleConfirm}
-            className="bg-red-600 hover:bg-red-700 text-white hover:cursor-pointer"
-          >
-            Confirm
-          </Button>
+          {!isConfirmButtonDisabled && (
+            <Button
+              onClick={handleConfirm}
+              className="bg-red-600 hover:bg-red-700 text-white hover:cursor-pointer"
+            >
+              {confirmButtonContent}
+            </Button>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -1,59 +1,138 @@
 import ChatList from '@client/components/customUi/user/panels/ChatList';
-import { setChatListSize } from '@client/redux/features/chatListSizeSlice';
+import { setChatListSize } from '@client/redux/features/commonSlices/chatListSizeSlice';
 import { RootState } from '@client/redux/store';
 import { useSelector } from 'react-redux';
 import CustomResizablePanels from '../../customUi/commonElemets/CustomResizablePanels';
 import WellCome from '@client/components/customUi/user/panels/WellCome';
 import ChatPanel from '@client/components/customUi/user/panels/ChatPanel';
 import { getSocket } from '@client/configs/socket';
-import { useEffect, useState } from 'react';
-import { MessageType, SearchResultType } from '@bro/shared';
+import { useCallback, useEffect } from 'react';
+import {
+  EditMessageType,
+  GroupChatListType,
+  GroupMember,
+  MessageType,
+  SearchResultType,
+  updateGroupInfoType,
+} from '@bro/shared';
 import { useAppDispatch } from '@client/hooks/commonHooks/useAppDispatch';
-import { addNewMessage } from '@client/redux/features/newMessagesSlice';
+import {
+  addNewMessage,
+  deleteOneMessage,
+  editOneMessage,
+} from '@client/redux/features/userSlices/homeSlices/messageSlice/newMessagesSlice';
 import { emitWithQueue } from '@client/lib/socket/emitWithQueue';
-import { useChatList } from '@client/hooks/home/useChatList';
-import { setTypingStatus } from '@client/redux/features/activeReceiverSlice';
+import {
+  clearActiveReceiver,
+  setTypingStatus,
+  updateActiveReceiver,
+  updateBlockUserStatus,
+} from '@client/redux/features/userSlices/homeSlices/commonSlices/activeReceiverSlice';
+import {
+  showLoader,
+  hideLoader,
+} from '@client/redux/features/commonSlices/LoaderSlice';
+import { useOneToOneChatList } from '@client/hooks/home/dmHooks/useOneToOneChatList';
+import { useGroupChatList } from '@client/hooks/home/groupHooks/useGroupChatList';
+import {
+  addUserIfNotExists,
+  changeChatToTop,
+  setChatList,
+  setUserOnlineStatus,
+  setUserTypingStatus,
+  updateBlockedUser,
+} from '@client/redux/features/userSlices/homeSlices/dmSlices/oneToOneChatSlice';
+import {
+  addGroupIfNotExists,
+  addGroupMembers,
+  changeGroupChatToTop,
+  dismissGroupAdmin,
+  makeGroupAdmin,
+  removeGroupChat,
+  removeGroupMember,
+  setGroupChatList,
+  updateGroupInfo,
+} from '@client/redux/features/userSlices/homeSlices/groupSlice/groupChatSlice';
+import {
+  deleteMessage,
+  editMessage,
+} from '@client/redux/features/userSlices/homeSlices/messageSlice/messageHistorySlice';
 
 function Home() {
+  //redux
   const dispatch = useAppDispatch();
   const size = useSelector((state: RootState) => state.chatListSize.size);
-  const activeChatId = useSelector(
-    (state: RootState) => state.activeReceiver.conversationId
+  const activeReceiver = useSelector(
+    (state: RootState) => state.activeReceiver
+  );
+  const activeSectionTab = useSelector(
+    (state: RootState) => state.activeSectionTab.value
+  );
+  const oneToOneChatListData = useSelector(
+    (state: RootState) => state.oneToOneChat.chatList
+  );
+  const groupChatListData = useSelector(
+    (state: RootState) => state.groupChat.groupList
   );
 
-  const [chatListData, setChatListData] = useState<SearchResultType[]>([]);
-  const { isPending, isSuccess, isError, mutate, error, data } = useChatList();
+  //api hooks
+  const {
+    isPending: oneToOneIsPending,
+    isSuccess: oneToOneIsSuccess,
+    isError: oneToOneIsError,
+    mutate: oneToOneMutate,
+    error: oneToOneError,
+    data: oneToOneData,
+  } = useOneToOneChatList();
+  const {
+    isPending: groupIsPending,
+    isSuccess: groupIsSuccess,
+    isError: groupIsError,
+    mutate: groupMutate,
+    error: groupError,
+    data: groupData,
+  } = useGroupChatList();
 
   useEffect(() => {
-    mutate();
+    oneToOneMutate();
+    groupMutate();
   }, []);
 
   useEffect(() => {
-    if (isSuccess) {
-      setChatListData(data.usersList);
+    if (oneToOneIsSuccess) {
+      dispatch(setChatList(oneToOneData.usersList));
     }
-  }, [isSuccess]);
-
+  }, [oneToOneIsSuccess]);
   useEffect(() => {
-    if (isError) {
-      console.log(error.message);
+    if (groupIsSuccess) {
+      dispatch(setGroupChatList(groupData.groupList));
     }
-  }, [isError]);
-
+  }, [groupIsSuccess]);
   useEffect(() => {
-    if (isPending) {
-      console.log('Loading...');
+    if (oneToOneIsError) {
+      console.log(oneToOneError.message);
     }
-  }, [isPending]);
+    if (groupIsError) {
+      console.log(groupError.message);
+    }
+  }, [oneToOneIsError, groupIsError]);
+  useEffect(() => {
+    const isLoading = oneToOneIsPending || groupIsPending;
+    dispatch(isLoading ? showLoader() : hideLoader());
+  }, [oneToOneIsPending, groupIsPending]);
 
-  const handleResize = (newSize: number) => {
-    dispatch(setChatListSize(newSize));
-  };
+  const handleResize = useCallback(
+    (newSize: number) => {
+      dispatch(setChatListSize(newSize));
+    },
+    [dispatch]
+  );
 
   useEffect(() => {
     const socket = getSocket();
     if (!socket) return;
 
+    // 1. New message
     const handleNewMessage = async (
       data: MessageType,
       ack?: (status: boolean) => void
@@ -63,6 +142,16 @@ function Home() {
         addNewMessage({
           conversationId: data.conversationId as string,
           message: data,
+        })
+      );
+      dispatch(
+        changeChatToTop({
+          conversationId: data.conversationId as string,
+        })
+      );
+      dispatch(
+        changeGroupChatToTop({
+          conversationId: data.conversationId as string,
         })
       );
       try {
@@ -79,69 +168,250 @@ function Home() {
       }
     };
 
-    socket.on('new-message', handleNewMessage);
-
-    return () => {
-      socket.off('new-message', handleNewMessage);
-    };
-  }, [activeChatId]);
-
-  // Update user online status and typing status
-  useEffect(() => {
-    const socket = getSocket();
-    if (!socket) return;
-
+    // 2. Online/offline status
     const updateUserOnlineStatus = (userId: string, status: boolean) => {
-      setChatListData((prev) =>
-        prev.map((user) =>
-          user.receiverId === userId ? { ...user, isOnline: status } : user
-        )
-      );
+      dispatch(setUserOnlineStatus({ userId, status }));
     };
-
-    socket.on('user-online', (userId, ack?: (status: boolean) => void) => {
+    const handleUserOnline = (
+      userId: string,
+      ack?: (status: boolean) => void
+    ) => {
       if (typeof ack === 'function') ack(true);
       updateUserOnlineStatus(userId, true);
-    });
-    socket.on('user-offline', (userId, ack?: (status: boolean) => void) => {
+    };
+    const handleUserOffline = (
+      userId: string,
+      ack?: (status: boolean) => void
+    ) => {
       if (typeof ack === 'function') ack(true);
       updateUserOnlineStatus(userId, false);
-    });
+    };
 
-    const handleTypingStatus = ({
-      senderId,
-      status,
-    }: {
-      senderId: string;
-      status: boolean;
-    },
-    ack?: (status: boolean) => void) => {
+    // 3. Typing status
+    const handleTypingStatus = (
+      {
+        senderId,
+        status,
+      }: {
+        senderId: string;
+        status: boolean;
+      },
+      ack?: (status: boolean) => void
+    ) => {
       if (typeof ack === 'function') ack(true);
-      setChatListData((prev) =>
-        prev.map((user) =>
-          user.receiverId === senderId ? { ...user, isTyping: status } : user
-        )
-      );
+      dispatch(setUserTypingStatus({ senderId, status }));
       dispatch(setTypingStatus({ status }));
     };
 
+    // 4. New chats (DM or Group)
+    const handleNewUserChat = (
+      data: SearchResultType,
+      ack?: (status: boolean) => void
+    ) => {
+      if (typeof ack === 'function') ack(true);
+
+      dispatch(addUserIfNotExists(data));
+    };
+    const handleNewGroupChat = (
+      data: GroupChatListType,
+      ack?: (status: boolean) => void
+    ) => {
+      if (typeof ack === 'function') ack(true);
+
+      dispatch(addGroupIfNotExists(data));
+    };
+
+    // 5. Delete message update
+    const handleDeleteMessage = async (
+      data: { conversationId: string; messageId: string },
+      ack?: (status: boolean) => void
+    ) => {
+      if (typeof ack === 'function') ack(true);
+      dispatch(
+        deleteMessage({
+          conversationId: data.conversationId,
+          messageId: data.messageId,
+        })
+      );
+      dispatch(
+        deleteOneMessage({
+          conversationId: data.conversationId,
+          messageId: data.messageId,
+        })
+      );
+    };
+
+    //6. edit message update
+    const handleEditMessage = async (
+      data: EditMessageType,
+      ack?: (status: boolean) => void
+    ) => {
+      if (typeof ack === 'function') ack(true);
+      dispatch(editMessage(data));
+      dispatch(editOneMessage(data));
+    };
+
+    //7. remove group chat
+    const handleRemoveGroupChat = async (
+      data: { conversationId: string },
+      ack?: (status: boolean) => void
+    ) => {
+      if (typeof ack === 'function') ack(true);
+      dispatch(removeGroupChat(data.conversationId));
+      dispatch(clearActiveReceiver(data.conversationId));
+    };
+
+    //8. remove group member
+    const handleRemoveGroupMember = async (
+      data: { conversationId: string; memberId: string },
+      ack?: (status: boolean) => void
+    ) => {
+      if (typeof ack === 'function') ack(true);
+      dispatch(
+        removeGroupMember({
+          conversationId: data.conversationId,
+          memberId: data.memberId,
+        })
+      );
+    };
+
+    //9. make group admin
+    const handleMakeGroupAdmin = async (
+      data: { conversationId: string; memberId: string },
+      ack?: (status: boolean) => void
+    ) => {
+      if (typeof ack === 'function') ack(true);
+      dispatch(
+        makeGroupAdmin({
+          conversationId: data.conversationId!,
+          memberId: data.memberId,
+        })
+      );
+    };
+
+    //10. dismiss group admin
+    const handleDismissGroupAdmin = async (
+      data: { conversationId: string; memberId: string },
+      ack?: (status: boolean) => void
+    ) => {
+      if (typeof ack === 'function') ack(true);
+      dispatch(
+        dismissGroupAdmin({
+          conversationId: data.conversationId!,
+          memberId: data.memberId,
+        })
+      );
+    };
+
+    //11. add group members
+    const handleAddGroupMembers = async (
+      data: { newMemberDetails: GroupMember[]; conversationId: string },
+      ack?: (status: boolean) => void
+    ) => {
+      if (typeof ack === 'function') ack(true);
+      dispatch(
+        addGroupMembers({
+          conversationId: data.conversationId!,
+          newMemberDetails: data.newMemberDetails,
+        })
+      );
+    };
+
+    //12. update group info
+    const handleUpdateGroupInfo = async (
+      data: { conversationId: string; groupInfo: updateGroupInfoType },
+      ack?: (status: boolean) => void
+    ) => {
+      if (typeof ack === 'function') ack(true);
+      dispatch(
+        updateGroupInfo({
+          conversationId: data.conversationId!,
+          groupInfo: data.groupInfo,
+        })
+      );
+      dispatch(
+        updateActiveReceiver({
+          conversationId: data.conversationId!,
+          groupInfo: data.groupInfo,
+        })
+      );
+    };
+
+    //13. block user update
+    const handleBlockUser = async (
+      data: {
+        conversationId: string;
+        hasBlockedMe?: boolean;
+      },
+      ack?: (status: boolean) => void
+    ) => {
+      if (typeof ack === 'function') ack(true);
+      dispatch(
+        updateBlockedUser({
+          conversationId: data.conversationId,
+          hasBlockedMe: data.hasBlockedMe,
+        })
+      );
+      dispatch(
+        updateBlockUserStatus({
+          conversationId: data.conversationId,
+          hasBlockedMe: data.hasBlockedMe,
+        })
+      );
+    };
+
+    //  Attach all listener
+    socket.on('new-message', handleNewMessage);
+    socket.on('user-online', handleUserOnline);
+    socket.on('user-offline', handleUserOffline);
     socket.on('typing-status', handleTypingStatus);
+    socket.on('new-group-chat', handleNewGroupChat);
+    socket.on('new-user-chat', handleNewUserChat);
+    socket.on('delete-message', handleDeleteMessage);
+    socket.on('edit-message-update', handleEditMessage);
+    socket.on('remove-group-chat', handleRemoveGroupChat);
+    socket.on('remove-group-member', handleRemoveGroupMember);
+    socket.on('make-group-admin', handleMakeGroupAdmin);
+    socket.on('dismiss-group-admin', handleDismissGroupAdmin);
+    socket.on('add-group-members', handleAddGroupMembers);
+    socket.on('update-group-info', handleUpdateGroupInfo);
+    socket.on('block-user-update', handleBlockUser);
 
     return () => {
-      socket.off('user-online');
-      socket.off('user-offline');
+      socket.off('new-message', handleNewMessage);
+      socket.off('user-online', handleUserOnline);
+      socket.off('user-offline', handleUserOffline);
+      socket.off('typing-status', handleTypingStatus);
+      socket.off('new-user-chat', handleNewUserChat);
+      socket.off('new-group-chat', handleNewGroupChat);
+      socket.off('delete-message', handleDeleteMessage);
+      socket.off('edit-message-update', handleEditMessage);
+      socket.off('remove-group-chat', handleRemoveGroupChat);
+      socket.off('remove-group-member', handleRemoveGroupMember);
+      socket.off('make-group-admin', handleMakeGroupAdmin);
+      socket.off('dismiss-group-admin', handleDismissGroupAdmin);
+      socket.off('add-group-members', handleAddGroupMembers);
+      socket.off('update-group-info', handleUpdateGroupInfo);
+      socket.off('block-user-update', handleBlockUser);
     };
   }, []);
 
   return (
     <CustomResizablePanels
       left={
-        <ChatList
-          chatListData={chatListData}
-          setChatListData={setChatListData}
-        />
+        activeSectionTab === 'DMs' ? (
+          <ChatList<SearchResultType>
+            chatListData={oneToOneChatListData}
+            activeSectionTab={activeSectionTab}
+          />
+        ) : (
+          <ChatList<GroupChatListType>
+            chatListData={groupChatListData}
+            activeSectionTab={activeSectionTab}
+          />
+        )
       }
-      right={activeChatId == '' ? <WellCome /> : <ChatPanel />}
+      right={activeReceiver.conversationId == '' ? <WellCome /> : <ChatPanel />}
       minSize={350}
       maxSize={600}
       onResize={handleResize}

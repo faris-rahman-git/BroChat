@@ -14,11 +14,12 @@ const messageSchema = new mongoose.Schema({
   },
   MessageType: {
     type: String,
-    enum: ['text', 'image', 'video', 'voice', 'document'],
+    enum: ['text', 'gif' ,'image', 'video', 'voice', 'document'],
     required: true,
   },
   content: { type: String },
   mediaUrl: { type: String },
+  recipients: [{ type: mongoose.Schema.Types.ObjectId, ref: 'userModel' }],
   deliveredBy: [
     {
       userId: { type: mongoose.Schema.Types.ObjectId, ref: 'userModel' },
@@ -31,6 +32,8 @@ const messageSchema = new mongoose.Schema({
       time: { type: Date, default: Date.now },
     },
   ],
+  deletedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'userModel' }],
+  isEdited: { type: Boolean, default: false },
   status: {
     type: String,
     enum: ['sending', 'sent', 'delivered', 'seen'],

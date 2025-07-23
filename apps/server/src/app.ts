@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
-import rateLimit from 'express-rate-limit';
+// import rateLimit from 'express-rate-limit';
 import nocache from 'nocache';
 import cookieParser from 'cookie-parser';
 import adminRoutes from './interfaces/http/routes/adminRoutes';

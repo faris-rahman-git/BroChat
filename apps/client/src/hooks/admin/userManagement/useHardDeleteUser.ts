@@ -1,4 +1,4 @@
-import { hardDeleteUserApi } from '@client/services/adminServices';
+import { hardDeleteUserApi } from '@client/services/admin/userServices';
 import { useMutation } from '@tanstack/react-query';
 
 export const useHardDeleteUser = () => {

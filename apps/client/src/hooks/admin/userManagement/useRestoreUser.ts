@@ -1,4 +1,4 @@
-import { restoreUserApi } from '@client/services/adminServices';
+import { restoreUserApi } from '@client/services/admin/userServices';
 import { useMutation } from '@tanstack/react-query';
 
 export const useRestoreUser = () => {

@@ -8,11 +8,14 @@ import { useRegister } from '../../../hooks/auth/useRegister';
 import {
   clearRegisterData,
   setRegisterData,
-} from '../../../redux/features/authSlice';
-import { hideLoader, showLoader } from '../../../redux/features/LoaderSlice';
+} from '../../../redux/features/userSlices/authSlices/authSlice';
+import {
+  showLoader,
+  hideLoader,
+} from '@client/redux/features/commonSlices/LoaderSlice';
 import FixedLogo from '../../customUi/auth/FixedLogo';
 import AuthHeading from '../../customUi/auth/AuthHeading';
-import { registerFormFields } from '../../../constants/authConstants';
+import { registerFormFields } from '../../../constants/authConstant/authConstants';
 import InputBlock from '../../customUi/auth/InputBlock';
 import AuthNextButton from '../../customUi/auth/AuthNextButton';
 import SocialLogin from '../../customUi/auth/SocialLogin';
@@ -23,7 +26,7 @@ import Errorspan from '@client/components/customUi/auth/Errorspan';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
 import { RootState } from '@client/redux/store';
-import { setError } from '@client/redux/features/errorSlice';
+import { setError } from '@client/redux/features/userSlices/authSlices/errorSlice';
 
 function Register() {
   const {
@@ -51,11 +54,7 @@ function Register() {
   };
 
   useEffect(() => {
-    if (isPending) {
-      dispatch(showLoader());
-    } else {
-      dispatch(hideLoader());
-    }
+    dispatch(isPending ? showLoader() : hideLoader());
   }, [isPending]);
 
   useEffect(() => {

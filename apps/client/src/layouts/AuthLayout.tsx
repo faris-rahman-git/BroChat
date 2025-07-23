@@ -1,6 +1,6 @@
-import bg1 from "../assets/auth/login.webp";
-import bg2 from "../assets/auth/bgImage.webp";
-import { Card } from "../components/ui/card";
+import bg1 from '../assets/auth/login.webp';
+import bg2 from '../assets/auth/bgImage.webp';
+import { Card } from '../components/ui/card';
 
 function AuthLayout({ children }: { children: React.ReactNode }) {
   return (

@@ -3,12 +3,19 @@ import { iMessageRepo } from '../../interfaces/iMessageRepo';
 import { emitWithQueueServer } from '../../../infrastructure/socket/handlers/offlineQueue/emitWithQueueServer';
 
 export const updateMessageStatus = async (
+  messRepo: iMessageRepo,
   messageId: string,
   senderId: string,
-  messRepo: iMessageRepo,
+  receiverId: string,
   status: MessageStatusType
 ) => {
-  await messRepo.updateMessageStatus(messageId, status);
+  const newStatus = await messRepo.updateMessageStatus(
+    messageId,
+    receiverId,
+    status
+  );
+
+  if (!newStatus) return;
 
   await emitWithQueueServer({
     userId: senderId,

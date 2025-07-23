@@ -4,7 +4,7 @@ dotenv.config();
 import app from './app';
 import connectMongo from './config/db';
 import { Server } from 'socket.io';
-import { setupSocket } from './infrastructure/socket';
+import { setupSocket } from './interfaces/socket';
 const PORT = process.env.PORT || 5000;
 
 // Create HTTP server using Express app

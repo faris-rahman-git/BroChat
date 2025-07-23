@@ -1,4 +1,3 @@
-import { ObjectId } from 'mongoose';
 import { iConversationRepo } from '../../interfaces/iConversationRepo';
 
 export const getReceiverId = async (
@@ -6,9 +5,13 @@ export const getReceiverId = async (
   conversationId: string,
   userId: string
 ) => {
-  const conversation = await conRepo.findReceiverId(conversationId);
-  const receiverId = conversation.participants.find(
-    (id: ObjectId) => id.toString() !== userId
-  )!;
-  return receiverId.toString();
+  const conversations = await conRepo.findReceiverId(conversationId);
+
+  const result: string[] = [];
+  for (const receiverId of conversations.participants) {
+    if (receiverId.toString() != userId) {
+      result.push(receiverId.toString());
+    }
+  }
+  return result;
 };

@@ -1,7 +1,7 @@
 import { FaFacebookF, FaGithub, FaGoogle } from 'react-icons/fa';
 import { Button } from '../../ui/button';
 import { useAppDispatch } from '@client/hooks/commonHooks/useAppDispatch';
-import { setLoading } from '@client/redux/features/userSlice';
+import { setLoading } from '@client/redux/features/userSlices/authSlices/userSlice';
 
 function SocialLogin() {
   const socialLogins = [

@@ -1,6 +1,9 @@
-import { removeEventAtIndex, addEventToQueue } from "@client/redux/features/socket/offlineQueueSlice";
-import { store } from "@client/redux/store";
-import { EventEmitType } from "../../../../../libs/shared/src/lib/types/socket/socketTypes";
+import {
+  removeEventAtIndex,
+  addEventToQueue,
+} from '@client/redux/features/socket/offlineQueueSlice';
+import { store } from '@client/redux/store';
+import { EventEmitType } from '../../../../../libs/shared/src/lib/types/socket/socketTypes';
 
 export const optimizeAndQueue = ({ event, data }: EventEmitType) => {
   const state = store.getState();

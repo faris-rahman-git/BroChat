@@ -1,8 +1,8 @@
 import ButtonIcon from '@client/components/customUi/commonElemets/ButtonIcon';
 import { useLogout } from '@client/hooks/auth/useLogout';
 import { useAppDispatch } from '@client/hooks/commonHooks/useAppDispatch';
-import { showLoader, hideLoader } from '@client/redux/features/LoaderSlice';
-import { logout } from '@client/redux/features/userSlice';
+import { showLoader, hideLoader } from '@client/redux/features/commonSlices/LoaderSlice';
+import { logout } from '@client/redux/features/userSlices/authSlices/userSlice';
 import { useEffect } from 'react';
 import { LuLogOut } from 'react-icons/lu';
 import { useNavigate } from 'react-router-dom';

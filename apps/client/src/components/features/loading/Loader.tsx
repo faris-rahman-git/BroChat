@@ -1,5 +1,5 @@
-import { Quantum } from "ldrs/react";
-import "ldrs/react/Quantum.css";
+import { Quantum } from 'ldrs/react';
+import 'ldrs/react/Quantum.css';
 
 function Loader() {
   return (

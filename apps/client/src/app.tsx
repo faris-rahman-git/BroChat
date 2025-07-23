@@ -6,7 +6,7 @@ import Routers from './router/Routers';
 import './App.css';
 import { useEffect } from 'react';
 import { useAppDispatch } from './hooks/commonHooks/useAppDispatch';
-import { setOnline } from './redux/features/browserOnlineSlice';
+import { setOnline } from './redux/features/commonSlices/browserOnlineSlice';
 
 function App() {
   const loadingStatus = useSelector((state: RootState) => state.loader.status);

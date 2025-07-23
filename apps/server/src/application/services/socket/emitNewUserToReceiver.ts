@@ -1,6 +1,7 @@
 import { getSocketIdByUserId } from '../../../infrastructure/services/socketServices/getReceiverSocketId';
 import { emitWithQueueServer } from '../../../infrastructure/socket/handlers/offlineQueue/emitWithQueueServer';
 import { iUserRepo } from '../../interfaces/iUserRepo';
+import { SearchResultType } from '@bro/shared';
 
 export const emitNewUserToReceiver = async (
   repo: iUserRepo,
@@ -9,20 +10,35 @@ export const emitNewUserToReceiver = async (
   conversationId: string
 ) => {
   const userDetails = await repo.findDetailsById(userId);
+  const receiverDetails = await repo.findDetailsById(receiverId);
 
-  const socketId = await getSocketIdByUserId(userId);
+  const senderSocketId = await getSocketIdByUserId(userId);
+  const receiverSocketId = await getSocketIdByUserId(receiverId);
 
-  const payload = {
+  const senderPayload: SearchResultType = {
     ...userDetails,
     conversationId,
     receiverId: userId,
-    isOnline: !!socketId,
+    isOnline: !!senderSocketId,
+  };
+
+  const receiverPayload: SearchResultType = {
+    ...receiverDetails,
+    conversationId,
+    receiverId,
+    isOnline: !!receiverSocketId,
   };
 
   await emitWithQueueServer({
     userId: receiverId,
     event: 'new-user-chat',
-    data: payload,
+    data: senderPayload,
+    isDirect: true,
+  });
+  await emitWithQueueServer({
+    userId: userId,
+    event: 'new-user-chat',
+    data: receiverPayload,
     isDirect: true,
   });
 };

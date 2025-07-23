@@ -6,16 +6,23 @@ import { useRef } from 'react';
 import useClickOutside from '@client/hooks/commonHooks/useClickOutside';
 import AddUserCard from './header/AddUserCard';
 import FilterCard from './header/FilterCard';
+import { MdAddCall, MdOutlineGroupAdd } from 'react-icons/md';
+import CreateNewGroup from './header/CreateNewGroup';
+import { useSelector } from 'react-redux';
+import { RootState } from '@client/redux/store';
 
-function Header() {
+function Header({ tab }: { tab: string }) {
   const [activeTab, setActiveTab] = useState('');
-
+  const oneToOneChatListData = useSelector(
+    (state: RootState) => state.oneToOneChat.chatList
+  );
   const handleButtons = (label: string) => {
     setActiveTab(label);
   };
 
   const filterRef = useRef<HTMLDivElement>(null);
   const newChatRef = useRef<HTMLDivElement>(null);
+  const createGroupRef = useRef<HTMLDivElement>(null);
 
   useClickOutside({
     ref: filterRef,
@@ -31,10 +38,28 @@ function Header() {
     },
   });
 
-  const buttons = [
-    { icon: LuUserPlus, label: 'New Chat' },
-    { icon: LuFilter, label: 'Filter' },
-  ];
+  useClickOutside({
+    ref: createGroupRef,
+    onClickOutside: () => {
+      if (activeTab === 'Create Group') setActiveTab('');
+    },
+  });
+
+  const buttons =
+    tab === 'DMs'
+      ? [
+          { icon: LuUserPlus, label: 'New Chat' },
+          { icon: LuFilter, label: 'Filter' },
+        ]
+      : tab === 'Groups'
+      ? [
+          { icon: MdOutlineGroupAdd, label: 'Create Group' },
+          { icon: LuFilter, label: 'Filter' },
+        ]
+      : [
+          { icon: MdAddCall, label: 'Start Call' },
+          { icon: LuFilter, label: 'Filter' },
+        ];
 
   return (
     <header className="inline-flex flex-col items-center w-full py-3 h-[78px] border-b-[.5px] border-[#0000012]">
@@ -63,6 +88,13 @@ function Header() {
                 <AddUserCard
                   newChatRef={newChatRef}
                   setActiveTab={setActiveTab}
+                />
+              )}
+              {label === 'Create Group' && activeTab === 'Create Group' && (
+                <CreateNewGroup
+                  newChatRef={createGroupRef}
+                  setActiveTab={setActiveTab}
+                  oneToOneChatListData={oneToOneChatListData}
                 />
               )}
             </div>

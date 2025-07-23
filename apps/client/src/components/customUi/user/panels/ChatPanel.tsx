@@ -5,26 +5,40 @@ import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '@client/redux/store';
 import { getSocket } from '@client/configs/socket';
-import { usePrevMessages } from '@client/hooks/home/usePrevMessages';
 import { useAppDispatch } from '@client/hooks/commonHooks/useAppDispatch';
-import { hideLoader, showLoader } from '@client/redux/features/LoaderSlice';
-import { useCreateNewConversation } from '@client/hooks/home/useCreateNewConversation';
-import { setActiveReceiverConversationId } from '@client/redux/features/activeReceiverSlice';
-import { MessageStatusType, MessageType } from '@bro/shared';
+import {
+  showLoader,
+  hideLoader,
+} from '@client/redux/features/commonSlices/LoaderSlice';
+import { setActiveReceiverConversationId } from '@client/redux/features/userSlices/homeSlices/commonSlices/activeReceiverSlice';
+import { ContentType, MessageStatusType, MessageType } from '@bro/shared';
 import { v4 as uuidv4 } from 'uuid';
-import { removeOneConversation } from '@client/redux/features/newMessagesSlice';
+import { removeOneConversation } from '@client/redux/features/userSlices/homeSlices/messageSlice/newMessagesSlice';
 import { selectNewMessagesByConversation } from '@client/redux/selectors/newMessageSelectors';
 import { emitWithQueue } from '@client/lib/socket/emitWithQueue';
+import { usePrevMessages } from '@client/hooks/home/messageHooks/usePrevMessages';
+import { useCreateNewConversation } from '@client/hooks/home/dmHooks/useCreateNewConversation';
+import {
+  appendMessage,
+  replaceMessageByTempId,
+  setMessagesForConversation,
+  updateMessageStatus,
+} from '@client/redux/features/userSlices/homeSlices/messageSlice/messageHistorySlice';
+import { selectMessagesByConversation } from '@client/redux/selectors/selectMessagesByConversation';
+import { changeChatToTop } from '@client/redux/features/userSlices/homeSlices/dmSlices/oneToOneChatSlice';
+import { changeGroupChatToTop } from '@client/redux/features/userSlices/homeSlices/groupSlice/groupChatSlice';
 
 function ChatPanel() {
   const receiverDetails = useSelector(
     (state: RootState) => state.activeReceiver
   );
-  const activeChatId = receiverDetails.conversationId || '';
+  const activeChatId = receiverDetails?.conversationId || '';
   const newMessages = useSelector(
     selectNewMessagesByConversation(activeChatId)
   );
-  const [messages, setMessages] = useState<MessageType[]>([]);
+  const messages = useSelector((state: RootState) =>
+    selectMessagesByConversation(state, activeChatId)
+  );
   const userId = useSelector((state: RootState) => state.user.id);
   const activeSectionTab = useSelector(
     (state: RootState) => state.activeSectionTab.value
@@ -33,40 +47,47 @@ function ChatPanel() {
     (state: RootState) => state.browserOnlineStatus.isOnline
   );
   const dispatch = useAppDispatch();
-  const { isPending, isError, isSuccess, mutate, data, error } =
-    usePrevMessages();
+  const {
+    isPending: prevIsPending,
+    isError: prevIsError,
+    isSuccess: prevIsSuccess,
+    mutate: prevMutate,
+    data: prevData,
+    error: prevError,
+  } = usePrevMessages();
 
+  const [fetchedIds, setFetchedIds] = useState<Set<string>>(new Set());
   useEffect(() => {
-    if (activeChatId != '' && activeChatId) {
-      mutate(activeChatId as string);
-    } else {
-      setMessages([]);
+    if (!activeChatId || activeChatId === '') return;
+
+    if (!fetchedIds.has(activeChatId)) {
+      prevMutate(activeChatId);
+      setFetchedIds((prev) => new Set(prev).add(activeChatId));
     }
   }, [activeChatId]);
-
   useEffect(() => {
-    if (isSuccess) {
-      setMessages(data.messages);
+    if (prevIsSuccess) {
+      dispatch(
+        setMessagesForConversation({
+          conversationId: activeChatId,
+          messages: prevData.messages,
+        })
+      );
     }
-  }, [isSuccess]);
-
+  }, [prevIsSuccess]);
   useEffect(() => {
-    if (isError) {
-      console.log('Error: ', error);
+    if (prevIsError) {
+      console.log('Error: ', prevError);
     }
-  }, [isError]);
-
+  }, [prevIsError]);
   useEffect(() => {
-    if (isPending) {
-      dispatch(showLoader());
-    } else {
-      dispatch(hideLoader());
-    }
-  }, [isPending]);
-
+    dispatch(prevIsPending ? showLoader() : hideLoader());
+  }, [prevIsPending]);
   useEffect(() => {
     if (newMessages.length > 0) {
-      setMessages((prev) => [...prev, ...newMessages]);
+      newMessages.forEach((msg) => {
+        dispatch(appendMessage({ conversationId: activeChatId, message: msg }));
+      });
       dispatch(removeOneConversation(activeChatId));
 
       // Update message status to seen
@@ -107,28 +128,52 @@ function ChatPanel() {
         ack?: (status: boolean) => void
       ) => {
         if (typeof ack === 'function') ack(true);
-        setMessages((prev) =>
-          prev.map((msg) =>
-            msg.tempId === data.tempId ? data.savedMessage : msg
-          )
+        dispatch(
+          replaceMessageByTempId({
+            conversationId: data.savedMessage.conversationId as string,
+            tempId: data.tempId,
+            savedMessage: data.savedMessage,
+          })
         );
       }
     );
   };
 
-  const handleSendMessage = (content: string) => {
+  const handleSendMessage = ({
+    content,
+    mediaUrl,
+    MessageType,
+  }: {
+    content?: string;
+    mediaUrl?: string;
+    MessageType: ContentType;
+  }) => {
     const tempId = uuidv4();
 
     const newMessage: MessageType = {
       tempId,
       conversationId: activeChatId,
       senderId: userId as string,
-      MessageType: 'text',
+      MessageType: MessageType,
       content,
+      mediaUrl,
       status: 'sending',
       messageTime: new Date().toISOString(),
     };
-    setMessages((prev) => [...prev, newMessage]);
+
+    const tempConversationId = `temp-${tempId}`;
+    if (!activeChatId || activeChatId === '') {
+      dispatch(setActiveReceiverConversationId(tempConversationId));
+    }
+    dispatch(
+      appendMessage({
+        conversationId:
+          activeChatId != '' && activeChatId
+            ? activeChatId
+            : tempConversationId,
+        message: newMessage,
+      })
+    );
 
     // If there is no active chat, create a new conversation
     if ((activeChatId === '' || !activeChatId) && activeSectionTab === 'DMs') {
@@ -141,6 +186,16 @@ function ChatPanel() {
         },
       });
     } else {
+      dispatch(
+        changeChatToTop({
+          conversationId: activeChatId,
+        })
+      );
+      dispatch(
+        changeGroupChatToTop({
+          conversationId: activeChatId,
+        })
+      );
       sendMessageToSocket(newMessage);
     }
   };
@@ -157,9 +212,12 @@ function ChatPanel() {
       ack?: (status: boolean) => void
     ) => {
       if (typeof ack === 'function') ack(true);
-      const { messageId, status } = data;
-      setMessages((prev) =>
-        prev.map((msg) => (msg._id === messageId ? { ...msg, status } : msg))
+      dispatch(
+        updateMessageStatus({
+          conversationId: activeChatId,
+          messageId: data.messageId,
+          status: data.status,
+        })
       );
     };
 
@@ -177,18 +235,23 @@ function ChatPanel() {
         name={receiverDetails.name as string}
         isOnline={browserIsOnline && (receiverDetails.isOnline as boolean)}
         isTyping={browserIsOnline && (receiverDetails.isTyping as boolean)}
+        isGroup={receiverDetails.isGroup ? true : false}
       />
 
       <ChatPanelMiddle
         messages={messages}
         userId={userId as string}
         isTyping={receiverDetails.isTyping as boolean}
+        isGroup={receiverDetails.isGroup ? true : false}
+        conversationId={activeChatId}
       />
 
-      <ChatPanelBottom
-        onSend={handleSendMessage}
-        receiverId={receiverDetails.receiverId as string}
-      />
+      {receiverDetails.isBlockedByMe || receiverDetails.hasBlockedMe ? null : (
+        <ChatPanelBottom
+          onSend={handleSendMessage}
+          receiverId={receiverDetails.receiverId as string}
+        />
+      )}
     </div>
   );
 }
