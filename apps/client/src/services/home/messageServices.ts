@@ -1,8 +1,9 @@
 import api from '@client/configs/axios';
 import { DeleteMessageType } from '@bro/shared';
+const MESSAGE_API = '/user/message';
 
 export const getPrevMessageApi = async (conversationId: string) => {
-  const res = await api.get('/prevmessage/' + conversationId);
+  const res = await api.get(MESSAGE_API + '/prevmessage/' + conversationId);
   return res.data;
 };
 
@@ -16,11 +17,10 @@ export const deleteMessageApi = async ({
   type: DeleteMessageType;
 }) => {
   const res = await api.delete(
-    '/deletemessage/' + conversationId + '/' + messageId,
+    MESSAGE_API + '/deletemessage/' + conversationId + '/' + messageId,
     {
       params: { type },
     }
   );
   return res.data;
 };
-

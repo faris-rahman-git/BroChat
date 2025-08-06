@@ -1,17 +1,37 @@
 import api from '@client/configs/axios';
+import { GetReportParams } from '@bro/shared';
+const REPORT_MANAGEMENT_API = '/admin/reportManagement';
 
-export const getAllReportsApi = async () => {
-  const res = await api.get('/admin/getAllRepots');
+export const getAllReportsApi = async (params: GetReportParams) => {
+  const res = await api.get(REPORT_MANAGEMENT_API + '/getallrepots', {
+    params,
+  });
   return res.data;
 };
 
-export const getResolvedReportsApi = async () => {
-  const res = await api.get('/admin/getresolvedrepots');
+export const getResolvedReportsApi = async ({
+  searchValue,
+  page,
+}: {
+  searchValue: string;
+  page: number;
+}) => {
+  const res = await api.get(REPORT_MANAGEMENT_API + '/getresolvedrepots', {
+    params: { searchValue, page },
+  });
   return res.data;
 };
 
-export const getDeletedReportsApi = async () => {
-  const res = await api.get('/admin/getdeletedrepots');
+export const getDeletedReportsApi = async ({
+  searchValue,
+  page,
+}: {
+  searchValue: string;
+  page: number;
+}) => {
+  const res = await api.get(REPORT_MANAGEMENT_API + '/getdeletedrepots', {
+    params: { searchValue, page },
+  });
   return res.data;
 };
 
@@ -24,7 +44,7 @@ export const blockReporedUserApi = async ({
   reportedUserId: string;
   note: string;
 }) => {
-  const res = await api.patch('/admin/blockreporeduser', {
+  const res = await api.patch(REPORT_MANAGEMENT_API + '/blockreporeduser', {
     reportId,
     reportedUserId,
     note,
@@ -39,7 +59,7 @@ export const deleteReportApi = async ({
   reportId: string;
   note: string;
 }) => {
-  const res = await api.patch('/admin/deletereport', {
+  const res = await api.patch(REPORT_MANAGEMENT_API + '/deletereport', {
     reportId,
     note,
   });
@@ -53,7 +73,7 @@ export const ignoreReportApi = async ({
   reportId: string;
   note: string;
 }) => {
-  const res = await api.patch('/admin/ignorereport', {
+  const res = await api.patch(REPORT_MANAGEMENT_API + '/ignorereport', {
     reportId,
     note,
   });
@@ -61,6 +81,8 @@ export const ignoreReportApi = async ({
 };
 
 export const hardDeleteReportApi = async (reportId: string) => {
-  const res = await api.delete('/admin/harddeletereport/' + reportId);
+  const res = await api.delete(
+    REPORT_MANAGEMENT_API + '/harddeletereport/' + reportId
+  );
   return res.data;
 };

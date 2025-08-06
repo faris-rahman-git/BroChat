@@ -1,13 +1,12 @@
-import { ReportResponse } from '@bro/shared';
+import {  ReportSubResponse } from '@bro/shared';
 
 function ReportDetailsModalContent({
   report,
   isShowActions = false,
 }: {
-  report: ReportResponse;
+  report: ReportSubResponse;
   isShowActions?: boolean;
 }) {
-  console.log(report);
 
   return (
     <div className="flex flex-col gap-4 py-4 text-sm">
@@ -66,6 +65,9 @@ function ReportDetailsModalContent({
         <h2 className="text-base font-semibold mb-2">Report Details</h2>
         <div className="bg-gray-50 border rounded p-3">
           <p>
+            <strong>Report Id:</strong> {report._id}
+          </p>
+          <p>
             <strong>Reason:</strong> {report.reason}
           </p>
           <p>
@@ -78,10 +80,11 @@ function ReportDetailsModalContent({
         </div>
       </div>
 
+
       {/* Action Details */}
       {isShowActions && (
         <div>
-          <h2 className="text-base font-semibold mb-2">Report Details</h2>
+          <h2 className="text-base font-semibold mb-2">Action Details</h2>
           <div className="bg-gray-50 border rounded p-3">
             <p>
               <strong>Action Taken:</strong> {report.takenAction}

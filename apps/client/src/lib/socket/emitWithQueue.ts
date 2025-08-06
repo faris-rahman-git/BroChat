@@ -14,6 +14,7 @@ export const emitWithQueue = async ({ event, data }: EventEmitType) => {
 
   const ackReceived = await emitWithTimer({ event, data });
 
+
   if (!ackReceived) {
     optimizeAndQueue({ event, data });
     await startQueueProcessor();

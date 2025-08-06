@@ -1,6 +1,6 @@
 import { CellContext, createColumnHelper } from '@tanstack/react-table';
 import { useEffect, useState } from 'react';
-import { ReportResponse } from '@bro/shared';
+import { ReportSubResponse } from '@bro/shared';
 import DataTable from '@client/components/customUi/commonElemets/DataTable';
 import ConfirmActionButton from '@client/components/customUi/commonElemets/ConfirmActionButton';
 import {
@@ -14,18 +14,38 @@ import { LuMenu, LuTrash2 } from 'react-icons/lu';
 import { useHardDeleteReport } from '@client/hooks/admin/reportManagement/useHardDeleteReport';
 
 function DeletedReportsPanel() {
-  const [reportList, setReportList] = useState<ReportResponse[]>([]);
+  const [reportList, setReportList] = useState<ReportSubResponse[]>([]);
   const [searchValue, setSearchValue] = useState<string>('');
+  const [totalPages, setTotalPages] = useState(1);
   const dispatch = useAppDispatch();
 
   const { isPending, isSuccess, mutate, data } = useGetDeletedReports();
   useEffect(() => {
-    mutate();
-  }, []);
+    if (searchValue.trim().length < 1) {
+      mutate({
+        searchValue,
+        page: 1,
+      });
+    }
+  }, [searchValue]);
+
+  useEffect(() => {
+    const delay = setTimeout(() => {
+      if (searchValue.trim().length > 1) {
+        mutate({
+          searchValue,
+          page: 1,
+        });
+      }
+    }, 300);
+
+    return () => clearTimeout(delay);
+  }, [searchValue]);
   //success handles
   useEffect(() => {
     if (isSuccess) {
       setReportList(data.reportList);
+      setTotalPages(data.totalPages);
     }
   }, [isSuccess]);
 
@@ -52,20 +72,20 @@ function DeletedReportsPanel() {
     dispatch(anyPending ? showLoader() : hideLoader());
   }, [isPendingDeleteReport]);
 
-  const columnHelper = createColumnHelper<ReportResponse>();
+  const columnHelper = createColumnHelper<ReportSubResponse>();
 
   const columns = [
     {
       header: '#',
-      cell: (info: CellContext<ReportResponse, unknown>) => {
+      cell: (info: CellContext<ReportSubResponse, unknown>) => {
         return <span>{info.row.index + 1}</span>; // Index starts from 0
       },
     },
-    columnHelper.accessor('reporterId.username', { header: 'Reporter' }),
+    columnHelper.accessor('_id', { header: 'Id' }),
     columnHelper.accessor('reportedUserId.username', { header: 'Reported' }),
     columnHelper.accessor('createdAt', {
       header: 'Reported At',
-      cell: (info: CellContext<ReportResponse, unknown>) => {
+      cell: (info: CellContext<ReportSubResponse, unknown>) => {
         const date = new Date(info.getValue() as string);
         const formatted = date.toLocaleDateString('en-GB', {
           day: '2-digit',
@@ -79,7 +99,7 @@ function DeletedReportsPanel() {
 
     {
       header: 'Actions',
-      cell: (info: CellContext<ReportResponse, unknown>) => {
+      cell: (info: CellContext<ReportSubResponse, unknown>) => {
         const rowData = info.row.original;
 
         return (
@@ -123,6 +143,8 @@ function DeletedReportsPanel() {
       searchValue={searchValue}
       isPending={isPending}
       tableHeader="Deleted Reports"
+      totalPages={totalPages}
+      onPageChange={(page: number) => mutate({ searchValue, page })}
     />
   );
 }

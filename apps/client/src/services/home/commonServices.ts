@@ -1,5 +1,6 @@
 import api from '@client/configs/axios';
-import { ContentType } from '../../../../../libs/shared/src/lib/types/home/messageType';
+import { ContentType } from '@bro/shared';
+const MEDIA_API = '/user/media';
 
 export const uploadFileApi = async ({
   file,
@@ -12,7 +13,7 @@ export const uploadFileApi = async ({
   extension: string;
   customMessageType?: ContentType;
 }) => {
-  const res = await api.post('/s3url', { fileType, extension });
+  const res = await api.post(MEDIA_API + '/s3url', { fileType, extension });
   //upload to s3
   const url = res.data.uploadUrl;
   await api.put(url, file, { headers: { 'Content-Type': file.type } });
@@ -22,7 +23,7 @@ export const uploadFileApi = async ({
 };
 
 export const deleteFileApi = async (imageUrl: string) => {
-  await api.delete('/deletefroms3', {
+  await api.delete(MEDIA_API + '/deletefroms3', {
     params: { imageUrl },
   });
 };

@@ -60,7 +60,7 @@ function ChatPanel() {
   useEffect(() => {
     if (!activeChatId || activeChatId === '') return;
 
-    if (!fetchedIds.has(activeChatId)) {
+    if (!activeChatId.startsWith('temp-') && !fetchedIds.has(activeChatId)) {
       prevMutate(activeChatId);
       setFetchedIds((prev) => new Set(prev).add(activeChatId));
     }
@@ -246,7 +246,9 @@ function ChatPanel() {
         conversationId={activeChatId}
       />
 
-      {receiverDetails.isBlockedByMe || receiverDetails.hasBlockedMe ? null : (
+      {receiverDetails.isBlockedByMe ||
+      receiverDetails.hasBlockedMe ||
+      receiverDetails.isBlocked ? null : (
         <ChatPanelBottom
           onSend={handleSendMessage}
           receiverId={receiverDetails.receiverId as string}

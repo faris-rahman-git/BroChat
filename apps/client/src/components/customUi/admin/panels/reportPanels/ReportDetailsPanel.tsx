@@ -1,6 +1,6 @@
 import { CellContext, createColumnHelper } from '@tanstack/react-table';
 import { useEffect, useRef, useState } from 'react';
-import { ReportResponse } from '@bro/shared';
+import { ReportSubResponse } from '@bro/shared';
 import DataTable from '@client/components/customUi/commonElemets/DataTable';
 import { useGetAllReports } from '@client/hooks/admin/reportManagement/useGetAllReports';
 import ConfirmActionButton from '@client/components/customUi/commonElemets/ConfirmActionButton';
@@ -18,27 +18,55 @@ import { Textarea } from '@client/components/ui/textarea';
 import ButtonIcon from '@client/components/customUi/commonElemets/ButtonIcon';
 import { useIgnoreReport } from '@client/hooks/admin/reportManagement/useIgnoreReport';
 import { useDeleteReport } from '../../../../../hooks/admin/reportManagement/useDeleteReportedUser';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@radix-ui/react-popover';
+import { Button } from '@client/components/ui/button';
+import { Calendar } from '@client/components/ui/calendar';
+import { format } from 'date-fns';
 
 function ReportDetailsPanel() {
-  const [reportList, setReportList] = useState<ReportResponse[]>([]);
+  const [reportList, setReportList] = useState<ReportSubResponse[]>([]);
+  const [totalPages, setTotalPages] = useState(1);
   const [searchValue, setSearchValue] = useState<string>('');
+  const [filters, setFilters] = useState({
+    createdAt: '',
+  });
   const [openModal, setOpenModal] = useState(false);
   const [selectedButton, setSelectedButton] = useState('');
-  const [selectedReport, setSelectedReport] = useState<ReportResponse | null>(
-    null
-  );
+  const [selectedReport, setSelectedReport] =
+    useState<ReportSubResponse | null>(null);
 
   const inpRef = useRef<HTMLTextAreaElement>(null);
   const dispatch = useAppDispatch();
 
   const { isPending, isSuccess, mutate, data } = useGetAllReports();
   useEffect(() => {
-    mutate();
+    mutate({
+      searchValue,
+      ...filters,
+      page: 1,
+    });
   }, []);
+  useEffect(() => {
+    const delay = setTimeout(() => {
+      mutate({
+        searchValue,
+        ...filters,
+        page: 1,
+      });
+    }, 300);
+
+    return () => clearTimeout(delay);
+  }, [searchValue, filters]);
+
   //success handles
   useEffect(() => {
     if (isSuccess) {
       setReportList(data.reportList);
+      setTotalPages(data.totalPages);
     }
   }, [isSuccess]);
 
@@ -108,20 +136,20 @@ function ReportDetailsPanel() {
     dispatch(anyPending ? showLoader() : hideLoader());
   }, [isPendingBlock, isPendingIgnore, isPendingDeleteReport]);
 
-  const columnHelper = createColumnHelper<ReportResponse>();
+  const columnHelper = createColumnHelper<ReportSubResponse>();
 
   const columns = [
     {
       header: '#',
-      cell: (info: CellContext<ReportResponse, unknown>) => {
+      cell: (info: CellContext<ReportSubResponse, unknown>) => {
         return <span>{info.row.index + 1}</span>; // Index starts from 0
       },
     },
-    columnHelper.accessor('reporterId.username', { header: 'Reporter' }),
+    columnHelper.accessor('_id', { header: 'Id' }),
     columnHelper.accessor('reportedUserId.username', { header: 'Reported' }),
     columnHelper.accessor('createdAt', {
       header: 'Reported At',
-      cell: (info: CellContext<ReportResponse, unknown>) => {
+      cell: (info: CellContext<ReportSubResponse, unknown>) => {
         const date = new Date(info.getValue() as string);
         const formatted = date.toLocaleDateString('en-GB', {
           day: '2-digit',
@@ -135,7 +163,7 @@ function ReportDetailsPanel() {
 
     {
       header: 'Actions',
-      cell: (info: CellContext<ReportResponse, unknown>) => {
+      cell: (info: CellContext<ReportSubResponse, unknown>) => {
         const rowData = info.row.original;
 
         return (
@@ -237,6 +265,14 @@ function ReportDetailsPanel() {
     },
   ];
 
+  const handleDateSelect = (selectedDate: Date | undefined) => {
+    if (!selectedDate) return;
+    setFilters((prev) => ({
+      ...prev,
+      createdAt: selectedDate.toLocaleDateString('en-CA'),
+    }));
+  };
+
   return (
     <DataTable
       columns={columns}
@@ -245,7 +281,57 @@ function ReportDetailsPanel() {
       searchValue={searchValue}
       isPending={isPending}
       tableHeader="Pending Reports"
-    />
+      totalPages={totalPages}
+      onPageChange={(page) =>
+        mutate({
+          searchValue,
+          ...filters,
+          page,
+        })
+      }
+    >
+      <div className="flex gap-2 mb-4">
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              className="w-[150px] justify-start text-left font-normal"
+            >
+              {filters.createdAt ? (
+                format(new Date(filters.createdAt), 'dd MMM yyyy')
+              ) : (
+                <span className="text-muted-foreground">Reported At</span>
+              )}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="start">
+            <Calendar
+              mode="single"
+              selected={
+                filters.createdAt ? new Date(filters.createdAt) : undefined
+              }
+              onSelect={handleDateSelect}
+              disabled={(date) => date > new Date()}
+            />
+          </PopoverContent>
+        </Popover>
+
+        <ButtonIcon
+          Icon={LuTrash2}
+          label="Clear"
+          className="text-white bg-red-600 hover:bg-red-700 px-4 py-[6px]"
+          onClick={() => {
+            const cleared = { createdAt: '' };
+            setFilters(cleared);
+            mutate({
+              searchValue,
+              ...cleared,
+              page: 1,
+            });
+          }}
+        />
+      </div>
+    </DataTable>
   );
 }
 

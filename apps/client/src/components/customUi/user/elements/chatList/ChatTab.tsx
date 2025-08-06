@@ -12,18 +12,22 @@ type ChatTabProps = {
   isTyping?: boolean;
   avatar: string;
   chatName: string;
+  isPaid?: boolean;
+  isSubscribed?: boolean;
 } & ComponentProps<typeof Button>;
 
 function ChatTab({
   isAddUser = false,
   lastMessageOrUserName,
-  ContentType ,
+  ContentType,
   unreadCount = 0,
   onlineStatus = false,
   className,
   isTyping = false,
   avatar,
   chatName,
+  isPaid = false,
+  isSubscribed = false,
   ...props
 }: ChatTabProps) {
   return (
@@ -38,6 +42,8 @@ function ChatTab({
         onlineStatus={onlineStatus}
         isAddUser={isAddUser}
         className={className}
+        isPaid={isPaid}
+        isSubscribed={isSubscribed}
         {...props}
       />
     </>

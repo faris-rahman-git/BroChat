@@ -62,6 +62,38 @@ function DetailsModalContent({ rowData }: { rowData: AllUsersType }) {
             : '—'}
         </div>
       </div>
+
+      {/* Subscription Info */}
+      <div className="mt-6 border-t pt-4">
+        <h4 className="font-semibold text-base mb-2">Subscription Info</h4>
+        <div className="grid grid-cols-2 gap-x-8 gap-y-4 text-sm">
+          <div>
+            <strong>Subscribed:</strong>{' '}
+            <span
+              className={
+                rowData.isSubscribed ? 'text-green-600' : 'text-red-600'
+              }
+            >
+              {rowData.isSubscribed ? 'Yes' : 'No'}
+            </span>
+          </div>
+          <div>
+            <strong>Plan:</strong> {rowData.subscriptionPlan || '—'}
+          </div>
+          <div>
+            <strong>Start:</strong>{' '}
+            {rowData.subscriptionStart
+              ? new Date(rowData.subscriptionStart).toLocaleString()
+              : '—'}
+          </div>
+          <div>
+            <strong>End:</strong>{' '}
+            {rowData.subscriptionEnd
+              ? new Date(rowData.subscriptionEnd).toLocaleString()
+              : '—'}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

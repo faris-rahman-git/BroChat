@@ -22,6 +22,7 @@ function ChatPanelMiddle({
   isGroup: boolean;
   conversationId: string;
 }) {
+
   const bottomRef = useRef<HTMLDivElement | null>(null);
   let lastDateLabel = '';
   const [typingShowAvatar, setTypingShowAvatar] = useState<boolean>(false);
@@ -84,6 +85,7 @@ function ChatPanelMiddle({
                 isAdmin={group?.Admins.includes(userId) ?? true}
                 MessageType={message.MessageType}
                 mediaUrl={message.mediaUrl}
+                createdAt={message.createdAt}
               />
             </div>
           );

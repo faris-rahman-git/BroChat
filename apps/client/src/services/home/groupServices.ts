@@ -1,5 +1,6 @@
 import api from '@client/configs/axios';
 import { updateGroupInfoType } from '@bro/shared';
+const GROUP_API = '/user/group';
 
 export const createNewGroupApi = async ({
   groupName,
@@ -10,7 +11,7 @@ export const createNewGroupApi = async ({
   groupMembers: string[];
   groupAvatarUrl: string;
 }) => {
-  const res = await api.post('/createnewgroup', {
+  const res = await api.post(GROUP_API + '/createnewgroup', {
     groupName,
     groupMembers,
     groupAvatarUrl,
@@ -19,7 +20,7 @@ export const createNewGroupApi = async ({
 };
 
 export const groupChatListApi = async () => {
-  const res = await api.get('/groupchatlist');
+  const res = await api.get(GROUP_API + '/groupchatlist');
   return res.data;
 };
 
@@ -31,7 +32,7 @@ export const removeGroupMemberApi = async ({
   memberId: string;
 }) => {
   const res = await api.delete(
-    '/removegroupmember/' + conversationId + '/' + memberId
+    GROUP_API + '/removegroupmember/' + conversationId + '/' + memberId
   );
   return res.data;
 };
@@ -44,7 +45,7 @@ export const makeGroupAdminApi = async ({
   memberId: string;
 }) => {
   const res = await api.put(
-    '/makegroupadmin/' + conversationId + '/' + memberId
+    GROUP_API + '/makegroupadmin/' + conversationId + '/' + memberId
   );
   return res.data;
 };
@@ -57,7 +58,7 @@ export const dismissGroupAdminApi = async ({
   memberId: string;
 }) => {
   const res = await api.put(
-    '/dismissgroupadmin/' + conversationId + '/' + memberId
+    GROUP_API + '/dismissgroupadmin/' + conversationId + '/' + memberId
   );
   return res.data;
 };
@@ -69,7 +70,7 @@ export const addGroupMembersApi = async ({
   conversationId: string;
   newMembersId: string[];
 }) => {
-  const res = await api.put('/addgroupmembers/' + conversationId, {
+  const res = await api.put(GROUP_API + '/addgroupmembers/' + conversationId, {
     newMembersId,
   });
   return res.data;
@@ -82,8 +83,13 @@ export const updateGroupInfoApi = async ({
   conversationId: string;
   groupInfo: updateGroupInfoType;
 }) => {
-  const res = await api.put('/updategroupinfo/' + conversationId, {
+  const res = await api.put(GROUP_API + '/updategroupinfo/' + conversationId, {
     groupInfo,
   });
+  return res.data;
+};
+
+export const exitFromGroupApi = async (conversationId: string) => {
+  const res = await api.delete(GROUP_API + '/exitfromgroup/' + conversationId);
   return res.data;
 };

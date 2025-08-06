@@ -30,10 +30,10 @@ import {
   hideLoader,
   showLoader,
 } from '@client/redux/features/commonSlices/LoaderSlice';
-import { selectGroupChatById } from '@client/redux/selectors/groupChatSelectors';
 import {
   dismissGroupAdmin,
   makeGroupAdmin,
+  removeGroupChat,
   removeGroupMember,
   updateGroupInfo,
 } from '@client/redux/features/userSlices/homeSlices/groupSlice/groupChatSlice';
@@ -45,6 +45,7 @@ import { Input } from '@client/components/ui/input';
 import { Textarea } from '@client/components/ui/textarea';
 import { useUpdateGroupInfo } from '@client/hooks/home/groupHooks/useUpdateGroupInfo';
 import {
+  clearActiveReceiver,
   updateActiveReceiver,
   updateBlockUserStatus,
 } from '@client/redux/features/userSlices/homeSlices/commonSlices/activeReceiverSlice';
@@ -58,45 +59,71 @@ import {
 import { useBlockUser } from '@client/hooks/home/dmHooks/useBlockUser';
 import { updateBlockedUser } from '@client/redux/features/userSlices/homeSlices/dmSlices/oneToOneChatSlice';
 import { useUnBlockUser } from '@client/hooks/home/dmHooks/useUnBlockUser';
+import { GroupChatListType, GroupFixedData } from '@bro/shared';
+import { Receiver } from '@client/types/ReduxTypes';
+import { BsPatchCheckFill } from 'react-icons/bs';
+import UpgradeGroupModal from './UpgradeGroupModal';
+import { useExitFromGroup } from '@client/hooks/home/groupHooks/useExitFromGroup';
 
 type Props = {
   isOpen: boolean;
   onOpenChange: () => void;
+  receiverDetails: Receiver;
+  group?: GroupChatListType;
+  setShowThankYouModal: () => void;
 };
 
-function ChatInfoModal({ isOpen, onOpenChange }: Props) {
-  const receiverDetails = useSelector(
-    (state: RootState) => state.activeReceiver
-  );
-  const group = useSelector(
-    selectGroupChatById(receiverDetails.conversationId!)
-  );
+function ChatInfoModal({
+  isOpen,
+  onOpenChange,
+  receiverDetails,
+  group,
+  setShowThankYouModal,
+}: Props) {
+  const userDetails = useSelector((state: RootState) => state.user);
+  const userId = userDetails.id;
+  const dispatch = useAppDispatch();
+  const groupTabs = [
+    'Overview',
+    'Members',
+    // 'Media',
+    // 'Files',
+  ];
+  const dmTabs = [
+    'Overview',
+    // 'Media',
+    // 'Files'
+  ];
 
-  const {
-    isPending: removeMemberIsPending,
-    isSuccess: removeMemberIsSuccess,
-    mutate: removeMemberMutate,
-    data: removeMemberData,
-  } = useRemoveGroupMember();
-  const {
-    isPending: makeAdminIsPending,
-    isSuccess: makeAdminIsSuccess,
-    mutate: makeAdminMutate,
-    data: makeAdminData,
-  } = useMakeGroupAdmin();
-  const {
-    isPending: dismissAdminIsPending,
-    isSuccess: dismissAdminIsSuccess,
-    mutate: dismissAdminMutate,
-    data: dismissAdminData,
-  } = useDismissGroupAdmin();
-  const {
-    mutate: updateGroupInfoMutate,
-    isPending: updateGroupInfoIsPending,
-    isSuccess: updateGroupInfoIsSuccess,
-    data: updateGroupInfoData,
-  } = useUpdateGroupInfo();
+  const tabs = receiverDetails.isGroup ? groupTabs : dmTabs;
+  const [activeTab, setActiveTab] = useState(tabs[0]);
+  const [openReportModal, setOpenReportModal] = useState(false);
+  const [openInviteModal, setOpenInviteModal] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedName, setEditedName] = useState(receiverDetails.name || '');
+  const [editedDescription, setEditedDescription] = useState(
+    receiverDetails.about || ''
+  );
+  const [editedAvatar, setEditedAvatar] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState(
+    receiverDetails.avatar || ''
+  );
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
+  useEffect(() => {
+    if (isOpen) {
+      setActiveTab(receiverDetails.isGroup ? groupTabs[0] : dmTabs[0]);
+    }
+  }, [isOpen, receiverDetails.isGroup]);
+  useEffect(() => {
+    if (isOpen) {
+      setEditedName(receiverDetails.name || '');
+      setEditedDescription(receiverDetails.about || '');
+      setAvatarPreview(receiverDetails.avatar || '');
+    }
+  }, [isEditing, isOpen]);
+
+  //media delete or upload
   const { mutate: deleteMutate, isPending: deleteIsPending } = useMutation({
     mutationFn: deleteFileApi,
     onError: (err) => {
@@ -113,110 +140,31 @@ function ChatInfoModal({ isOpen, onOpenChange }: Props) {
     },
   });
 
-  const userId = useSelector((state: RootState) => state.user.id);
-  const dispatch = useAppDispatch();
-  const groupTabs = [
-    'Overview',
-    'Members',
-    // 'Media',
-    // 'Files',
-  ];
-  const dmTabs = [
-    'Overview',
-    // 'Media',
-    // 'Files'
-  ];
-
-  const tabs = receiverDetails.isGroup ? groupTabs : dmTabs;
-
-  const [activeTab, setActiveTab] = useState(tabs[0]);
-  const [openReportModal, setOpenReportModal] = useState(false);
-  const [openInviteModal, setOpenInviteModal] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedName, setEditedName] = useState(receiverDetails.name || '');
-  const [editedDescription, setEditedDescription] = useState(
-    receiverDetails.about || ''
-  );
-  const [editedAvatar, setEditedAvatar] = useState<File | null>(null);
-  const [avatarPreview, setAvatarPreview] = useState(
-    receiverDetails.avatar || ''
-  );
-
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
+  //update group info
+  const {
+    mutate: updateGroupInfoMutate,
+    isPending: updateGroupInfoIsPending,
+    isSuccess: updateGroupInfoIsSuccess,
+    data: updateGroupInfoData,
+  } = useUpdateGroupInfo();
   useEffect(() => {
-    if (isOpen) {
-      setActiveTab(receiverDetails.isGroup ? groupTabs[0] : dmTabs[0]);
-    }
-  }, [isOpen, receiverDetails.isGroup]);
-  useEffect(() => {
-    const isPending =
-      makeAdminIsPending ||
-      removeMemberIsPending ||
-      dismissAdminIsPending ||
-      updateGroupInfoIsPending ||
-      deleteIsPending ||
-      uploadIsPending;
-    dispatch(isPending ? showLoader() : hideLoader());
-  }, [
-    removeMemberIsPending,
-    makeAdminIsPending,
-    dismissAdminIsPending,
-    updateGroupInfoIsPending,
-    deleteIsPending,
-    uploadIsPending,
-  ]);
-  useEffect(() => {
-    if (removeMemberIsSuccess) {
+    if (updateGroupInfoIsSuccess) {
       dispatch(
-        removeGroupMember({
+        updateGroupInfo({
           conversationId: receiverDetails.conversationId!,
-          memberId: removeMemberData.memberId,
+          groupInfo: updateGroupInfoData.groupInfo,
+        })
+      );
+      dispatch(
+        updateActiveReceiver({
+          conversationId: receiverDetails.conversationId!,
+          groupInfo: updateGroupInfoData.groupInfo,
         })
       );
     }
-  }, [removeMemberIsSuccess]);
-  useEffect(() => {
-    if (makeAdminIsSuccess) {
-      dispatch(
-        makeGroupAdmin({
-          conversationId: receiverDetails.conversationId!,
-          memberId: makeAdminData.memberId,
-        })
-      );
-    }
-  }, [makeAdminIsSuccess]);
-  useEffect(() => {
-    if (dismissAdminIsSuccess) {
-      dispatch(
-        dismissGroupAdmin({
-          conversationId: receiverDetails.conversationId!,
-          memberId: dismissAdminData.memberId,
-        })
-      );
-    }
-  }, [dismissAdminIsSuccess]);
+  }, [updateGroupInfoIsSuccess]);
 
-  const handleRemoveMember = (memberId: string) => {
-    removeMemberMutate({
-      conversationId: receiverDetails.conversationId!,
-      memberId,
-    });
-  };
-  const handleMakeOrDismissAdmin = (memberId: string, isAdmin: boolean) => {
-    if (isAdmin) {
-      dismissAdminMutate({
-        conversationId: receiverDetails.conversationId!,
-        memberId,
-      });
-    } else {
-      makeAdminMutate({
-        conversationId: receiverDetails.conversationId!,
-        memberId,
-      });
-    }
-  };
-
+  
   const handleSaveGroupInfo = () => {
     setIsEditing(false);
     if (
@@ -224,7 +172,6 @@ function ChatInfoModal({ isOpen, onOpenChange }: Props) {
       editedDescription.trim() == receiverDetails.about &&
       avatarPreview == receiverDetails.avatar
     ) {
-      console.log('no changes');
       return;
     }
     if (avatarPreview !== receiverDetails.avatar) {
@@ -245,7 +192,6 @@ function ChatInfoModal({ isOpen, onOpenChange }: Props) {
       handleUpdateGroupInfo(receiverDetails.avatar);
     }
   };
-
   const handleUpdateGroupInfo = (imageUrl: string) => {
     updateGroupInfoMutate({
       conversationId: receiverDetails.conversationId!,
@@ -257,30 +203,88 @@ function ChatInfoModal({ isOpen, onOpenChange }: Props) {
     });
   };
 
+  //remove member
+  const {
+    isPending: removeMemberIsPending,
+    isSuccess: removeMemberIsSuccess,
+    mutate: removeMemberMutate,
+    data: removeMemberData,
+  } = useRemoveGroupMember();
   useEffect(() => {
-    if (updateGroupInfoIsSuccess) {
+    if (removeMemberIsSuccess) {
       dispatch(
-        updateGroupInfo({
+        removeGroupMember({
           conversationId: receiverDetails.conversationId!,
-          groupInfo: updateGroupInfoData.groupInfo,
+          memberId: removeMemberData.memberId,
         })
       );
       dispatch(
-        updateActiveReceiver({
+        dismissGroupAdmin({
           conversationId: receiverDetails.conversationId!,
-          groupInfo: updateGroupInfoData.groupInfo,
+          memberId: removeMemberData.memberId,
         })
       );
     }
-  }, [updateGroupInfoIsSuccess]);
+  }, [removeMemberIsSuccess]);
+  const handleRemoveMember = (memberId: string) => {
+    removeMemberMutate({
+      conversationId: receiverDetails.conversationId!,
+      memberId,
+    });
+  };
 
+  //make Group admin
+  const {
+    isPending: makeAdminIsPending,
+    isSuccess: makeAdminIsSuccess,
+    mutate: makeAdminMutate,
+    data: makeAdminData,
+  } = useMakeGroupAdmin();
   useEffect(() => {
-    if (isOpen) {
-      setEditedName(receiverDetails.name || '');
-      setEditedDescription(receiverDetails.about || '');
-      setAvatarPreview(receiverDetails.avatar || '');
+    if (makeAdminIsSuccess) {
+      dispatch(
+        makeGroupAdmin({
+          conversationId: receiverDetails.conversationId!,
+          memberId: makeAdminData.memberId,
+        })
+      );
     }
-  }, [isEditing, isOpen]);
+  }, [makeAdminIsSuccess]);
+
+  // dismiss Group admin
+  const {
+    isPending: dismissAdminIsPending,
+    isSuccess: dismissAdminIsSuccess,
+    mutate: dismissAdminMutate,
+    data: dismissAdminData,
+  } = useDismissGroupAdmin();
+  useEffect(() => {
+    if (dismissAdminIsSuccess) {
+      dispatch(
+        dismissGroupAdmin({
+          conversationId: receiverDetails.conversationId!,
+          memberId: dismissAdminData.memberId,
+        })
+      );
+    }
+  }, [dismissAdminIsSuccess]);
+  const handleMakeOrDismissAdmin = (memberId: string, isAdmin: boolean) => {
+    if (isAdmin) {
+      dismissAdminMutate({
+        conversationId: receiverDetails.conversationId!,
+        memberId,
+      });
+    } else {
+      const adminLength = group?.Admins.length ?? 0;
+      const isPaid = group?.isPaid ?? false;
+      if (adminLength >= GroupFixedData.Admin_limit && !isAdmin && !isPaid)
+        return;
+      makeAdminMutate({
+        conversationId: receiverDetails.conversationId!,
+        memberId,
+      });
+    }
+  };
 
   //block/unblock user
   const [openBlockModal, setOpenBlockModal] = useState(false);
@@ -339,6 +343,48 @@ function ChatInfoModal({ isOpen, onOpenChange }: Props) {
     }
   }, [unBlockUserIsSuccess]);
 
+  //exit from group
+  const [openExitModal, setOpenExitModal] = useState(false);
+  const {
+    isPending: exitIsPending,
+    mutate: exitMutate,
+    isSuccess: exitIsSuccess,
+  } = useExitFromGroup();
+  useEffect(() => {
+    if (exitIsSuccess) {
+      dispatch(removeGroupChat(receiverDetails.conversationId!));
+      dispatch(clearActiveReceiver(receiverDetails.conversationId!));
+    }
+  }, [exitIsSuccess]);
+
+  const handleExitFromGroup = () => {
+    exitMutate(receiverDetails.conversationId!);
+  };
+
+  //Upgrade Group
+  const [openUpgradeModal, setOpenUpgradeModal] = useState(false);
+
+  //gobal pending
+  useEffect(() => {
+    const isPending =
+      makeAdminIsPending ||
+      removeMemberIsPending ||
+      dismissAdminIsPending ||
+      updateGroupInfoIsPending ||
+      deleteIsPending ||
+      uploadIsPending ||
+      exitIsPending;
+    dispatch(isPending ? showLoader() : hideLoader());
+  }, [
+    removeMemberIsPending,
+    makeAdminIsPending,
+    dismissAdminIsPending,
+    updateGroupInfoIsPending,
+    deleteIsPending,
+    uploadIsPending,
+    exitIsPending,
+  ]);
+
   return (
     <CustomModals
       open={isOpen}
@@ -383,9 +429,14 @@ function ChatInfoModal({ isOpen, onOpenChange }: Props) {
                   </div>
 
                   <div className="flex flex-col items-center mb-2">
-                    <h3 className="text-md font-semibold text-center py-3">
-                      {receiverDetails.name}
-                    </h3>
+                    <div className="flex items-center gap-2">
+                      <h2 className="text-md font-semibold text-center py-3">
+                        {receiverDetails.name}
+                      </h2>
+                      {(group?.isPaid || receiverDetails?.isSubscribed) && (
+                        <BsPatchCheckFill className="text-blue-500 size-4 flex-shrink-0" />
+                      )}
+                    </div>
                     <p className="text-xs text-gray-500">
                       {receiverDetails.username}
                     </p>
@@ -535,10 +586,21 @@ function ChatInfoModal({ isOpen, onOpenChange }: Props) {
                             )}
                           </p>
                         </div>
-
+                        {group?.Admins?.includes(userId!) && !group?.isPaid && (
+                          <Button
+                            variant="ghost"
+                            className="mt-4 border p-2 rounded w-full text-sm"
+                            onClick={() => {
+                              setOpenUpgradeModal(true);
+                            }}
+                          >
+                            Upgrade Group
+                          </Button>
+                        )}
                         <Button
                           variant="ghost"
                           className="mt-4 border p-2 rounded w-full text-sm"
+                          onClick={() => setOpenExitModal(true)}
                         >
                           Exit Group
                         </Button>
@@ -611,12 +673,17 @@ function ChatInfoModal({ isOpen, onOpenChange }: Props) {
             <div>
               <div className="flex justify-between pb-2">
                 <h2 className="text-lg font-bold mb-2">
-                  Members ({group?.participants.length})
+                  Members ({group?.participants.length}
+                  {group?.isPaid ? '' : '/ ' + GroupFixedData.Member_limit})
                 </h2>
                 {group?.Admins?.includes(userId!) && (
                   <ButtonIcon
                     Icon={LuUserPlus}
                     label="Invite"
+                    disabled={
+                      group.participants.length >=
+                        GroupFixedData.Member_limit && !group.isPaid
+                    }
                     onClick={() => setOpenInviteModal(true)}
                   />
                 )}
@@ -664,6 +731,11 @@ function ChatInfoModal({ isOpen, onOpenChange }: Props) {
                         </ContextMenuShortcut>
                       </ContextMenuItem>
                       <ContextMenuItem
+                        disabled={
+                          group?.Admins.length >= GroupFixedData.Admin_limit &&
+                          !isGroupAdmin &&
+                          !group.isPaid
+                        }
                         inset
                         onClick={() =>
                           handleMakeOrDismissAdmin(member._id, isGroupAdmin)
@@ -686,21 +758,19 @@ function ChatInfoModal({ isOpen, onOpenChange }: Props) {
           )}
         </div>
       </div>
-
       <AddMembersModal
         open={openInviteModal}
         onOpenChange={setOpenInviteModal}
         conversationId={receiverDetails.conversationId!}
         existingMemberIds={group?.participants.map((p) => p._id) || []}
+        isPaid={group?.isPaid || false}
       />
-
       <ReportModal
         open={openReportModal}
         onOpenChange={setOpenReportModal}
         setOpenBlockModal={setOpenBlockModal}
         checkBlock={receiverDetails.isBlockedByMe}
       />
-
       <CustomModals
         open={openBlockModal}
         onOpenChange={setOpenBlockModal}
@@ -714,6 +784,31 @@ function ChatInfoModal({ isOpen, onOpenChange }: Props) {
         confirmText={
           receiverDetails.isBlockedByMe ? 'Unblock User' : 'Block User'
         }
+      />
+      <CustomModals
+        open={openExitModal}
+        onOpenChange={setOpenExitModal}
+        onConfirm={handleExitFromGroup}
+        title={'Exit Group'}
+        description={
+          group?.participants?.length === 1
+            ? `Are you sure? You're the last member of "${group.groupName}". Leaving will delete the group permanently.`
+            : group?.Admins?.includes(userId!) && group?.Admins?.length === 1
+            ? `You're the only admin in "${group?.groupName}". Please assign another admin before leaving, or one will be assigned automatically.`
+            : `Are you sure you want to exit "${group?.groupName}"? You can rejoin later if invited.`
+        }
+        confirmText={
+          group?.participants?.length === 1 ? 'Leave and Delete' : 'Exit Group'
+        }
+      />
+      {/* Upgrade Group */}
+      <UpgradeGroupModal
+        open={openUpgradeModal}
+        onOpenChange={setOpenUpgradeModal}
+        conversationId={receiverDetails.conversationId!}
+        userDetails={userDetails}
+        closeInfoModal={onOpenChange}
+        setShowThankYouModal={setShowThankYouModal}
       />
     </CustomModals>
   );

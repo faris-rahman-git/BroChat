@@ -1,5 +1,6 @@
 import axios from 'axios';
 const BASE_API = import.meta.env.VITE_BASE_API;
+const AUTH_API = '/auth';
 
 let onAuthFail: () => void = () => {};
 
@@ -25,7 +26,7 @@ api.interceptors.response.use(
     ) {
       originalRequest._retry = true;
       try {
-        await api.get('/refresh');
+        await api.get(AUTH_API + '/refresh');
         return api(originalRequest);
       } catch (refreshError) {
         console.error('Refresh token failed');

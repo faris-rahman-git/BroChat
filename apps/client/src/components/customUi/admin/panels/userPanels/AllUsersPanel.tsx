@@ -30,10 +30,20 @@ import DataTable from '@client/components/customUi/commonElemets/DataTable';
 import ConfirmActionButton from '@client/components/customUi/commonElemets/ConfirmActionButton';
 import DetailsModalContent from '../../elements/userElemets/DetailsModalContent';
 import ButtonIcon from '@client/components/customUi/commonElemets/ButtonIcon';
+import { getPageNumber } from '@client/utils/getPageNumber';
+import CustomModals from '@client/components/customUi/commonElemets/CustomModals';
 
 function AllUsersPanel() {
   const [userList, setUserList] = useState<AllUsersType[]>([]);
   const [searchValue, setSearchValue] = useState<string>('');
+  const [totalPages, setTotalPages] = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [openModal, setOpenModal] = useState(false);
+  const [selectedButton, setSelectedButton] = useState<'block' | 'delete' | ''>(
+    ''
+  );
+  const [selectedUser, setSelectedUser] = useState<AllUsersType | null>(null);
+
   const [filters, setFilters] = useState({
     status: '',
     joinedAt: '',
@@ -65,6 +75,7 @@ function AllUsersPanel() {
       mutate({
         searchValue,
         ...filters,
+        page: 1,
       });
     }
   }, [searchValue]);
@@ -75,6 +86,7 @@ function AllUsersPanel() {
         mutate({
           searchValue,
           ...filters,
+          page: 1,
         });
       }
     }, 300);
@@ -86,16 +98,19 @@ function AllUsersPanel() {
   useEffect(() => {
     if (isSuccess) {
       setUserList(data.usersList);
+      setTotalPages(data.totalPages);
     }
   }, [isSuccess]);
   useEffect(() => {
     if (isSuccessBlock) {
       setUserList(dataBlock.updatedUsersList);
+      setTotalPages(dataBlock.totalPages);
     }
   }, [isSuccessBlock]);
   useEffect(() => {
     if (isSuccessSoftDelete) {
       setUserList(dataSoftDelete.updatedUsersList);
+      setTotalPages(dataSoftDelete.totalPages);
     }
   }, [isSuccessSoftDelete]);
 
@@ -126,7 +141,7 @@ function AllUsersPanel() {
     {
       header: '#',
       cell: (info: CellContext<AllUsersType, unknown>) => {
-        return <span>{info.row.index + 1}</span>; // Index starts from 0
+        return <span>{info.row.index + 1 + (currentPage - 1) * 10}</span>;
       },
     },
     columnHelper.accessor('username', { header: 'User Name' }),
@@ -162,37 +177,61 @@ function AllUsersPanel() {
       },
     },
     {
+      header: 'Subscription',
+      cell: (info: CellContext<AllUsersType, unknown>) => {
+        const rowData = info.row.original;
+        const isSubscribed = rowData.isSubscribed;
+
+        return (
+          <div className="flex justify-center">
+            <div
+              className={`px-4 py-[6px] text-xs font-semibold rounded-full w-[75px] flex items-center justify-center text-white
+${isSubscribed ? 'bg-red-900' : 'bg-sky-500'}
+`}
+            >
+              {isSubscribed ? 'Premium' : 'Free'}
+            </div>
+          </div>
+        );
+      },
+    },
+    {
       header: 'Actions',
       cell: (info: CellContext<AllUsersType, unknown>) => {
         const rowData = info.row.original;
 
         return (
           <div className="flex gap-4 justify-center items-center">
-            <ConfirmActionButton
-              buttonIcon={LuBan}
-              buttonClassName={` ${
+            {/* Block Button */}
+            <ButtonIcon
+              Icon={LuBan}
+              label={rowData.isBlocked ? 'Unblock' : 'Block'}
+              className={`justify-start ps-[9px] ${
                 rowData.isBlocked
                   ? 'bg-[#54CA68] hover:bg-[#41C457]'
                   : 'bg-[#FF5C5C] hover:bg-[#FF4848]'
               }`}
-              buttonContent={rowData.isBlocked ? 'Unblock' : 'Block'}
-              modalTitle={`Confirm ${rowData.isBlocked ? 'Unblock' : 'Block'}`}
-              modalDescription={`Confirm that you want to ${
-                rowData.isBlocked ? 'unblock' : 'block'
-              } this user. This action can be undone.`}
-              onConfirm={() =>
-                handleBlockUser(rowData._id as string, rowData.isBlocked)
-              }
+              iconClassName="text-white"
+              onClick={() => {
+                setSelectedUser(rowData);
+                setSelectedButton('block');
+                setOpenModal(true);
+              }}
             />
 
-            <ConfirmActionButton
-              buttonIcon={LuTrash2}
-              buttonClassName={`bg-red-700 hover:bg-red-800`}
-              buttonContent="Delete"
-              modalTitle={`Confirm Delete`}
-              modalDescription="Confirm that you want to delete this user. This action can be undone."
-              onConfirm={() => handleSoftDeleteUser(rowData._id as string)}
+            {/* Delete Button */}
+            <ButtonIcon
+              Icon={LuTrash2}
+              label="Delete"
+              className="justify-start ps-[9px] bg-red-700 hover:bg-red-800"
+              iconClassName="text-white"
+              onClick={() => {
+                setSelectedUser(rowData);
+                setSelectedButton('delete');
+                setOpenModal(true);
+              }}
             />
+
             <ConfirmActionButton
               buttonIcon={LuMenu}
               buttonClassName={`bg-blue-700 hover:bg-blue-800`}
@@ -211,11 +250,26 @@ function AllUsersPanel() {
   ];
 
   const handleBlockUser = (userId: string, isBlocked: boolean) => {
-    mutateBlock({ userId, isBlocked: !isBlocked, searchValue, ...filters });
+    const pagenumber = getPageNumber(currentPage, userList.length);
+    setCurrentPage(pagenumber);
+    mutateBlock({
+      userId,
+      isBlocked: !isBlocked,
+      searchValue,
+      ...filters,
+      page: pagenumber,
+    });
   };
 
   const handleSoftDeleteUser = (userId: string) => {
-    mutateSoftDelete({ userId, searchValue, ...filters });
+    const pagenumber = getPageNumber(currentPage, userList.length);
+    setCurrentPage(pagenumber);
+    mutateSoftDelete({
+      userId,
+      searchValue,
+      ...filters,
+      page: pagenumber,
+    });
   };
 
   const handleDateSelect = (selectedDate: Date | undefined) => {
@@ -230,6 +284,7 @@ function AllUsersPanel() {
     mutate({
       searchValue,
       ...filters,
+      page: 1,
     });
   };
 
@@ -242,7 +297,49 @@ function AllUsersPanel() {
     mutate({
       searchValue,
       ...clearedFilters,
+      page: 1,
     });
+  };
+
+  const renderModal = () => {
+    if (!selectedUser) return null;
+
+    return (
+      <CustomModals
+        open={openModal}
+        onOpenChange={(val) => {
+          if (!val) setSelectedUser(null);
+          setOpenModal(val);
+        }}
+        onConfirm={() => {
+          if (!selectedUser) return;
+          const userId = selectedUser._id as string;
+          const pagenumber = getPageNumber(currentPage, userList.length);
+          setCurrentPage(pagenumber);
+
+          if (selectedButton === 'block') {
+            handleBlockUser(userId, selectedUser.isBlocked);
+          } else if (selectedButton === 'delete') {
+            handleSoftDeleteUser(userId);
+          }
+        }}
+        title={
+          selectedButton === 'block'
+            ? selectedUser.isBlocked
+              ? 'Unblock User'
+              : 'Block User'
+            : 'Delete User'
+        }
+        description={
+          selectedButton === 'block'
+            ? `Confirm that you want to ${
+                selectedUser?.isBlocked ? 'unblock' : 'block'
+              } this user. This action can be undone.`
+            : 'Confirm that you want to delete this user. This action can be undone.'
+        }
+        confirmText="Confirm"
+      />
+    );
   };
 
   return (
@@ -252,7 +349,12 @@ function AllUsersPanel() {
       setSearchValue={setSearchValue}
       searchValue={searchValue}
       isPending={isPending}
-      tableHeader='All Users'
+      tableHeader="All Users"
+      totalPages={totalPages}
+      onPageChange={(page) => {
+        setCurrentPage(page);
+        mutate({ searchValue, ...filters, page });
+      }}
     >
       <div className="flex gap-2">
         <div className="text-sm font-medium text-center flex items-center">
@@ -309,6 +411,7 @@ function AllUsersPanel() {
           onClick={handleClearFilters}
         ></ButtonIcon>
       </div>
+      {renderModal()}
     </DataTable>
   );
 }

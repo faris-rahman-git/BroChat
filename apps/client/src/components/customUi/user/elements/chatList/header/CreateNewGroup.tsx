@@ -2,7 +2,7 @@ import { Card } from '@client/components/ui/card';
 import { RefObject, useEffect, useRef, useState } from 'react';
 import { Input } from '@client/components/ui/input';
 import ChatTab from '../ChatTab';
-import { SearchResultType } from '@bro/shared';
+import { GroupFixedData, SearchResultType } from '@bro/shared';
 import { searchUserHelper } from '@client/utils/searchUserHelper';
 import { Button } from '@client/components/ui/button';
 import { LuImagePlus } from 'react-icons/lu';
@@ -84,9 +84,14 @@ function CreateNewGroup({
       const alreadySelected = prev.find(
         (u) => u.receiverId === user.receiverId
       );
+
       if (alreadySelected) {
         return prev.filter((u) => u.receiverId !== user.receiverId);
       } else {
+        const totalCount = prev.length + 1; // newly added user
+        if (totalCount + 1 > GroupFixedData.Member_limit) {
+          return prev;
+        }
         return [...prev, user];
       }
     });
@@ -142,7 +147,16 @@ function CreateNewGroup({
       className="absolute top-[125%] left-[0] flex flex-col justify-start items-center shadow-md rounded-[6px] bg-[#F3F3F3] w-[300px] h-[500px] z-10"
     >
       <div className="flex flex-col gap-2 w-[90%] h-full">
-        <span className="ps-[9px] text-sm font-semibold">Create New Group</span>
+        <div className="flex items-center justify-between w-full">
+          <span className="ps-[9px] text-sm font-semibold">
+            Create New Group
+          </span>
+          {selectedUsers.length > 0 && (
+            <span className="text-xs font-normal text-gray-500">
+              Selected: {selectedUsers.length}/{GroupFixedData.Member_limit - 1}
+            </span>
+          )}
+        </div>
 
         {step === 1 ? (
           <>
@@ -153,20 +167,35 @@ function CreateNewGroup({
             />
 
             <div className="flex flex-col gap-2 overflow-y-auto custom-scrollbar w-full max-h-[370px]">
-              {searchResult.map((receiverTab: SearchResultType, index) => (
-                <ChatTab
-                  key={index}
-                  isAddUser={true}
-                  className={`hover:bg-white cursor-pointer ${
-                    isSelected(receiverTab.receiverId) ? 'bg-blue-100' : ''
-                  }`}
-                  onClick={() => toggleUserSelection(receiverTab)}
-                  onlineStatus={receiverTab.isOnline}
-                  lastMessageOrUserName={receiverTab.username}
-                  avatar={receiverTab.avatar || ''}
-                  chatName={receiverTab.name || ''}
-                />
-              ))}
+              {searchResult.map((receiverTab, index) => {
+                const isLimitReached =
+                  selectedUsers.length + 1 >= GroupFixedData.Member_limit;
+                const isDisabled =
+                  !isSelected(receiverTab.receiverId) && isLimitReached;
+
+                return (
+                  <div
+                    key={index}
+                    className={`${isDisabled ? 'opacity-40' : 'opacity-100'} `}
+                    onClick={() =>
+                      !isDisabled && toggleUserSelection(receiverTab)
+                    }
+                  >
+                    <ChatTab
+                      isAddUser={true}
+                      className={`${
+                        !isDisabled ? 'hover:bg-white cursor-pointer' : ''
+                      } ${
+                        isSelected(receiverTab.receiverId) ? 'bg-blue-100' : ''
+                      }`}
+                      onlineStatus={receiverTab.isOnline}
+                      lastMessageOrUserName={receiverTab.username}
+                      avatar={receiverTab.avatar || ''}
+                      chatName={receiverTab.name || ''}
+                    />
+                  </div>
+                );
+              })}
             </div>
 
             {selectedUsers.length > 0 && (
@@ -269,6 +298,11 @@ function CreateNewGroup({
                   chatName={receiverTab.name || ''}
                 />
               ))}
+              {selectedUsers.length === 0 && (
+                <span className="text-sm text-red-600 text-center mt-2">
+                  No users selected. Go back and choose members.
+                </span>
+              )}
             </div>
 
             {/* buttons */}

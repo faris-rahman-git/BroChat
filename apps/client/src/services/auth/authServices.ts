@@ -6,9 +6,10 @@ import type {
   OtpAndPasswordSchemaType,
 } from '@bro/shared';
 import api from '@client/configs/axios';
+const AUTH_API = '/auth';
 
 export const registerApi = async (data: RegisterSchemaType) => {
-  const res = await api.post('/register', data);
+  const res = await api.post(AUTH_API + '/register', data);
   return res.data;
 };
 
@@ -20,31 +21,32 @@ export const otpAndPasswordApi = async ({
   mode: string;
 }) => {
   if (mode === 'register') {
-    const res = await api.post('/otpandpassword', data);
+    const res = await api.post(AUTH_API + '/otpandpassword', data);
     return res.data;
   }
   if (mode === 'forgot') {
-    const res = await api.put('/resetpassword', data);
+    const res = await api.put(AUTH_API + '/resetpassword', data);
     return res.data;
   }
 };
 
+//check
 export const useResendOtpApi = async (email: string) => {
-  const res = await api.post('/resendotp', { email });
+  const res = await api.post(AUTH_API + '/resendotp', { email });
   return res.data;
 };
 
 export const loginApi = async (data: LoginSchemaType) => {
-  const res = await api.post('/login', data);
+  const res = await api.post(AUTH_API + '/login', data);
   return res.data;
 };
 
 export const forgotPasswordApi = async (data: ForgotPasswordSchemaType) => {
-  const res = await api.post('/forgotpassword', data);
+  const res = await api.post(AUTH_API + '/forgotpassword', data);
   return res.data;
 };
 
 export const logoutApi = async () => {
-  const res = await api.get('/logout');
+  const res = await api.get(AUTH_API + '/logout');
   return res.data;
 };

@@ -7,6 +7,18 @@ export type GroupChatListType = {
   createdAt: Date;
   createdBy: string;
   avatar?: string | null;
+  isPaid?: boolean;
+  isBlocked: boolean;
+  blockedAt?: Date | null;
+};
+
+export type GroupChatType = Omit<GroupChatListType, 'createdBy'> & {
+  createdBy: GroupMember;
+};
+
+export type DeleteGroupsReturnType = GroupChatType & {
+  isDeleted: boolean;
+  deletedAt?: Date | null;
 };
 
 export type GroupMember = {

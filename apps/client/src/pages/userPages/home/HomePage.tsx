@@ -20,6 +20,7 @@ function HomePage() {
   const { isPending, isSuccess, mutate } = useLogout();
   const navigate = useNavigate();
 
+
   useEffect(() => {
     const isLoading = isPending || loading;
     dispatch(isLoading ? showLoader() : hideLoader());

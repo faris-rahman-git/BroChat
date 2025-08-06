@@ -1,6 +1,6 @@
 import { CellContext, createColumnHelper } from '@tanstack/react-table';
 import { useEffect, useState } from 'react';
-import { ReportResponse } from '@bro/shared';
+import { ReportSubResponse } from '@bro/shared';
 import DataTable from '@client/components/customUi/commonElemets/DataTable';
 import ConfirmActionButton from '@client/components/customUi/commonElemets/ConfirmActionButton';
 import ReportDetailsModalContent from '../../elements/reportElements/ReportDetailsModalContent';
@@ -8,34 +8,56 @@ import { useGetResolvedReports } from '@client/hooks/admin/reportManagement/useG
 import { LuMenu } from 'react-icons/lu';
 
 function ResolvedReportsPanel() {
-  const [reportList, setReportList] = useState<ReportResponse[]>([]);
+  const [reportList, setReportList] = useState<ReportSubResponse[]>([]);
+  const [totalPages, setTotalPages] = useState(1);
   const [searchValue, setSearchValue] = useState<string>('');
 
   const { isPending, isSuccess, mutate, data } = useGetResolvedReports();
+
   useEffect(() => {
-    mutate();
-  }, []);
+    if (searchValue.trim().length < 1) {
+      mutate({
+        searchValue,
+        page: 1,
+      });
+    }
+  }, [searchValue]);
+
+  useEffect(() => {
+    const delay = setTimeout(() => {
+      if (searchValue.trim().length > 1) {
+        mutate({
+          searchValue,
+          page: 1,
+        });
+      }
+    }, 300);
+
+    return () => clearTimeout(delay);
+  }, [searchValue]);
+
   //success handles
   useEffect(() => {
     if (isSuccess) {
       setReportList(data.reportList);
+      setTotalPages(data.totalPages);
     }
   }, [isSuccess]);
 
-  const columnHelper = createColumnHelper<ReportResponse>();
+  const columnHelper = createColumnHelper<ReportSubResponse>();
 
   const columns = [
     {
       header: '#',
-      cell: (info: CellContext<ReportResponse, unknown>) => {
+      cell: (info: CellContext<ReportSubResponse, unknown>) => {
         return <span>{info.row.index + 1}</span>;
       },
     },
-    columnHelper.accessor('reporterId.username', { header: 'Reporter' }),
+    columnHelper.accessor('_id', { header: 'Id' }),
     columnHelper.accessor('reportedUserId.username', { header: 'Reported' }),
     columnHelper.accessor('createdAt', {
       header: 'Reported At',
-      cell: (info: CellContext<ReportResponse, unknown>) => {
+      cell: (info: CellContext<ReportSubResponse, unknown>) => {
         const date = new Date(info.getValue() as string);
         const formatted = date.toLocaleDateString('en-GB', {
           day: '2-digit',
@@ -49,7 +71,7 @@ function ResolvedReportsPanel() {
 
     {
       header: 'Actions',
-      cell: (info: CellContext<ReportResponse, unknown>) => {
+      cell: (info: CellContext<ReportSubResponse, unknown>) => {
         const rowData = info.row.original;
 
         return (
@@ -64,7 +86,10 @@ function ResolvedReportsPanel() {
               isConfirmButtonDisabled={true}
               onConfirm={() => {}}
             >
-              <ReportDetailsModalContent report={rowData} isShowActions={true} />
+              <ReportDetailsModalContent
+                report={rowData}
+                isShowActions={true}
+              />
             </ConfirmActionButton>
           </div>
         );
@@ -80,6 +105,8 @@ function ResolvedReportsPanel() {
       searchValue={searchValue}
       isPending={isPending}
       tableHeader="Resolved Reports"
+      totalPages={totalPages}
+      onPageChange={(page: number) => mutate({ searchValue, page })}
     />
   );
 }

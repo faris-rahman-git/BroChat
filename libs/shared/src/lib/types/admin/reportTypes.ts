@@ -1,9 +1,14 @@
-type UserRef = {
+export type UserRef = {
   _id: string;
   username: string;
 };
 
 export type ReportResponse = {
+  data: ReportSubResponse[];
+  totalPages: number;
+};
+
+export type ReportSubResponse = {
   _id: string;
   reporterId: UserRef;
   reportedUserId: {
@@ -18,4 +23,10 @@ export type ReportResponse = {
   note?: string;
   actionTakeAt?: Date;
   createdAt: Date;
+};
+
+export type GetReportParams = {
+  searchValue?: string;
+  createdAt?: string;
+  page: number;
 };

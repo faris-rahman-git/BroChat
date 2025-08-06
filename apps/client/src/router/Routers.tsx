@@ -12,6 +12,7 @@ import { useAxiosAuth } from '@client/hooks/auth/useAxiosAuth';
 import DashboardPage from '@client/pages/userPages/home/DashboardPage';
 import useSocialAuthFromQuery from '@client/hooks/auth/useSocialAuthFromQuery';
 import VideoPlayerPage from '@client/pages/userPages/home/VideoPlayerPage';
+import CallPageWrapper from '@client/components/customUi/user/elements/chatPanel/subChatPanelTop/CallPageWrapper';
 
 function Routers() {
   useAxiosAuth();
@@ -85,6 +86,7 @@ function Routers() {
           element={role == 'user' ? <HomePage /> : <Navigate to="/login" />}
         />
         <Route path="/video-player" element={<VideoPlayerPage />} />
+        <Route path="/call/:roomID" element={<CallPageWrapper />} />
 
         {/* Admin Routes */}
         <Route

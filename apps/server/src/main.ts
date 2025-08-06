@@ -1,12 +1,14 @@
 import http from 'http';
 import dotenv from 'dotenv';
-dotenv.config();
-import app from './app';
-import connectMongo from './config/db';
 import { Server } from 'socket.io';
-import { setupSocket } from './interfaces/socket';
-const PORT = process.env.PORT || 5000;
+import { setupSocket } from './presentation/socket';
 
+const PORT = process.env.PORT || 5000;
+import app from './app';
+import connectMongo from './infra/databases/mongo/dbConnection';
+import { cleanExpiredSubscriptions } from './presentation/jobs/handler/cleanExpiredSubscriptions';
+
+dotenv.config();
 // Create HTTP server using Express app
 const server = http.createServer(app);
 
@@ -22,6 +24,8 @@ export const io = new Server(server, {
 setupSocket(io);
 
 connectMongo();
+
+cleanExpiredSubscriptions();
 
 server.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

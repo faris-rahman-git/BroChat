@@ -75,6 +75,19 @@ const oneToOneChatSlice = createSlice({
         user.hasBlockedMe = hasBlockedMe ?? user.hasBlockedMe;
       }
     },
+
+    updateAUserPremiumStatus(
+      state,
+      action: PayloadAction<{ userId: string; isSubscribed: boolean }>
+    ) {
+      const user = state.chatList.find(
+        (user) => user.receiverId === action.payload.userId
+      );
+
+      if (user) {
+        user.isSubscribed = action.payload.isSubscribed ?? user.isBlockedByMe;
+      }
+    },
   },
 });
 
@@ -85,6 +98,7 @@ export const {
   addUserIfNotExists,
   changeChatToTop,
   updateBlockedUser,
+  updateAUserPremiumStatus,
 } = oneToOneChatSlice.actions;
 
 export default oneToOneChatSlice.reducer;

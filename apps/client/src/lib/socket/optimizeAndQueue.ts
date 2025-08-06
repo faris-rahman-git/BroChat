@@ -3,7 +3,7 @@ import {
   addEventToQueue,
 } from '@client/redux/features/socket/offlineQueueSlice';
 import { store } from '@client/redux/store';
-import { EventEmitType } from '../../../../../libs/shared/src/lib/types/socket/socketTypes';
+import { EventEmitType } from '@bro/shared';
 
 export const optimizeAndQueue = ({ event, data }: EventEmitType) => {
   const state = store.getState();
@@ -14,6 +14,17 @@ export const optimizeAndQueue = ({ event, data }: EventEmitType) => {
       (item) =>
         item.event === 'start-typing' &&
         item.data.receiverId === data.receiverId
+    );
+
+    if (startIndex !== -1) {
+      store.dispatch(removeEventAtIndex(startIndex));
+      return;
+    }
+  }
+  if (event === 'send-message') {
+    const startIndex = queue.findIndex(
+      (item) =>
+        item.event === 'send-message' && item.data.tempId === data.tempId
     );
 
     if (startIndex !== -1) {

@@ -43,6 +43,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '@client/redux/store';
 import { Pause, Play } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { getMinutesSince } from '@bro/shared';
 
 type Props = {
   messageId: string;
@@ -59,6 +60,7 @@ type Props = {
   isAdmin?: boolean;
   MessageType?: ContentType;
   mediaUrl?: string | null;
+  createdAt?: string | Date;
 };
 
 const MessageBubble = ({
@@ -76,6 +78,7 @@ const MessageBubble = ({
   isAdmin,
   MessageType,
   mediaUrl,
+  createdAt = new Date(),
 }: Props) => {
   const messageRef = useRef<HTMLParagraphElement>(null);
   const [isNarrow, setIsNarrow] = useState(false);
@@ -85,6 +88,12 @@ const MessageBubble = ({
   const editingMessage = useSelector(
     (state: RootState) => state.editingMessage
   );
+  const userDetails = useSelector((state: RootState) => state.user);
+  const canEdit = userDetails.isSubscribed || getMinutesSince(createdAt) <= 5;
+  const canDeleteForEveryone =
+    (userDetails.isSubscribed || getMinutesSince(createdAt) <= 60) &&
+    (isMine || isAdmin);
+
   const isBeingEdited = editingMessage?.messageId === messageId;
 
   useEffect(() => {
@@ -357,7 +366,7 @@ const MessageBubble = ({
                   onConfirm={() => handleDelete('me')}
                 />
               </ContextMenuItem>
-              {(isAdmin || isMine) && (
+              {(isAdmin || isMine) && canDeleteForEveryone && (
                 <ContextMenuItem
                   onSelect={(e) => {
                     e.preventDefault();
@@ -377,7 +386,7 @@ const MessageBubble = ({
             </ContextMenuSubContent>
           </ContextMenuSub>
           <ContextMenuItem
-            disabled={!isMine}
+            disabled={!isMine || !canEdit}
             inset
             onClick={() =>
               dispatch(

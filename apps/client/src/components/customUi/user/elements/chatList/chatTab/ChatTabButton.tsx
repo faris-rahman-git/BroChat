@@ -4,6 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@radix-ui/react-avatar';
 import { cn } from '@client/lib/utils';
 import MessagePreview from './MessagePreview';
 import { ContentType } from '@bro/shared';
+import { BsPatchCheckFill } from 'react-icons/bs';
 
 type ChatTabButtonProps = {
   avatar?: string;
@@ -17,6 +18,8 @@ type ChatTabButtonProps = {
   className?: string;
   timeOrText?: string;
   avatarFallback?: string;
+  isPaid?: boolean;
+  isSubscribed?: boolean;
 } & React.ComponentProps<typeof Button>;
 
 export default function ChatTabButton({
@@ -31,6 +34,8 @@ export default function ChatTabButton({
   className,
   timeOrText,
   avatarFallback,
+  isPaid = false,
+  isSubscribed = false,
   ...props
 }: ChatTabButtonProps) {
   return (
@@ -67,9 +72,13 @@ export default function ChatTabButton({
           <div className="flex w-full flex-col items-start justify-center">
             {/* Chat name and time */}
             <div className="flex items-center justify-between w-full gap-2">
-              <div className="flex-1 truncate font-semibold text-black text-sm">
+              <div className="flex items-center gap-2 truncate font-semibold text-black text-sm">
                 {chatName}
+                {(isPaid || isSubscribed) && (
+                  <BsPatchCheckFill className="text-blue-500 size-4 flex-shrink-0" />
+                )}
               </div>
+
               {!isAddUser && (
                 <div className="flex-shrink-0 text-[11px] font-normal text-black opacity-50 whitespace-nowrap">
                   {/* Optional time */}

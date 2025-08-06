@@ -7,6 +7,7 @@ import { setActiveReceiver } from '@client/redux/features/userSlices/homeSlices/
 import { useSelector } from 'react-redux';
 import { RootState } from '@client/redux/store';
 import { GroupChatListType, SearchResultType } from '@bro/shared';
+import { useMemo, useState } from 'react';
 
 type ChatListProps<T> = {
   chatListData: T[];
@@ -27,6 +28,15 @@ const ChatList = <T extends SearchResultType | GroupChatListType>({
   const browserIsOnline = useSelector(
     (state: RootState) => state.browserOnlineStatus.isOnline
   );
+
+  const [searchQuery, setSearchQuery] = useState('');
+  const filteredChatList = useMemo(() => {
+    return chatListData.filter((item) => {
+      const name = 'name' in item ? item.name : item.groupName || '';
+
+      return name.toLowerCase().includes(searchQuery.toLowerCase());
+    });
+  }, [chatListData, searchQuery]);
 
   const handleUserClick = (
     receiverAndChatDetails: SearchResultType | GroupChatListType
@@ -60,10 +70,10 @@ const ChatList = <T extends SearchResultType | GroupChatListType>({
         <Header tab={activeSectionTab} />
 
         <div className="flex flex-col items-start w-full flex-1 min-h-0">
-          <ChatSearch tab={activeSectionTab} />
+          <ChatSearch tab={activeSectionTab} onSearchChange={setSearchQuery} />
 
           <div className="flex flex-col gap-2 custom-scrollbar px-4 py-0 w-full overflow-y-auto flex-1 min-h-0 overflow-x-hidden!">
-            {chatListData.map((receiverTab, index) => {
+            {filteredChatList.map((receiverTab, index) => {
               const isDM = activeSectionTab === 'DMs';
 
               const conversationId =
@@ -102,6 +112,14 @@ const ChatList = <T extends SearchResultType | GroupChatListType>({
                   ? receiverTab.name
                   : receiverTab.groupName;
 
+              const isPaid =
+                'isPaid' in receiverTab ? receiverTab.isPaid : false;
+
+              const isSubscribed =
+                'isSubscribed' in receiverTab
+                  ? receiverTab.isSubscribed
+                  : false;
+
               return (
                 <ChatTab
                   key={index}
@@ -118,6 +136,8 @@ const ChatList = <T extends SearchResultType | GroupChatListType>({
                       ? 'bg-[#f3f3f3]'
                       : ''
                   }
+                  isPaid={isPaid}
+                  isSubscribed={isSubscribed}
                 />
               );
             })}

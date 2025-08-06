@@ -6,6 +6,9 @@ import { RootState } from '@client/redux/store';
 import { useSelector } from 'react-redux';
 import ResolvedReportsPanel from '@client/components/customUi/admin/panels/reportPanels/ResolvedReportsPanel';
 import DeletedReportsPanel from '@client/components/customUi/admin/panels/reportPanels/DeletedReportsPanel';
+import AllTransactionsPanel from '@client/components/customUi/admin/panels/revenuePanel/AllTransactionsPanel';
+import AllGroups from '@client/components/customUi/admin/panels/groupPanels/AllGroups';
+import DeletedGroups from '@client/components/customUi/admin/panels/groupPanels/DeletedGroups';
 
 function DashBoard() {
   const { selectedTab, selectedChild } = useSelector(
@@ -26,6 +29,15 @@ function DashBoard() {
         selectedChild == 'Resolved Reports' && <ResolvedReportsPanel />}
       {selectedTab == 'Reports Management' &&
         selectedChild == 'Deleted Reports' && <DeletedReportsPanel />}
+
+      {selectedTab == 'Group Management' && selectedChild == 'All Groups' && (
+        <AllGroups />
+      )}
+      {selectedTab == 'Group Management' &&
+        selectedChild == 'Deleted Groups' && <DeletedGroups />}
+
+      {selectedTab == 'Revenue Management' &&
+        selectedChild == 'All Transactions' && <AllTransactionsPanel />}
     </>
   );
 }

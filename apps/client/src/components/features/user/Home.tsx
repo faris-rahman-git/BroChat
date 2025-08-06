@@ -13,6 +13,7 @@ import {
   GroupMember,
   MessageType,
   SearchResultType,
+  SubscriptionDetailsType,
   updateGroupInfoType,
 } from '@bro/shared';
 import { useAppDispatch } from '@client/hooks/commonHooks/useAppDispatch';
@@ -26,6 +27,7 @@ import {
   clearActiveReceiver,
   setTypingStatus,
   updateActiveReceiver,
+  updateBlockGroupStatus,
   updateBlockUserStatus,
 } from '@client/redux/features/userSlices/homeSlices/commonSlices/activeReceiverSlice';
 import {
@@ -40,6 +42,7 @@ import {
   setChatList,
   setUserOnlineStatus,
   setUserTypingStatus,
+  updateAUserPremiumStatus,
   updateBlockedUser,
 } from '@client/redux/features/userSlices/homeSlices/dmSlices/oneToOneChatSlice';
 import {
@@ -47,7 +50,9 @@ import {
   addGroupMembers,
   changeGroupChatToTop,
   dismissGroupAdmin,
+  groupBlockUpdate,
   makeGroupAdmin,
+  makeGroupPremium,
   removeGroupChat,
   removeGroupMember,
   setGroupChatList,
@@ -57,6 +62,7 @@ import {
   deleteMessage,
   editMessage,
 } from '@client/redux/features/userSlices/homeSlices/messageSlice/messageHistorySlice';
+import { updateSubscriptionDetails } from '@client/redux/features/userSlices/authSlices/userSlice';
 
 function Home() {
   //redux
@@ -84,6 +90,12 @@ function Home() {
     error: oneToOneError,
     data: oneToOneData,
   } = useOneToOneChatList();
+  useEffect(() => {
+    if (oneToOneIsSuccess) {
+      dispatch(setChatList(oneToOneData.usersList));
+    }
+  }, [oneToOneIsSuccess]);
+
   const {
     isPending: groupIsPending,
     isSuccess: groupIsSuccess,
@@ -92,22 +104,17 @@ function Home() {
     error: groupError,
     data: groupData,
   } = useGroupChatList();
+  useEffect(() => {
+    if (groupIsSuccess) {
+      dispatch(setGroupChatList(groupData.groupList));
+    }
+  }, [groupIsSuccess]);
 
   useEffect(() => {
     oneToOneMutate();
     groupMutate();
   }, []);
 
-  useEffect(() => {
-    if (oneToOneIsSuccess) {
-      dispatch(setChatList(oneToOneData.usersList));
-    }
-  }, [oneToOneIsSuccess]);
-  useEffect(() => {
-    if (groupIsSuccess) {
-      dispatch(setGroupChatList(groupData.groupList));
-    }
-  }, [groupIsSuccess]);
   useEffect(() => {
     if (oneToOneIsError) {
       console.log(oneToOneError.message);
@@ -360,6 +367,77 @@ function Home() {
       );
     };
 
+    //14.Make Group Premium
+    const handleMakeGroupPremium = async (
+      data: {
+        conversationId: string;
+      },
+      ack?: (status: boolean) => void
+    ) => {
+      if (typeof ack === 'function') ack(true);
+      dispatch(
+        makeGroupPremium({
+          conversationId: data.conversationId,
+        })
+      );
+    };
+
+    //14. update subscription details
+    const handleUpdateSubscriptionDetails = async (
+      data: SubscriptionDetailsType,
+      ack?: (status: boolean) => void
+    ) => {
+      if (typeof ack === 'function') ack(true);
+      dispatch(updateSubscriptionDetails({ data }));
+    };
+
+    //15. update user premium status
+    const handleUpdateUserPremiumStatus = async (
+      { isSubscribed, userId }: { isSubscribed: boolean; userId: string },
+      ack?: (status: boolean) => void
+    ) => {
+      if (typeof ack === 'function') ack(true);
+      dispatch(
+        updateAUserPremiumStatus({
+          isSubscribed,
+          userId,
+        })
+      );
+    };
+
+    //15. group soft delete
+    const handleGroupSoftDelete = async (
+      { conversationId }: { conversationId: string },
+      ack?: (status: boolean) => void
+    ) => {
+      if (typeof ack === 'function') ack(true);
+      dispatch(removeGroupChat(conversationId));
+      dispatch(clearActiveReceiver(conversationId));
+    };
+
+    //15. group block update
+    const handleGroupBlockUpdate = async (
+      {
+        conversationId,
+        isBlocked,
+      }: { conversationId: string; isBlocked: boolean },
+      ack?: (status: boolean) => void
+    ) => {
+      if (typeof ack === 'function') ack(true);
+      dispatch(
+        groupBlockUpdate({
+          conversationId,
+          isBlocked,
+        })
+      );
+      dispatch(
+        updateBlockGroupStatus({
+          conversationId,
+          isBlocked,
+        })
+      );
+    };
+
     //  Attach all listener
     socket.on('new-message', handleNewMessage);
     socket.on('user-online', handleUserOnline);
@@ -376,6 +454,11 @@ function Home() {
     socket.on('add-group-members', handleAddGroupMembers);
     socket.on('update-group-info', handleUpdateGroupInfo);
     socket.on('block-user-update', handleBlockUser);
+    socket.on('make-group-premium', handleMakeGroupPremium);
+    socket.on('update-subscription-details', handleUpdateSubscriptionDetails);
+    socket.on('update-user-premium-status', handleUpdateUserPremiumStatus);
+    socket.on('group-soft-delete', handleGroupSoftDelete);
+    socket.on('group-block-update', handleGroupBlockUpdate);
 
     return () => {
       socket.off('new-message', handleNewMessage);
@@ -393,6 +476,14 @@ function Home() {
       socket.off('add-group-members', handleAddGroupMembers);
       socket.off('update-group-info', handleUpdateGroupInfo);
       socket.off('block-user-update', handleBlockUser);
+      socket.off('make-group-premium', handleMakeGroupPremium);
+      socket.off(
+        'update-subscription-details',
+        handleUpdateSubscriptionDetails
+      );
+      socket.off('update-user-premium-status', handleUpdateUserPremiumStatus);
+      socket.off('group-soft-delete', handleGroupSoftDelete);
+      socket.off('group-block-update', handleGroupBlockUpdate);
     };
   }, []);
 

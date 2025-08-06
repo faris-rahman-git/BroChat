@@ -85,6 +85,7 @@ function AddUserCard({
                 lastMessageOrUserName={receiverTab.username}
                 avatar={receiverTab.avatar || ''}
                 chatName={receiverTab.name || ''}
+                isSubscribed={receiverTab.isSubscribed}
               />
             ))}
           {(searchValue == '' || searchResult.length == 0) && !isPending && (

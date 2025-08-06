@@ -2,6 +2,7 @@ import { io, Socket } from 'socket.io-client';
 import api from './axios';
 import { store } from '@client/redux/store';
 import { removeEventAtIndex } from '@client/redux/features/socket/offlineQueueSlice';
+const AUTH_API = '/auth';
 
 let socket: Socket | null = null;
 
@@ -42,7 +43,7 @@ export const initSocket = async (
         err.message === 'Invalid access token'
       ) {
         try {
-          await api.get('/refresh');
+          await api.get(AUTH_API + '/refresh');
           console.log('Access token refreshed. Retrying...');
           socket?.connect();
         } catch (refreshErr) {

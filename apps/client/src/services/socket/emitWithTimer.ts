@@ -22,5 +22,6 @@ export const emitWithTimer = async ({ event, data }: EventEmitType) => {
     });
   });
 
+
   return ackReceived;
 };

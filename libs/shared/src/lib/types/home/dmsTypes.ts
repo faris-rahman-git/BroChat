@@ -7,6 +7,7 @@ export type ReportUserType = {
 export type SearchResultType = {
   conversationId: string | null;
   receiverId: string;
+
   name: string;
   email: string;
   username: string;
@@ -19,4 +20,6 @@ export type SearchResultType = {
 
   isBlockedByMe?: boolean;
   hasBlockedMe?: boolean;
+
+  isSubscribed?: boolean;
 };

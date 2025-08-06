@@ -1,11 +1,17 @@
 import ButtonIcon from '@client/components/customUi/commonElemets/ButtonIcon';
-import { LuUser, LuUserX, LuUsers } from 'react-icons/lu';
+import { LuUser, LuUserX, LuUsers, LuWallet } from 'react-icons/lu';
 import {
   MdArrowDropDown,
   MdOutlineDashboard,
-  MdOutlineReport,
-  MdOutlineReportGmailerrorred,
   MdArrowDropUp,
+  MdOutlinePayment,
+  MdOutlineManageAccounts,
+  MdOutlineReportProblem,
+  MdOutlineCheckCircle,
+  MdOutlineDeleteForever,
+  MdGroups2,
+  MdOutlineGroupOff,
+  MdGroups3,
 } from 'react-icons/md';
 import { RootState } from '@client/redux/store';
 import { useSelector } from 'react-redux';
@@ -36,12 +42,30 @@ function DashBoardTopButtons() {
       ],
     },
     {
-      icon: MdOutlineReport,
+      icon: MdOutlineManageAccounts,
       label: 'Reports Management',
       children: [
-        { label: 'Pending Reports', icon: MdOutlineReportGmailerrorred },
-        { label: 'Resolved Reports', icon: MdOutlineReportGmailerrorred },
-        { label: 'Deleted Reports', icon: MdOutlineReportGmailerrorred },
+        { label: 'Pending Reports', icon: MdOutlineReportProblem },
+        { label: 'Resolved Reports', icon: MdOutlineCheckCircle },
+        { label: 'Deleted Reports', icon: MdOutlineDeleteForever },
+      ],
+    },
+    {
+      icon: MdGroups2,
+      label: 'Group Management',
+      children: [
+        { label: 'All Groups', icon: MdGroups3 },
+        { label: 'Deleted Groups', icon: MdOutlineGroupOff },
+      ],
+    },
+    {
+      icon: LuWallet,
+      label: 'Revenue Management',
+      children: [
+        {
+          label: 'All Transactions',
+          icon: MdOutlinePayment,
+        },
       ],
     },
   ];

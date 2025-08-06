@@ -14,10 +14,13 @@ import { useRestoreUser } from '@client/hooks/admin/userManagement/useRestoreUse
 import { useHardDeleteUser } from '@client/hooks/admin/userManagement/useHardDeleteUser';
 import { LuMenu } from 'react-icons/lu';
 import DetailsModalContent from '../../elements/userElemets/DetailsModalContent';
+import { getPageNumber } from '@client/utils/getPageNumber';
 
 function DeletedUsersPanel() {
   const [userList, setUserList] = useState<AllUsersType[]>([]);
+  const [totalPages, setTotalPages] = useState(1);
   const [searchValue, setSearchValue] = useState<string>('');
+  const [currentPage, setCurrentPage] = useState(1);
   const dispatch = useAppDispatch();
   const { isPending, isSuccess, isError, mutate, error, data } =
     useGetDeletedUsers();
@@ -42,14 +45,20 @@ function DeletedUsersPanel() {
 
   useEffect(() => {
     if (searchValue.trim().length < 1) {
-      mutate(searchValue);
+      mutate({
+        searchValue,
+        page: 1,
+      });
     }
   }, [searchValue]);
 
   useEffect(() => {
     const delay = setTimeout(() => {
       if (searchValue.trim().length > 1) {
-        mutate(searchValue);
+        mutate({
+          searchValue,
+          page: 1,
+        });
       }
     }, 300);
 
@@ -60,16 +69,19 @@ function DeletedUsersPanel() {
   useEffect(() => {
     if (isSuccess) {
       setUserList(data.usersList);
+      setTotalPages(data.totalPages);
     }
   }, [isSuccess]);
   useEffect(() => {
     if (isSuccessRestore) {
       setUserList(dataRestore.updatedUsersList);
+      setTotalPages(dataRestore.totalPages);
     }
   }, [isSuccessRestore]);
   useEffect(() => {
     if (isSuccessHardDelete) {
       setUserList(dataHardDelete.updatedUsersList);
+      setTotalPages(dataHardDelete.totalPages);
     }
   }, [isSuccessHardDelete]);
 
@@ -96,11 +108,23 @@ function DeletedUsersPanel() {
   }, [isPendingRestore, isPendingHardDelete]);
 
   const handleRestoreUser = (userId: string) => {
-    mutateRestore({ userId, searchValue });
+    const pagenumber = getPageNumber(currentPage, userList.length);
+    setCurrentPage(pagenumber);
+    mutateRestore({
+      userId,
+      searchValue,
+      page: pagenumber,
+    });
   };
 
   const handleHardDeleteUser = (userId: string) => {
-    mutateHardDelete({ userId, searchValue });
+    const pagenumber = getPageNumber(currentPage, userList.length);
+    setCurrentPage(pagenumber);
+    mutateHardDelete({
+      userId,
+      searchValue,
+      page: pagenumber,
+    });
   };
 
   const columnHelper = createColumnHelper<AllUsersType>();
@@ -109,7 +133,7 @@ function DeletedUsersPanel() {
     {
       header: '#',
       cell: (info: CellContext<AllUsersType, unknown>) => {
-        return <span>{info.row.index + 1}</span>; // Index starts from 0
+        return <span>{info.row.index + 1 + (currentPage - 1) * 10}</span>;
       },
     },
     columnHelper.accessor('username', { header: 'User Name' }),
@@ -197,7 +221,12 @@ function DeletedUsersPanel() {
       setSearchValue={setSearchValue}
       searchValue={searchValue}
       isPending={isPending}
-      tableHeader='Deleted Users'
+      tableHeader="Deleted Users"
+      totalPages={totalPages}
+      onPageChange={(page) => {
+        setCurrentPage(page);
+        mutate({ searchValue, page });
+      }}
     />
   );
 }

@@ -3,6 +3,14 @@ import { ChatPanelTopConstants } from '@client/constants/userConstant/chatPanelC
 import { Avatar, AvatarFallback, AvatarImage } from '@radix-ui/react-avatar';
 import ChatInfoModal from './subChatPanelTop/ChatInfoModal';
 import { useState } from 'react';
+import { selectGroupChatById } from '@client/redux/selectors/groupChatSelectors';
+import { useSelector } from 'react-redux';
+import { RootState } from '@client/redux/store';
+import { BsPatchCheckFill } from 'react-icons/bs';
+import ThankYouForSubscribingModal from '@client/components/customUi/commonElemets/ThankYouForSubscribingModal';
+import { useNavigate } from 'react-router-dom';
+import { getUrlParams } from '@client/utils/getUrlParams';
+import { randomID } from '@client/utils/randomID';
 
 function ChatPanelTop({
   avatar,
@@ -17,7 +25,27 @@ function ChatPanelTop({
   isTyping: boolean;
   isGroup: boolean;
 }) {
+  const receiverDetails = useSelector(
+    (state: RootState) => state.activeReceiver
+  );
+  const group = useSelector(
+    selectGroupChatById(receiverDetails.conversationId!)
+  );
   const [openInfoModal, setOpenInfoModal] = useState(false);
+  const [showThankYouModal, setShowThankYouModal] = useState(false);
+  //call handler
+  const navigate = useNavigate();
+
+  const handleCalls = (label: string) => {
+    const isVideoCall = label == 'Video call' ? true : false;
+    const roomID = getUrlParams().get('roomID') || randomID(10);
+    const params = new URLSearchParams({
+      isVideoCall: String(isVideoCall),
+      isGroup: String(isGroup),
+    });
+
+    navigate(`/call/${encodeURIComponent(roomID)}?${params.toString()}`);
+  };
 
   return (
     <header className="flex items-center justify-between p-6 h-[78px]  bg-white">
@@ -42,7 +70,12 @@ function ChatPanelTop({
         </div>
 
         <div className="flex flex-col">
-          <h2 className="font-semibold text-xl">{name}</h2>
+          <div className="flex items-center gap-2">
+            <h2 className="font-semibold text-xl">{name}</h2>
+            {(group?.isPaid || receiverDetails?.isSubscribed) && (
+              <BsPatchCheckFill className="text-blue-500 size-4 flex-shrink-0" />
+            )}
+          </div>
           <div className="flex items-center gap-1.5">
             {isTyping && !isGroup ? (
               // Typing Indicator
@@ -91,8 +124,7 @@ function ChatPanelTop({
             Icon={Icon}
             label={label}
             iconClassName="size-5"
-            // className={` ${activeTab === label ? 'bg-[#f5f5f5]' : ''}`}
-            // onClick={() => handleButtons(label)}
+            onClick={() => handleCalls(label)}
           ></ButtonIcon>
         ))}
       </div>
@@ -101,8 +133,16 @@ function ChatPanelTop({
         <ChatInfoModal
           isOpen={openInfoModal}
           onOpenChange={() => setOpenInfoModal(false)}
+          group={group}
+          receiverDetails={receiverDetails}
+          setShowThankYouModal={() => setShowThankYouModal(true)}
         />
       )}
+
+      <ThankYouForSubscribingModal
+        open={showThankYouModal}
+        onClose={() => setShowThankYouModal(false)}
+      />
     </header>
   );
 }

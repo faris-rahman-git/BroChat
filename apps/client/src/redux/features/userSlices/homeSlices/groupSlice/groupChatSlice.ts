@@ -47,6 +47,7 @@ const groupChatSlice = createSlice({
         state.groupList.unshift(chat);
       }
     },
+
     removeGroupChat(state, action: PayloadAction<string>) {
       state.groupList = state.groupList.filter(
         (group) => group._id !== action.payload
@@ -63,6 +64,9 @@ const groupChatSlice = createSlice({
       if (group) {
         group.participants = group.participants.filter(
           (member) => member._id !== action.payload.memberId
+        );
+        group.Admins = group.Admins.filter(
+          (member) => member !== action.payload.memberId
         );
       }
     },
@@ -91,6 +95,7 @@ const groupChatSlice = createSlice({
         );
       }
     },
+
     addGroupMembers(
       state,
       action: PayloadAction<{
@@ -123,6 +128,27 @@ const groupChatSlice = createSlice({
         };
       }
     },
+
+    makeGroupPremium(state, action: PayloadAction<{ conversationId: string }>) {
+      const group = state.groupList.find(
+        (group) => group._id === action.payload.conversationId
+      );
+      if (group) {
+        group.isPaid = true;
+      }
+    },
+
+    groupBlockUpdate(
+      state,
+      action: PayloadAction<{ conversationId: string; isBlocked: boolean }>
+    ) {
+      const group = state.groupList.find(
+        (group) => group._id === action.payload.conversationId
+      );
+      if (group) {
+        group.isBlocked = action.payload.isBlocked;
+      }
+    },
   },
 });
 
@@ -136,6 +162,8 @@ export const {
   dismissGroupAdmin,
   addGroupMembers,
   updateGroupInfo,
+  makeGroupPremium,
+  groupBlockUpdate
 } = groupChatSlice.actions;
 
 export default groupChatSlice.reducer;

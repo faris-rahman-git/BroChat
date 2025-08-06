@@ -1,25 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { updateGroupInfoType } from '../../../../../../../../libs/shared/src/lib/types/home/groupTypes';
-
-type Receiver = {
-  conversationId: string | null;
-  avatar?: string | null;
-  createdAt: Date | null;
-  name?: string | null;
-  about?: string | null;
-
-  receiverId?: string | null;
-  email?: string | null;
-  phoneNumber?: number | null;
-  username?: string | null;
-  isOnline?: boolean;
-  isTyping?: boolean;
-
-  isGroup?: boolean;
-
-  isBlockedByMe?: boolean;
-  hasBlockedMe?: boolean;
-};
+import { Receiver } from '@client/types/ReduxTypes';
+import { updateGroupInfoType } from '@bro/shared';
 
 const initialState: Receiver = {
   conversationId: '',
@@ -36,6 +17,8 @@ const initialState: Receiver = {
   about: null,
   isBlockedByMe: false,
   hasBlockedMe: false,
+  isSubscribed: false,
+  isBlocked: false,
 };
 
 const activeReceiverSlice = createSlice({
@@ -57,6 +40,8 @@ const activeReceiverSlice = createSlice({
       state.about = action.payload.receiver.about;
       state.isBlockedByMe = action.payload.receiver.isBlockedByMe;
       state.hasBlockedMe = action.payload.receiver.hasBlockedMe;
+      state.isSubscribed = action.payload.receiver.isSubscribed ?? false;
+      state.isBlocked = action.payload.receiver.isBlocked ?? false;
     },
 
     setActiveReceiverConversationId(state, action: PayloadAction<string>) {
@@ -79,6 +64,12 @@ const activeReceiverSlice = createSlice({
         state.createdAt = null;
         state.isOnline = false;
         state.isTyping = false;
+        state.isGroup = false;
+        state.about = null;
+        state.isBlockedByMe = false;
+        state.hasBlockedMe = false;
+        state.isSubscribed = false;
+        state.isBlocked = false;
       }
     },
 
@@ -110,6 +101,15 @@ const activeReceiverSlice = createSlice({
         state.hasBlockedMe = action.payload.hasBlockedMe ?? state.hasBlockedMe;
       }
     },
+
+    updateBlockGroupStatus(
+      state,
+      action: PayloadAction<{ conversationId: string; isBlocked: boolean }>
+    ) {
+      if (state.conversationId == action.payload.conversationId) {
+        state.isBlocked = action.payload.isBlocked;
+      }
+    },
   },
 });
 
@@ -120,5 +120,6 @@ export const {
   setTypingStatus,
   updateActiveReceiver,
   updateBlockUserStatus,
+  updateBlockGroupStatus
 } = activeReceiverSlice.actions;
 export default activeReceiverSlice.reducer;
