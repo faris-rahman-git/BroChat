@@ -12,6 +12,7 @@ export * from './lib/types/home/GroupFixedData.js';
 export * from './lib/types/home/PaymentTypes.js';
 export * from './lib/types/home/subscriptionTypes.js';
 export * from './lib/types/home/ProfileType.js';
+export * from './lib/types/home/callTypes.js';
 
 //admin types
 export * from './lib/types/admin/allUsersListType.js';

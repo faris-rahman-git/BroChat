@@ -2,7 +2,7 @@ import ButtonIcon from '@client/components/customUi/commonElemets/ButtonIcon';
 import { ChatPanelTopConstants } from '@client/constants/userConstant/chatPanelConstants';
 import { Avatar, AvatarFallback, AvatarImage } from '@radix-ui/react-avatar';
 import ChatInfoModal from './subChatPanelTop/ChatInfoModal';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { selectGroupChatById } from '@client/redux/selectors/groupChatSelectors';
 import { useSelector } from 'react-redux';
 import { RootState } from '@client/redux/store';
@@ -11,6 +11,12 @@ import ThankYouForSubscribingModal from '@client/components/customUi/commonEleme
 import { useNavigate } from 'react-router-dom';
 import { getUrlParams } from '@client/utils/getUrlParams';
 import { randomID } from '@client/utils/randomID';
+import { useCallInvite } from '@client/hooks/home/callHooks/useCallInvite';
+import {
+  showLoader,
+  hideLoader,
+} from '@client/redux/features/commonSlices/LoaderSlice';
+import { useAppDispatch } from '@client/hooks/commonHooks/useAppDispatch';
 
 function ChatPanelTop({
   avatar,
@@ -35,6 +41,27 @@ function ChatPanelTop({
   const [showThankYouModal, setShowThankYouModal] = useState(false);
   //call handler
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+
+  const {
+    isPending: isPendingCallInvite,
+    mutate: mutateCallInvite,
+    isSuccess: isSuccessCallInvite,
+    data: dataCallInvite,
+  } = useCallInvite();
+
+  useEffect(() => {
+    if (isPendingCallInvite) {
+      dispatch(showLoader());
+    } else {
+      dispatch(hideLoader());
+    }
+  }, [isPendingCallInvite]);
+  useEffect(() => {
+    if (isSuccessCallInvite) {
+      navigate(dataCallInvite?.callUrl);
+    }
+  }, [isSuccessCallInvite]);
 
   const handleCalls = (label: string) => {
     const isVideoCall = label == 'Video call' ? true : false;
@@ -43,8 +70,14 @@ function ChatPanelTop({
       isVideoCall: String(isVideoCall),
       isGroup: String(isGroup),
     });
-
-    navigate(`/call/${encodeURIComponent(roomID)}?${params.toString()}`);
+    const callUrl = `/call/${encodeURIComponent(roomID)}?${params.toString()}`;
+    mutateCallInvite({
+      isVideoCall,
+      startedAt: new Date(),
+      conversationId: receiverDetails.conversationId!,
+      callUrl,
+      roomId: roomID,
+    });
   };
 
   return (
