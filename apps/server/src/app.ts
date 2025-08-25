@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
-// import rateLimit from 'express-rate-limit';
+import rateLimit from 'express-rate-limit';
 import nocache from 'nocache';
 import cookieParser from 'cookie-parser';
 
@@ -56,11 +56,11 @@ app.use(helmet());
 app.use(morgan('dev'));
 
 // Rate Limiter
-// const limiter = rateLimit({
-//   windowMs: 15 * 60 * 1000, // 15 minutes
-//   max: 100, // limit each IP to 100 requests
-// });
-// app.use(limiter);
+const limiter = rateLimit({
+  windowMs: 7 * 60 * 1000, // 7 minutes
+  max: 1000, // limit each IP to 1000 requests
+});
+app.use(limiter);
 
 // API Routes
 app.use(BASE_ROUTE + '/auth', authRoute);
