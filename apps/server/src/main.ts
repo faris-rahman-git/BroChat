@@ -15,7 +15,7 @@ const server = http.createServer(app);
 // Setup all socket handlers
 export const io = new Server(server, {
   cors: {
-    origin: "https://brochat-gules.vercel.app",
+    origin: process.env.CLIENT_URL,
     credentials: true,
   },
   pingInterval: 3000, // send ping every 5 seconds

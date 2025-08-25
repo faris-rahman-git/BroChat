@@ -12,7 +12,7 @@ export const initSocket = async (
   onAuthFail: () => void
 ): Promise<Socket | null> => {
   return new Promise((resolve, reject) => {
-    socket = io('https://brochatbackend.duckdns.org', {
+    socket = io(BASE_URL, {
       withCredentials: true,
       transports: ['websocket', 'polling'],
       autoConnect: false,
