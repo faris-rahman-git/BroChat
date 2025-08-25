@@ -13,6 +13,7 @@ export const initSocket = async (
 ): Promise<Socket | null> => {
   return new Promise((resolve, reject) => {
     socket = io(BASE_URL, {
+      path: "/socket.io/",
       withCredentials: true,
       transports: ['websocket', 'polling'],
       autoConnect: false,
