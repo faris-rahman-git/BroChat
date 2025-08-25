@@ -3,7 +3,6 @@ import api from './axios';
 import { store } from '@client/redux/store';
 import { removeEventAtIndex } from '@client/redux/features/socket/offlineQueueSlice';
 const AUTH_API = '/auth';
-const BASE_URL = import.meta.env.VITE_SERVER_URL
 
 let socket: Socket | null = null;
 
@@ -12,10 +11,9 @@ export const initSocket = async (
   onAuthFail: () => void
 ): Promise<Socket | null> => {
   return new Promise((resolve, reject) => {
-    socket = io(BASE_URL, {
-      path: "/socket.io/",
+    socket = io('https://brochatbackend.duckdns.org', {
       withCredentials: true,
-      transports: ['websocket', 'polling'],
+      transports: ['websocket'],
       autoConnect: false,
     });
 
