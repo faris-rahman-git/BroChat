@@ -38,7 +38,7 @@ export const initSocket = async (
     });
 
     socket.on('connect_error', async (err) => {
-      console.warn('Socket error:', err.message);
+      console.warn('Socket error:', err);
 
       if (
         err.message === 'Access token missing' ||
