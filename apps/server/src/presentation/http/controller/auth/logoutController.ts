@@ -35,7 +35,7 @@ export class logoutController implements IController {
             options: {
               httpOnly: true,
               secure: true,
-              sameSite: 'strict',
+              sameSite: 'lax',
             },
           },
           {
@@ -43,7 +43,7 @@ export class logoutController implements IController {
             options: {
               httpOnly: true,
               secure: true,
-              sameSite: 'strict',
+              sameSite: 'lax',
             },
           },
         ]
