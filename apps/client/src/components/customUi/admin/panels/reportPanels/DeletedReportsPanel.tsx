@@ -1,76 +1,21 @@
 import { CellContext, createColumnHelper } from '@tanstack/react-table';
-import { useEffect, useState } from 'react';
 import { ReportSubResponse } from '@bro/shared';
 import DataTable from '@client/components/customUi/commonElemets/DataTable';
 import ConfirmActionButton from '@client/components/customUi/commonElemets/ConfirmActionButton';
-import {
-  showLoader,
-  hideLoader,
-} from '@client/redux/features/commonSlices/LoaderSlice';
-import { useAppDispatch } from '@client/hooks/commonHooks/useAppDispatch';
 import ReportDetailsModalContent from '../../elements/reportElements/ReportDetailsModalContent';
-import { useGetDeletedReports } from '@client/hooks/admin/reportManagement/useGetDeletedReports';
 import { LuMenu, LuTrash2 } from 'react-icons/lu';
-import { useHardDeleteReport } from '@client/hooks/admin/reportManagement/useHardDeleteReport';
+import { useDeletedReportsPanelHook } from '@client/hooks/PageHooks/admin/report/useDeletedReportsPanelHook';
 
 function DeletedReportsPanel() {
-  const [reportList, setReportList] = useState<ReportSubResponse[]>([]);
-  const [searchValue, setSearchValue] = useState<string>('');
-  const [totalPages, setTotalPages] = useState(1);
-  const dispatch = useAppDispatch();
-
-  const { isPending, isSuccess, mutate, data } = useGetDeletedReports();
-  useEffect(() => {
-    if (searchValue.trim().length < 1) {
-      mutate({
-        searchValue,
-        page: 1,
-      });
-    }
-  }, [searchValue]);
-
-  useEffect(() => {
-    const delay = setTimeout(() => {
-      if (searchValue.trim().length > 1) {
-        mutate({
-          searchValue,
-          page: 1,
-        });
-      }
-    }, 300);
-
-    return () => clearTimeout(delay);
-  }, [searchValue]);
-  //success handles
-  useEffect(() => {
-    if (isSuccess) {
-      setReportList(data.reportList);
-      setTotalPages(data.totalPages);
-    }
-  }, [isSuccess]);
-
-  //handle delete report
   const {
-    isPending: isPendingDeleteReport,
-    mutate: mutateDeleteReport,
-    isSuccess: isSuccessDeleteReport,
-    data: dataDeleteReport,
-  } = useHardDeleteReport();
-  const handleHardDeleteReport = (reportId: string) => {
-    mutateDeleteReport(reportId);
-  };
-  useEffect(() => {
-    if (isSuccessDeleteReport) {
-      setReportList((prev) =>
-        prev.filter((item) => item._id !== dataDeleteReport.reportId)
-      );
-    }
-  }, [isSuccessDeleteReport]);
-
-  useEffect(() => {
-    const anyPending = isPendingDeleteReport;
-    dispatch(anyPending ? showLoader() : hideLoader());
-  }, [isPendingDeleteReport]);
+    handleHardDeleteReport,
+    isPending,
+    mutate,
+    reportList,
+    searchValue,
+    setSearchValue,
+    totalPages,
+  } = useDeletedReportsPanelHook();
 
   const columnHelper = createColumnHelper<ReportSubResponse>();
 
@@ -96,7 +41,6 @@ function DeletedReportsPanel() {
       },
     }),
     columnHelper.accessor('reason', { header: 'Reason' }),
-
     {
       header: 'Actions',
       cell: (info: CellContext<ReportSubResponse, unknown>) => {

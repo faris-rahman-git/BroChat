@@ -1,7 +1,4 @@
 import loginImg from '../../../assets/auth/login.webp';
-import { useNavigate } from 'react-router-dom';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
 import FixedLogo from '../../customUi/auth/FixedLogo';
 import AuthHeading from '../../customUi/auth/AuthHeading';
 import { loginFormFields } from '../../../constants/authConstant/authConstants';
@@ -10,75 +7,19 @@ import AuthNextButton from '../../customUi/auth/AuthNextButton';
 import SocialLogin from '../../customUi/auth/SocialLogin';
 import SwitchBWLoginAndRegister from '../../customUi/auth/SwitchBWLoginAndRegister';
 import MainSideImage from '../../customUi/auth/MainSideImage';
-import { loginSchema, type LoginSchemaType } from '@bro/shared';
-import {
-  showLoader,
-  hideLoader,
-} from '@client/redux/features/commonSlices/LoaderSlice';
-import { useEffect } from 'react';
-import { useAppDispatch } from '@client/hooks/commonHooks/useAppDispatch';
-import { useLogin } from '@client/hooks/auth/useLogin';
+import { type LoginSchemaType } from '@bro/shared';
 import Errorspan from '@client/components/customUi/auth/Errorspan';
-import axios from 'axios';
-import { useSelector } from 'react-redux';
-import { RootState } from '@client/redux/store';
-import { setUser } from '@client/redux/features/userSlices/authSlices/userSlice';
-import {
-  setError,
-  clearError,
-} from '@client/redux/features/userSlices/authSlices/errorSlice';
+import { useLoginHook } from '@client/hooks/PageHooks/auth/useLoginHook';
 
 function Login() {
   const {
+    onSubmit,
+    handleForgotPassword,
     register,
     handleSubmit,
-    formState: { errors },
-  } = useForm<LoginSchemaType>({
-    resolver: zodResolver(loginSchema),
-  });
-
-  const errorMessage = useSelector((state: RootState) => state.error.message);
-  const { isPending, isSuccess, isError, mutate, error, data } = useLogin();
-  const dispatch = useAppDispatch();
-  const navigate = useNavigate();
-
-  const onSubmit = (data: LoginSchemaType) => {
-    mutate(data);
-  };
-
-  useEffect(() => {
-    dispatch(isPending ? showLoader() : hideLoader());
-  }, [isPending]);
-
-  useEffect(() => {
-    if (isSuccess) {
-      dispatch(clearError());
-      dispatch(setUser({ user: data.user }));
-      if (data.user.role == 'admin') {
-        navigate('/admin/dashboard');
-      } else {
-        navigate('/');
-        window.location.reload();
-      }
-    }
-  }, [isSuccess, navigate]);
-
-  useEffect(() => {
-    if (isError) {
-      if (axios.isAxiosError(error)) {
-        dispatch(
-          setError(error.response?.data?.message || 'Somthing went wrong')
-        );
-      } else {
-        dispatch(setError(error.message || 'Somthing went wrong'));
-      }
-    }
-  }, [isError, error, dispatch]);
-
-  const handleForgotPassword = () => {
-    dispatch(clearError());
-    navigate('/forgotPassword');
-  };
+    errors,
+    errorMessage,
+  } = useLoginHook();
 
   return (
     <div className="h-full w-full z-20 flex ">

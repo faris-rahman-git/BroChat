@@ -12,4 +12,6 @@ export interface IMessageWriteRepo {
     receiverId: string,
     status: MessageStatusType
   ): Promise<MessageStatusType | null>;
+
+  addOrUpdateReaction(messageId: string, emoji: string, userId: string): Promise<void>;
 }

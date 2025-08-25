@@ -1,12 +1,10 @@
 import { Card } from '@client/components/ui/card';
-import { RefObject, useEffect, useState } from 'react';
+import { RefObject } from 'react';
 import { Input } from '@client/components/ui/input';
-import ChatTab from '../ChatTab';
 import { Quantum } from 'ldrs/react';
-import { useAppDispatch } from '@client/hooks/commonHooks/useAppDispatch';
-import { setActiveReceiver } from '@client/redux/features/userSlices/homeSlices/commonSlices/activeReceiverSlice';
 import { SearchResultType } from '@bro/shared';
-import { useSearchUser } from '@client/hooks/home/dmHooks/useSearchUser';
+import { useAddUserCardHook } from '@client/hooks/PageHooks/user/HomePage/Home/panels/ChatList/element/Header/useAddUserCardHook';
+import ChatTabButton from '@client/components/customUi/commonElemets/ChatTabButton';
 
 function AddUserCard({
   newChatRef,
@@ -15,48 +13,14 @@ function AddUserCard({
   newChatRef: RefObject<HTMLDivElement | null>;
   setActiveTab: React.Dispatch<React.SetStateAction<string>>;
 }) {
-  const dispatch = useAppDispatch();
-  const [searchValue, setSearchValue] = useState('');
-  const [searchResult, setSearchResult] = useState<SearchResultType[]>([]);
-  const [searchError, setSearchError] = useState('No User Found');
-  const { mutate, isPending, isSuccess, isError, data, error } =
-    useSearchUser();
-
-  useEffect(() => {
-    const delay = setTimeout(() => {
-      if (searchValue.trim().length > 1) {
-        mutate({ searchData: searchValue });
-      }
-    }, 300); // debounce
-
-    return () => clearTimeout(delay);
-  }, [searchValue]);
-
-  useEffect(() => {
-    if (isSuccess) {
-      setSearchResult(data.MatchedUsers);
-    }
-  }, [isSuccess]);
-
-  useEffect(() => {
-    if (isError) {
-      setSearchResult([]);
-      setSearchError(error.message);
-    } else {
-      setSearchError('No User Found');
-    }
-  }, [isError, error]);
-
-  useEffect(() => {
-    if (isPending) {
-      setSearchResult([]);
-    }
-  }, [isPending]);
-
-  const handleAddUser = (receiverAndChatDetails: SearchResultType) => {
-    dispatch(setActiveReceiver({ receiver: receiverAndChatDetails }));
-    setActiveTab('');
-  };
+  const {
+    handleAddUser,
+    setSearchValue,
+    searchError,
+    searchResult,
+    searchValue,
+    isPending,
+  } = useAddUserCardHook(setActiveTab);
 
   return (
     <Card
@@ -76,7 +40,7 @@ function AddUserCard({
         <div className="flex flex-col gap-2 overflow-y-auto custom-scrollbar w-full max-h-[400px]">
           {searchValue != '' &&
             searchResult.map((receiverTab: SearchResultType, index) => (
-              <ChatTab
+              <ChatTabButton
                 key={index}
                 isAddUser={true}
                 className="hover:bg-[#ffffff] "

@@ -4,12 +4,14 @@ import { CallInvite } from '@bro/shared';
 import { IEventQueueService } from '../../../../providers/socket/IEventQueueService';
 import { ICallWriteRepo } from '../../../../repositories/call/ICallWriteRepo';
 import { iReceiverService } from '../../../../providers/common/iReceiverService';
+import { IConversationReadRepo } from '../../../../repositories/conversation/IConversationReadRepo';
 
 export class CallInviteUseCase implements ICallInviteUseCase {
   constructor(
     private receiverService: iReceiverService,
     private eventQueueService: IEventQueueService,
-    private callWriteRepo: ICallWriteRepo
+    private callWriteRepo: ICallWriteRepo,
+    private conReadRepo: IConversationReadRepo
   ) {}
 
   async execute(userId: string, data: CallInvite): Promise<ResponseDTO> {
@@ -19,7 +21,12 @@ export class CallInviteUseCase implements ICallInviteUseCase {
         userId
       );
 
-      await this.callWriteRepo.saveCall(userId, data, [...receiverIds, userId]);
+      await this.callWriteRepo.saveCall(userId, data, [userId ,...receiverIds]);
+
+      const userdata = await this.conReadRepo.findConversationName(
+        data.conversationId,
+        userId
+      );
 
       await Promise.all(
         receiverIds.map((id) =>
@@ -27,8 +34,11 @@ export class CallInviteUseCase implements ICallInviteUseCase {
             userId: id,
             event: 'call-invite',
             data: {
-              conversationId: data.conversationId,
+              userdata,
               callUrl: data.callUrl,
+              isVideoCall: data.isVideoCall,
+              isGroupCall: data.isGroupCall,
+              roomId: data.roomId,
             },
             isDirect: true,
           })

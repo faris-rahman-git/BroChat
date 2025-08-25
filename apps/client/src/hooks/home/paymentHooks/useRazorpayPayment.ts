@@ -20,6 +20,9 @@ export function useRazorpayPayment() {
     recipientEmail,
     userId,
     conversationId,
+    planName,
+    duration,
+    exclusiveUserId
   }: Omit<VerifyInType, 'paymentId' | 'orderId' | 'signature'>) => {
     const loaded = await loadRazorpayScript();
     if (!loaded) {
@@ -55,6 +58,9 @@ export function useRazorpayPayment() {
                 recipientEmail,
                 userId,
                 conversationId,
+                planName,
+                duration,
+                exclusiveUserId
               });
 
               resolve(true);

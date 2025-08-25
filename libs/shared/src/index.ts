@@ -19,6 +19,8 @@ export * from './lib/types/admin/allUsersListType.js';
 export * from './lib/types/admin/reportTypes.js';
 export * from './lib/types/admin/revenueTypes.js';
 export * from './lib/types/admin/groupTypes.js';
+export * from './lib/types/admin/planManagementType.js';
+export * from './lib/types/admin/DashboardType.js';
 
 //socket
 export * from './lib/types/socket/socketTypes.js';

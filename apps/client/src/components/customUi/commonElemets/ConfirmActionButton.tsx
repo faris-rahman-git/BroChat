@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import {
   Dialog,
   DialogTrigger,
@@ -10,6 +9,7 @@ import {
 } from '@client/components/ui/dialog';
 import { Button } from '@client/components/ui/button';
 import ButtonIcon from './ButtonIcon';
+import { useConfirmActionButtonHook } from '@client/hooks/PageHooks/common/useConfirmActionButtonHook';
 
 interface ConfirmActionButtonProps {
   buttonIcon: React.ElementType;
@@ -36,12 +36,9 @@ const ConfirmActionButton = ({
   dialogClassName,
   isConfirmButtonDisabled = false,
 }: ConfirmActionButtonProps) => {
-  const [open, setOpen] = useState(false);
-
-  const handleConfirm = () => {
-    onConfirm();
-    setOpen(false);
-  };
+  
+  const { handleConfirm, open, setOpen } =
+    useConfirmActionButtonHook(onConfirm);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

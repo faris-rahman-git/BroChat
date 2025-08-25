@@ -1,18 +1,14 @@
 import { cn } from '@client/lib/utils';
 import {
-  LuClock,
   LuCopy,
   LuForward,
-  LuInfo,
-  LuPin,
   LuReply,
+  LuSmile,
   LuTrash,
   LuTrash2,
 } from 'react-icons/lu';
 import {
-  MdDone,
-  MdDoneAll,
-  MdOutlineBackspace,
+  MdArrowDropDown,
   MdOutlineCheckBox,
   MdOutlineEdit,
 } from 'react-icons/md';
@@ -21,8 +17,12 @@ import {
   AvatarImage,
   AvatarFallback,
 } from '@client/components/ui/avatar';
-import { useEffect, useRef, useState } from 'react';
-import { ContentType, DeleteMessageType, MessageStatusType } from '@bro/shared';
+import {
+  ContentType,
+  MessageStatusType,
+  ReactionsType,
+  ReplyToType,
+} from '@bro/shared';
 import {
   ContextMenu,
   ContextMenuContent,
@@ -35,15 +35,14 @@ import {
   ContextMenuTrigger,
 } from '@client/components/ui/context-menu';
 import ConfirmActionButton from '@client/components/customUi/commonElemets/ConfirmActionButton';
-import { useDeleteMessage } from '@client/hooks/home/messageHooks/useDeleteMessage';
-import { useAppDispatch } from '@client/hooks/commonHooks/useAppDispatch';
-import { deleteMessage } from '@client/redux/features/userSlices/homeSlices/messageSlice/messageHistorySlice';
 import { setEditingMessage } from '@client/redux/features/userSlices/homeSlices/messageSlice/messageEditingSlice';
-import { useSelector } from 'react-redux';
-import { RootState } from '@client/redux/store';
-import { Pause, Play } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { getMinutesSince } from '@bro/shared';
+import ForwardModal from './ForwardModal';
+import { Input } from '@client/components/ui/input';
+import EmojiPicker from 'emoji-picker-react';
+import { useAppDispatch } from '@client/hooks/commonHooks/useAppDispatch';
+import React from 'react';
+import ContextMenuComponent from './MessageBubble/ContextMenuComponent';
+import { useMessageBubbleHook } from '@client/hooks/PageHooks/user/HomePage/Home/panels/ChatPanel/element/ChatPanelMiddle/useMessageBubbleHook';
 
 type Props = {
   messageId: string;
@@ -54,13 +53,26 @@ type Props = {
   status?: MessageStatusType;
   avatarUrl?: string;
   showAvatar?: boolean;
+  senderId?: string;
   senderName?: string;
   isEdited?: boolean;
   isGroup?: boolean;
-  isAdmin?: boolean;
   MessageType?: ContentType;
   mediaUrl?: string | null;
   createdAt?: string | Date;
+  isForward?: boolean;
+  isSelecting?: boolean;
+  isSelected?: boolean;
+  onStartSelect?: () => void;
+  onToggleSelect?: () => void;
+  canDeleteForEveryone?: boolean;
+  isActive?: boolean;
+  onHover?: () => void;
+  onLeave?: () => void;
+  reactions?: ReactionsType[];
+  replyTo?: ReplyToType;
+  onScrollToMessage?: (messageId: string) => void;
+  onReply?: (data: ReplyToType) => void;
 };
 
 const MessageBubble = ({
@@ -72,92 +84,78 @@ const MessageBubble = ({
   status = 'sent',
   showAvatar = true,
   avatarUrl,
+  senderId,
   senderName = '',
   isEdited,
   isGroup,
-  isAdmin,
   MessageType,
   mediaUrl,
   createdAt = new Date(),
+  isForward,
+  isSelecting,
+  isSelected,
+  onStartSelect,
+  onToggleSelect,
+  canDeleteForEveryone = false,
+  isActive,
+  onHover,
+  onLeave,
+  reactions = [],
+  replyTo,
+  onScrollToMessage,
+  onReply,
 }: Props) => {
-  const messageRef = useRef<HTMLParagraphElement>(null);
-  const [isNarrow, setIsNarrow] = useState(false);
-  const [menuKey, setMenuKey] = useState(0);
   const dispatch = useAppDispatch();
-  const { mutate, isSuccess } = useDeleteMessage();
-  const editingMessage = useSelector(
-    (state: RootState) => state.editingMessage
+
+  const {
+    handleDelete,
+    handleCopy,
+    handleEmojiButtonClick,
+    handleEmojiSelect,
+    getFloatingProps,
+    floatingStyles,
+    refs,
+    handleReply,
+    forwardModalOpen,
+    setForwardModalOpen,
+    menuKey,
+    canEdit,
+    isBeingEdited,
+    userDetails,
+    showEmojiPicker,
+  } = useMessageBubbleHook(
+    messageId,
+    conversationId,
+    message,
+    createdAt,
+    mediaUrl,
+    MessageType,
+    isMine,
+    onReply,
+    senderId,
+    senderName
   );
-  const userDetails = useSelector((state: RootState) => state.user);
-  const canEdit = userDetails.isSubscribed || getMinutesSince(createdAt) <= 5;
-  const canDeleteForEveryone =
-    (userDetails.isSubscribed || getMinutesSince(createdAt) <= 60) &&
-    (isMine || isAdmin);
-
-  const isBeingEdited = editingMessage?.messageId === messageId;
-
-  useEffect(() => {
-    if (messageRef.current) {
-      setIsNarrow(messageRef.current.offsetWidth < 300);
-    }
-  }, [message]);
-
-  useEffect(() => {
-    if (isSuccess) {
-      dispatch(deleteMessage({ conversationId, messageId }));
-    }
-  }, [isSuccess]);
-
-  const renderStatusIcon = () => {
-    if (status === 'sending') return <LuClock className="size-3" />;
-    if (status === 'sent') return <MdDone className="size-3" />;
-    if (status === 'delivered' || status === 'seen') {
-      return (
-        <MdDoneAll
-          className={cn('size-3', status === 'seen' ? 'text-blue-400' : '')}
-        />
-      );
-    }
-    return null;
-  };
-
-  const handleDelete = (type: DeleteMessageType) => {
-    mutate({ messageId, conversationId, type });
-    setMenuKey((prev) => prev + 1);
-  };
-
-  // audio
-  const audioRef = useRef<HTMLAudioElement>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-
-  const formatTime = (time: number) => {
-    if (!isFinite(time) || isNaN(time)) return '00:00';
-
-    const mins = Math.floor(time / 60)
-      .toString()
-      .padStart(2, '0');
-    const secs = Math.floor(time % 60)
-      .toString()
-      .padStart(2, '0');
-
-    return `${mins}:${secs}`;
-  };
 
   return (
     <div
       className={cn(
-        'flex w-full gap-2',
+        'flex w-full gap-2 relative',
         isMine ? 'justify-end' : 'justify-start',
         isBeingEdited &&
-          'ring-2 ring-[#615EF0] rounded-b-[6px] rounded-tl-[6px]'
+          'ring-2 ring-[#615EF0] rounded-b-[6px] rounded-tl-[6px]',
+        isSelecting && isSelected && 'bg-[#c9c9c94c] ',
+        isSelecting && 'hover:bg-[#c9c9c920]'
       )}
+      onClick={(e) => {
+        if (!isSelecting) return;
+        e.stopPropagation();
+        onToggleSelect?.();
+      }}
     >
-      {!isMine && (
+      {!isMine && !isSelecting && (
         <div className="min-w-6 h-6">
           {showAvatar && (
-            <Avatar className="size-6 self-end rounded-[6px]">
+            <Avatar className="size-6 self-end rounded-[6px] object-cover">
               <AvatarImage src={avatarUrl} alt="avatar" />
               <AvatarFallback className="text-center bg-white rounded-[6px]">
                 {senderName.charAt(0).toUpperCase() || 'U'}
@@ -166,182 +164,100 @@ const MessageBubble = ({
           )}
         </div>
       )}
+      {isSelecting && (
+        <div className={cn('flex items-center', isMine ? 'flex-1' : '')}>
+          <Input
+            type="checkbox"
+            checked={isSelected}
+            className="cursor-pointer size-4 ms-2"
+            onChange={() => {}}
+          />
+        </div>
+      )}
 
       <ContextMenu key={menuKey}>
+        {isMine && isActive && !isSelecting && (
+          <div
+            className="flex items-center transition"
+            onMouseEnter={onHover}
+            onMouseLeave={onLeave}
+            ref={refs.setReference}
+          >
+            <button
+              className="p-1  bg-gray-200 flex rounded-[6px] px-1"
+              onClick={handleEmojiButtonClick}
+            >
+              <MdArrowDropDown />
+              <LuSmile />
+            </button>
+          </div>
+        )}
         <ContextMenuTrigger
           className={cn(
-            'relative max-w-[65%] min-w-[125px] rounded-[6px] px-4 pt-2 pb-5 text-sm whitespace-pre-wrap break-words',
+            'relative max-w-[65%] min-w-[125px] rounded-[6px] px-4 pt-2 pb-5 text-sm whitespace-pre-wrap break-words group',
             isMine
               ? 'bg-[#615EF0] text-white rounded-tr-none'
               : 'bg-white text-black rounded-tl-none',
+            reactions.length > 0 ? 'mb-5' : '',
             isEdited ? 'min-w-[125px]' : 'min-w-[100px]'
           )}
+          onMouseEnter={onHover}
+          onMouseLeave={onLeave}
         >
-          {senderName && !isMine && isGroup && showAvatar && (
-            <div className="mb-1">
-              <span
-                className={cn(
-                  'block text-[11px] font-medium leading-tight tracking-wide',
-                  isMine ? 'text-white/70' : 'text-black/70'
-                )}
-              >
-                {senderName}
-              </span>
-            </div>
-          )}
-
-          {MessageType === 'gif' && (
-            <img
-              src={mediaUrl || ''}
-              alt="GIF"
-              className="rounded-[6px] w-[100px] h-auto object-cover"
-            />
-          )}
-          {MessageType === 'text' && (
-            <p
-              ref={messageRef}
-              className={cn(
-                'break-all select-text',
-                isMine && isNarrow ? 'pe-3' : ''
-              )}
-            >
-              {message}
-            </p>
-          )}
-          {MessageType === 'voice' && mediaUrl && (
-            <div className="flex items-center gap-4 p-3 bg-gray-100 rounded-[6px] w-[280px] sm:w-[250px] shadow-md">
-              <button
-                onClick={() => {
-                  if (audioRef.current?.paused) {
-                    audioRef.current.play();
-                  } else {
-                    audioRef.current?.pause();
-                  }
-                }}
-                className="w-10 h-10 rounded-full bg-[#615EF0] text-white flex items-center justify-center hover:bg-[#4b48d3] transition"
-              >
-                {isPlaying ? (
-                  <Pause className="w-5 h-5" />
-                ) : (
-                  <Play className="w-5 h-5" />
-                )}
-              </button>
-
-              <div className="flex-1 text-sm text-gray-700">
-                {formatTime(
-                  isPlaying || currentTime > 0 ? currentTime : duration
-                )}
-              </div>
-
-              <audio
-                ref={audioRef}
-                src={mediaUrl}
-                preload="metadata"
-                onLoadedMetadata={() => {
-                  const audio = audioRef.current;
-                  const checkDuration = () => {
-                    if (audio?.duration && isFinite(audio.duration)) {
-                      setDuration(audio.duration);
-                    } else {
-                      // Retry after short delay (duration might not be ready yet)
-                      setTimeout(checkDuration, 100);
-                    }
-                  };
-                  checkDuration();
-                }}
-                onTimeUpdate={() =>
-                  setCurrentTime(audioRef.current?.currentTime || 0)
-                }
-                onPlay={() => setIsPlaying(true)}
-                onPause={() => setIsPlaying(false)}
-                onEnded={() => {
-                  setIsPlaying(false);
-                  setCurrentTime(0); // Optional reset
-                }}
-                hidden
-              />
-            </div>
-          )}
-          {MessageType === 'image' && (
-            <img
-              src={mediaUrl || ''}
-              alt="Image"
-              className="rounded-[6px] max-w-[280px] max-h-[320px] object-contain shadow"
-            />
-          )}
-
-          {MessageType === 'video' && mediaUrl && (
-            <Link
-              to={`/video-player?url=${encodeURIComponent(mediaUrl)}`}
-              target="_blank"
-            >
-              <div className="relative max-w-[320px] rounded-[10px] overflow-hidden shadow-lg bg-black cursor-pointer">
-                <video
-                  src={mediaUrl}
-                  className="w-full h-auto max-h-[320px] rounded-[10px]"
-                  preload="metadata"
-                  muted
-                />
-                <div className="absolute inset-0 bg-black/40 flex items-center justify-center text-white text-sm">
-                  ▶ Tap to play fullscreen
-                </div>
-              </div>
-            </Link>
-          )}
-
-          {MessageType === 'document' && mediaUrl?.endsWith('.pdf') && (
-            <Link
-              to={mediaUrl}
-              target="_blank"
-              className="relative block w-full max-w-[300px] h-[200px] rounded-[6px] overflow-hidden shadow"
-            >
-              <div className="w-full h-full overflow-hidden">
-                <embed
-                  src={`${mediaUrl}#toolbar=0&navpanes=0&scrollbar=0`}
-                  type="application/pdf"
-                  className="w-full h-[400px] pointer-events-none scale-[1.1] -translate-y-[50px]"
-                />
-              </div>
-              <div className="absolute bottom-0 left-0 w-full px-3 py-2 bg-gradient-to-t from-black/60 to-transparent text-white text-sm text-center">
-                📄 Click to open
-              </div>
-            </Link>
-          )}
-
-          <span
-            className={cn(
-              'absolute bottom-[4px] right-[10px] flex items-center gap-[4px] text-[10px]',
-              isMine ? 'text-white/70' : 'text-black/60'
-            )}
-          >
-            <span>{time}</span>
-            {isEdited && (
-              <span className="italic text-[10px] opacity-70">(edited)</span>
-            )}
-            {isMine && renderStatusIcon()}
-          </span>
+          <ContextMenuComponent
+            messageId={messageId}
+            conversationId={conversationId}
+            message={message}
+            reactions={reactions}
+            userDetails={userDetails}
+            onScrollToMessage={onScrollToMessage}
+            replyTo={replyTo}
+            status={status}
+            isMine={isMine}
+            isGroup={isGroup}
+            showAvatar={showAvatar}
+            senderName={senderName}
+            isForward={isForward}
+            MessageType={MessageType || 'text'}
+            mediaUrl={mediaUrl}
+            isEdited={isEdited}
+            time={time}
+          />
         </ContextMenuTrigger>
-
+        {!isMine && isActive && !isSelecting && (
+          <div
+            className="flex items-center transition delay-1000"
+            onMouseEnter={onHover}
+            onMouseLeave={onLeave}
+            ref={refs.setReference}
+          >
+            <button
+              className="p-1  bg-gray-200 flex rounded-[6px] px-1"
+              onClick={handleEmojiButtonClick}
+            >
+              <LuSmile />
+              <MdArrowDropDown />
+            </button>
+          </div>
+        )}
         <ContextMenuContent className="w-52">
-          <ContextMenuItem inset>
-            Back
-            <ContextMenuShortcut>
-              <MdOutlineBackspace />
-            </ContextMenuShortcut>
-          </ContextMenuItem>
-          <ContextMenuItem inset disabled>
+          <ContextMenuItem inset onClick={() => setForwardModalOpen(true)}>
             Forward
             <ContextMenuShortcut>
               <LuForward />
             </ContextMenuShortcut>
           </ContextMenuItem>
-          <ContextMenuItem inset disabled>
+          <ContextMenuItem inset onClick={handleReply}>
             Reply
             <ContextMenuShortcut>
               <LuReply />
             </ContextMenuShortcut>
           </ContextMenuItem>
-          <ContextMenuItem inset disabled>
+          <ContextMenuItem
+            inset
+            onClick={handleCopy}
+            disabled={MessageType !== 'text' && MessageType !== 'image'}
+          >
             Copy
             <ContextMenuShortcut>
               <LuCopy />
@@ -366,7 +282,7 @@ const MessageBubble = ({
                   onConfirm={() => handleDelete('me')}
                 />
               </ContextMenuItem>
-              {(isAdmin || isMine) && canDeleteForEveryone && (
+              {canDeleteForEveryone && (
                 <ContextMenuItem
                   onSelect={(e) => {
                     e.preventDefault();
@@ -403,29 +319,46 @@ const MessageBubble = ({
               <MdOutlineEdit />
             </ContextMenuShortcut>
           </ContextMenuItem>
-          <ContextMenuItem inset disabled>
-            Pin
-            <ContextMenuShortcut>
-              <LuPin />
-            </ContextMenuShortcut>
-          </ContextMenuItem>
           <ContextMenuSeparator />
-          <ContextMenuItem inset disabled>
+          <ContextMenuItem inset onClick={() => onStartSelect?.()}>
             Select
             <ContextMenuShortcut>
               <MdOutlineCheckBox />
             </ContextMenuShortcut>
           </ContextMenuItem>
-          <ContextMenuItem inset disabled>
-            Info
-            <ContextMenuShortcut>
-              <LuInfo />
-            </ContextMenuShortcut>
-          </ContextMenuItem>
         </ContextMenuContent>
       </ContextMenu>
+
+      <ForwardModal
+        open={forwardModalOpen}
+        onOpenChange={setForwardModalOpen}
+        forwardData={[
+          {
+            message,
+            MessageType: MessageType ?? 'text',
+            mediaUrl,
+            forwardLabel: isForward ? isForward : !isMine,
+          },
+        ]}
+      />
+
+      {showEmojiPicker && (
+        <div
+          ref={refs.setFloating}
+          style={floatingStyles}
+          className="z-50 "
+          {...getFloatingProps()}
+        >
+          <EmojiPicker
+            onEmojiClick={handleEmojiSelect}
+            width={300}
+            height={350}
+            previewConfig={{ showPreview: false }}
+          />
+        </div>
+      )}
     </div>
   );
 };
 
-export default MessageBubble;
+export default React.memo(MessageBubble);

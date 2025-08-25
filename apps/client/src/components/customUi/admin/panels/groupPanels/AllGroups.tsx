@@ -1,11 +1,5 @@
 import { CellContext, createColumnHelper } from '@tanstack/react-table';
-import { LuBan, LuMenu, LuSearch, LuTrash2 } from 'react-icons/lu';
-import { useEffect, useState } from 'react';
-import { useAppDispatch } from '@client/hooks/commonHooks/useAppDispatch';
-import {
-  showLoader,
-  hideLoader,
-} from '@client/redux/features/commonSlices/LoaderSlice';
+import { LuSearch } from 'react-icons/lu';
 import { GroupChatType, GroupMember } from '@bro/shared';
 import {
   Select,
@@ -24,154 +18,35 @@ import { Button } from '@client/components/ui/button';
 import { format } from 'date-fns';
 import { MdClear } from 'react-icons/md';
 import DataTable from '@client/components/customUi/commonElemets/DataTable';
-import ConfirmActionButton from '@client/components/customUi/commonElemets/ConfirmActionButton';
 import ButtonIcon from '@client/components/customUi/commonElemets/ButtonIcon';
-import { getPageNumber } from '@client/utils/getPageNumber';
-import CustomModals from '@client/components/customUi/commonElemets/CustomModals';
-import { useGetAllGroups } from '@client/hooks/admin/groupManagement/useGetAllGroups';
-import { useGroupBlockManagement } from '@client/hooks/admin/groupManagement/useGroupBlockManagement';
-import { useGroupSoftDeleteManagement } from '@client/hooks/admin/groupManagement/useGroupSoftDeleteManagement';
-import GroupDetailsModalContent from '../../elements/groupElements/GroupDetailsModalContent';
+import ActionsElement from '../../elements/groupElements/ActionsElement';
+import RenderModal from '../../elements/groupElements/RenderModal';
+import { useAllGroupsHook } from '@client/hooks/PageHooks/admin/group/useAllGroupsHook';
 
 function AllGroups() {
-  const dispatch = useAppDispatch();
-  const [groupList, setGroupList] = useState<GroupChatType[]>([]);
-  const [searchValue, setSearchValue] = useState<string>('');
-  const [totalPages, setTotalPages] = useState(1);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [openModal, setOpenModal] = useState(false);
-  const [selectedButton, setSelectedButton] = useState<'block' | 'delete' | ''>(
-    ''
-  );
-  const [selectedGroup, setSelectedGroup] = useState<GroupChatType | null>(null);
-  const [filters, setFilters] = useState({
-    status: '',
-    createdAt: '',
-  });
-
-  //main data handler
-  const { isPending, isSuccess, isError, mutate, error, data } =
-    useGetAllGroups();
-  useEffect(() => {
-    if (isSuccess) {
-      setGroupList(data.groupList);
-      setTotalPages(data.totalPages);
-    }
-  }, [isSuccess]);
-  useEffect(() => {
-    if (isError) {
-      console.log(error.message);
-    }
-  }, [isError]);
-  useEffect(() => {
-    const trimmed = searchValue.trim();
-
-    const delay = setTimeout(() => {
-      mutate({
-        searchValue: trimmed,
-        ...filters,
-        page: 1,
-      });
-    }, 300);
-
-    return () => clearTimeout(delay);
-  }, [searchValue, filters]);
-  const handleDateSelect = (selectedDate: Date | undefined) => {
-    if (!selectedDate) return;
-    setFilters((prev) => ({
-      ...prev,
-      createdAt: selectedDate.toLocaleDateString('en-CA'),
-    }));
-  };
-  const handleSearchWithFilters = () => {
-    mutate({
-      searchValue,
-      ...filters,
-      page: 1,
-    });
-  };
-  const handleClearFilters = () => {
-    const clearedFilters = {
-      status: '',
-      createdAt: '',
-    };
-    setFilters(clearedFilters);
-    mutate({
-      searchValue,
-      ...clearedFilters,
-      page: 1,
-    });
-  };
-
-  // group block handler
   const {
-    isPending: isPendingBlock,
-    isError: isErrorBlock,
-    mutate: mutateBlock,
-    isSuccess: isSuccessBlock,
-    error: errorBlock,
-    data: dataBlock,
-  } = useGroupBlockManagement();
-  useEffect(() => {
-    if (isSuccessBlock) {
-      setGroupList(dataBlock.updatedGroupList);
-      setTotalPages(dataBlock.totalPages);
-    }
-  }, [isSuccessBlock]);
-  useEffect(() => {
-    if (isErrorBlock) {
-      console.log(errorBlock.message);
-    }
-  }, [isErrorBlock]);
-  const handleBlockGroup = (conversationId: string, isBlocked: boolean) => {
-    const pagenumber = getPageNumber(currentPage, groupList.length);
-    setCurrentPage(pagenumber);
-    mutateBlock({
-      conversationId,
-      isBlocked: !isBlocked,
-      searchValue,
-      ...filters,
-      page: pagenumber,
-    });
-  };
-
-  // group softdelete handler
-  const {
-    isPending: isPendingSoftDelete,
-    isError: isErrorSoftDelete,
-    mutate: mutateSoftDelete,
-    isSuccess: isSuccessSoftDelete,
-    error: errorSoftDelete,
-    data: dataSoftDelete,
-  } = useGroupSoftDeleteManagement();
-  useEffect(() => {
-    if (isSuccessSoftDelete) {
-      setGroupList(dataSoftDelete.updatedGroupList);
-      setTotalPages(dataSoftDelete.totalPages);
-    }
-  }, [isSuccessSoftDelete]);
-  useEffect(() => {
-    if (isErrorSoftDelete) {
-      console.log(errorSoftDelete.message);
-    }
-  }, [isErrorSoftDelete]);
-  const handleSoftDeleteUser = (conversationId: string) => {
-    const pagenumber = getPageNumber(currentPage, groupList.length);
-    setCurrentPage(pagenumber);
-    mutateSoftDelete({
-      conversationId,
-      isDeleted: true,
-      searchValue,
-      ...filters,
-      page: pagenumber,
-    });
-  };
-
-  //common pending handler
-  useEffect(() => {
-    const anyPending = isPendingBlock || isPendingSoftDelete;
-    dispatch(anyPending ? showLoader() : hideLoader());
-  }, [isPendingBlock, isPendingSoftDelete]);
+    handleBlockGroup,
+    handleClearFilters,
+    handleDateSelect,
+    handleSearchWithFilters,
+    handleSoftDeleteUser,
+    isPending,
+    currentPage,
+    filters,
+    groupList,
+    searchValue,
+    setSearchValue,
+    totalPages,
+    setCurrentPage,
+    setFilters,
+    mutate,
+    openModal,
+    setOpenModal,
+    selectedButton,
+    setSelectedButton,
+    selectedGroup,
+    setSelectedGroup,
+  } = useAllGroupsHook();
 
   const columnHelper = createColumnHelper<GroupChatType>();
   const columns = [
@@ -246,94 +121,16 @@ ${isPaid ? 'bg-red-900' : 'bg-sky-500'}
         const rowData = info.row.original;
 
         return (
-          <div className="flex gap-4 justify-center items-center">
-            {/* Block Button */}
-            <ButtonIcon
-              Icon={LuBan}
-              label={rowData.isBlocked ? 'Unblock' : 'Block'}
-              className={`justify-start ps-[9px] ${
-                rowData.isBlocked
-                  ? 'bg-[#54CA68] hover:bg-[#41C457]'
-                  : 'bg-[#FF5C5C] hover:bg-[#FF4848]'
-              }`}
-              iconClassName="text-white"
-              onClick={() => {
-                setSelectedGroup(rowData);
-                setSelectedButton('block');
-                setOpenModal(true);
-              }}
-            />
-
-            {/* Delete Button */}
-            <ButtonIcon
-              Icon={LuTrash2}
-              label="Delete"
-              className="justify-start ps-[9px] bg-red-700 hover:bg-red-800"
-              iconClassName="text-white"
-              onClick={() => {
-                setSelectedGroup(rowData);
-                setSelectedButton('delete');
-                setOpenModal(true);
-              }}
-            />
-
-            <ConfirmActionButton
-              buttonIcon={LuMenu}
-              buttonClassName={`bg-blue-700 hover:bg-blue-800`}
-              buttonContent="Details"
-              modalTitle={`User Details`}
-              dialogClassName="sm:max-w-[700px]"
-              isConfirmButtonDisabled={true}
-              onConfirm={() => {}}
-            >
-              <GroupDetailsModalContent group={rowData} />
-            </ConfirmActionButton>
-          </div>
+          <ActionsElement
+            rowData={rowData}
+            setOpenModal={setOpenModal}
+            setSelectedButton={setSelectedButton}
+            setSelectedGroup={setSelectedGroup}
+          />
         );
       },
     },
   ];
-
-  const renderModal = () => {
-    if (!selectedGroup) return null;
-
-    return (
-      <CustomModals
-        open={openModal}
-        onOpenChange={(val) => {
-          if (!val) setSelectedGroup(null);
-          setOpenModal(val);
-        }}
-        onConfirm={() => {
-          if (!selectedGroup) return;
-          const conversationId = selectedGroup._id as string;
-          const pagenumber = getPageNumber(currentPage, groupList.length);
-          setCurrentPage(pagenumber);
-
-          if (selectedButton === 'block') {
-            handleBlockGroup(conversationId, selectedGroup.isBlocked);
-          } else if (selectedButton === 'delete') {
-            handleSoftDeleteUser(conversationId);
-          }
-        }}
-        title={
-          selectedButton === 'block'
-            ? selectedGroup.isBlocked
-              ? 'Unblock Group'
-              : 'Block Group'
-            : 'Delete Group'
-        }
-        description={
-          selectedButton === 'block'
-            ? `Confirm that you want to ${
-                selectedGroup?.isBlocked ? 'unblock' : 'block'
-              } this Group. This action can be undone.`
-            : 'Confirm that you want to delete this Group. This action can be undone.'
-        }
-        confirmText="Confirm"
-      />
-    );
-  };
 
   return (
     <DataTable
@@ -404,7 +201,18 @@ ${isPaid ? 'bg-red-900' : 'bg-sky-500'}
           onClick={handleClearFilters}
         ></ButtonIcon>
       </div>
-      {renderModal()}
+      <RenderModal
+        currentPage={currentPage}
+        groupList={groupList}
+        handleSoftDeleteUser={handleSoftDeleteUser}
+        handleBlockGroup={handleBlockGroup}
+        openModal={openModal}
+        selectedButton={selectedButton}
+        selectedGroup={selectedGroup}
+        setCurrentPage={setCurrentPage}
+        setOpenModal={setOpenModal}
+        setSelectedGroup={setSelectedGroup}
+      />{' '}
     </DataTable>
   );
 }

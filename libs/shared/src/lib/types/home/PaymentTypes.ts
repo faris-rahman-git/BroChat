@@ -1,4 +1,10 @@
-export type PaymentType = 'premium_group' | 'monthly' | 'yearly';
+import { GroupMember } from './groupTypes.js';
+
+export type PaymentType =
+  | 'subscription'
+  | 'paid_group'
+  | 'exclusive_user'
+  | 'exclusive_user_customer';
 
 export type VerifyInType = {
   paymentId: string;
@@ -10,5 +16,13 @@ export type VerifyInType = {
   amount: number;
   recipientName: string;
   recipientEmail: string;
+  planName?: string;
+  duration?: number;
+  exclusiveUserId?: string;
 };
 
+export type findAllExclusiveUserCustomersTransactionsType = {
+  userDetails:GroupMember;
+  amount: number;
+  createdAt: Date
+};

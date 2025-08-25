@@ -3,7 +3,7 @@ import { DeleteMessageType } from '@bro/shared';
 
 export interface IDeleteMessageUseCase {
   execute(
-    messageId: string,
+    messageIds: string[],
     conversationId: string,
     userId: string,
     type: DeleteMessageType

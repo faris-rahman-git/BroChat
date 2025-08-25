@@ -22,7 +22,7 @@ const ThankYouForSubscribingModal = ({
         <div className="flex flex-col items-center">
           <CheckCircle2 className="text-green-600 w-10 h-10 mb-2" />
           <h2 className="text-xl font-semibold text-green-700">
-            Thank You for Subscribing!
+            Thank You for Your Support!
           </h2>
           <p className="text-sm text-gray-700 mt-1">
             We're excited to have you on board with premium access.

@@ -17,6 +17,7 @@ import oneToOneChatSlice from './features/userSlices/homeSlices/dmSlices/oneToOn
 import groupChatSlice from './features/userSlices/homeSlices/groupSlice/groupChatSlice';
 import messageHistorySlice from './features/userSlices/homeSlices/messageSlice/messageHistorySlice';
 import messageEditingSlice from './features/userSlices/homeSlices/messageSlice/messageEditingSlice';
+import callListSlice from './features/userSlices/homeSlices/callSlices/callListSlice';
 
 const persistConfig = {
   key: 'root',
@@ -41,6 +42,7 @@ const rootReducer = combineReducers({
   groupChat: groupChatSlice,
   messageHistory: messageHistorySlice,
   editingMessage: messageEditingSlice,
+  callList: callListSlice,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -50,7 +52,7 @@ export const store = configureStore({
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       immutableCheck: false,
-      serializableCheck: false, // Disable serializable state checks
+      serializableCheck: false,
     }),
 });
 

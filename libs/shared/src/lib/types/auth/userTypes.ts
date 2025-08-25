@@ -1,5 +1,4 @@
 import { GroupMember } from '../home/groupTypes.js';
-import { subscriptionPlan } from '../home/subscriptionTypes.js';
 
 export type userDetailsType = {
   id: string;
@@ -12,7 +11,8 @@ export type userDetailsType = {
   blockedUsers: GroupMember[];
   role: string;
   isSubscribed: boolean;
-  subscriptionPlan?: subscriptionPlan | null;
+  subscriptionPlan?: string | null;
   subscriptionStart?: string | null | Date;
   subscriptionEnd?: string | null | Date;
+  isExclusive?: boolean;
 };

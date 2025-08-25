@@ -5,6 +5,7 @@ import { IConversationWriteRepo } from '../../../app/repositories/conversation/I
 import { SubscriptionDetailsType } from '@bro/shared';
 import { IUserWriteRepo } from '../../../app/repositories/user/IUserWriteRepo';
 import { IConversationReadRepo } from '../../../app/repositories/conversation/IConversationReadRepo';
+import { IPaymentWriteRepo } from '../../../app/repositories/payment/IPaymentWriteRepo';
 
 export class PremiumUpdateService implements IPremiumUpdateService {
   constructor(
@@ -12,7 +13,8 @@ export class PremiumUpdateService implements IPremiumUpdateService {
     private receiverService: iReceiverService,
     private eventQueueService: IEventQueueService,
     private userWriteRepo: IUserWriteRepo,
-    private conReadRepo: IConversationReadRepo
+    private conReadRepo: IConversationReadRepo,
+    private paymentWriteRepo: IPaymentWriteRepo
   ) {}
 
   async updatePremiumGroup(
@@ -83,6 +85,27 @@ export class PremiumUpdateService implements IPremiumUpdateService {
           isDirect: true,
         })
       )
+    );
+  }
+
+  async exclusiveUserUpdate(userId: string): Promise<void> {
+    await this.userWriteRepo.makeUserAsExclusive(userId);
+  }
+
+  async exclusiveUserCustomerUpdate(
+    paymentId: string,
+    orderId: string,
+    exclusiveUserId: string,
+    amount: number
+  ): Promise<void> {
+    const userShare = Math.floor(amount * 0.7);
+    const adminShare = amount - userShare;
+    await this.paymentWriteRepo.saveExclusivePaymentDetails(
+      paymentId,
+      orderId,
+      exclusiveUserId,
+      userShare,
+      adminShare
     );
   }
 }

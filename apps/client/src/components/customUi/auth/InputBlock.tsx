@@ -5,18 +5,10 @@ import type {
   FieldValues,
   Path,
 } from 'react-hook-form';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { LuEye, LuEyeOff } from 'react-icons/lu';
 import { Button } from '../../ui/button';
-import { useSelector } from 'react-redux';
-import { RootState } from '@client/redux/store';
-import { useResendotp } from '@client/hooks/auth/useResentOtp';
-import {
-  showLoader,
-  hideLoader,
-} from '@client/redux/features/commonSlices/LoaderSlice';
-import { useAppDispatch } from '@client/hooks/commonHooks/useAppDispatch';
-import { setError } from '@client/redux/features/userSlices/authSlices/errorSlice';
+import { useResendotpForm } from '@client/hooks/auth/logic/useResendotpForm';
 
 type InputBlockProps<T extends FieldValues> = {
   title: string;
@@ -36,51 +28,7 @@ const InputBlock = <T extends FieldValues>({
   errors,
 }: InputBlockProps<T>) => {
   const [showPassword, setShowPassword] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(0);
-  const [isDisabled, setIsDisabled] = useState(false);
-
-  const userBasicData = useSelector((state: RootState) => state.auth.email);
-  const dispatch = useAppDispatch();
-  const { isPending, isSuccess, isError, mutate } = useResendotp();
-
-  useEffect(() => {
-    dispatch(isPending ? showLoader() : hideLoader());
-  }, [isPending]);
-
-  useEffect(() => {
-    if (isSuccess) {
-      dispatch(setError('OTP Resent Successfully!'));
-    }
-  }, [isSuccess]);
-
-  useEffect(() => {
-    if (isError) {
-      dispatch(setError('OTP Resent Failed! Please Try Again'));
-    }
-  }, [isError]);
-
-  const handleResentOtp = () => {
-    if (userBasicData && !isDisabled) {
-      mutate(userBasicData);
-      setIsDisabled(true); // Disable the button
-      setTimeLeft(60); // Start countdown from 60 seconds
-    }
-  };
-
-  // Countdown
-  useEffect(() => {
-    let timer: NodeJS.Timeout;
-
-    if (isDisabled && timeLeft > 0) {
-      timer = setTimeout(() => {
-        setTimeLeft((prev) => prev - 1);
-      }, 1000);
-    } else if (timeLeft === 0) {
-      setIsDisabled(false); // Re-enable button after timer ends
-    }
-
-    return () => clearTimeout(timer);
-  }, [timeLeft, isDisabled]);
+  const { handleResentOtp, isDisabled, timeLeft } = useResendotpForm();
 
   return (
     <div>

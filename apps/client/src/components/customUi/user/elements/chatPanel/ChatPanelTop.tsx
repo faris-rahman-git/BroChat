@@ -1,22 +1,10 @@
 import ButtonIcon from '@client/components/customUi/commonElemets/ButtonIcon';
 import { ChatPanelTopConstants } from '@client/constants/userConstant/chatPanelConstants';
 import { Avatar, AvatarFallback, AvatarImage } from '@radix-ui/react-avatar';
-import ChatInfoModal from './subChatPanelTop/ChatInfoModal';
-import { useEffect, useState } from 'react';
-import { selectGroupChatById } from '@client/redux/selectors/groupChatSelectors';
-import { useSelector } from 'react-redux';
-import { RootState } from '@client/redux/store';
 import { BsPatchCheckFill } from 'react-icons/bs';
 import ThankYouForSubscribingModal from '@client/components/customUi/commonElemets/ThankYouForSubscribingModal';
-import { useNavigate } from 'react-router-dom';
-import { getUrlParams } from '@client/utils/getUrlParams';
-import { randomID } from '@client/utils/randomID';
-import { useCallInvite } from '@client/hooks/home/callHooks/useCallInvite';
-import {
-  showLoader,
-  hideLoader,
-} from '@client/redux/features/commonSlices/LoaderSlice';
-import { useAppDispatch } from '@client/hooks/commonHooks/useAppDispatch';
+import ChatInfoModal from './ChatPanelTop/ChatInfoModal';
+import { useChatPanelTopHook } from '@client/hooks/PageHooks/user/HomePage/Home/panels/ChatPanel/element/useChatPanelTopHook';
 
 function ChatPanelTop({
   avatar,
@@ -31,54 +19,15 @@ function ChatPanelTop({
   isTyping: boolean;
   isGroup: boolean;
 }) {
-  const receiverDetails = useSelector(
-    (state: RootState) => state.activeReceiver
-  );
-  const group = useSelector(
-    selectGroupChatById(receiverDetails.conversationId!)
-  );
-  const [openInfoModal, setOpenInfoModal] = useState(false);
-  const [showThankYouModal, setShowThankYouModal] = useState(false);
-  //call handler
-  const navigate = useNavigate();
-  const dispatch = useAppDispatch();
-
   const {
-    isPending: isPendingCallInvite,
-    mutate: mutateCallInvite,
-    isSuccess: isSuccessCallInvite,
-    data: dataCallInvite,
-  } = useCallInvite();
-
-  useEffect(() => {
-    if (isPendingCallInvite) {
-      dispatch(showLoader());
-    } else {
-      dispatch(hideLoader());
-    }
-  }, [isPendingCallInvite]);
-  useEffect(() => {
-    if (isSuccessCallInvite) {
-      navigate(dataCallInvite?.callUrl);
-    }
-  }, [isSuccessCallInvite]);
-
-  const handleCalls = (label: string) => {
-    const isVideoCall = label == 'Video call' ? true : false;
-    const roomID = getUrlParams().get('roomID') || randomID(10);
-    const params = new URLSearchParams({
-      isVideoCall: String(isVideoCall),
-      isGroup: String(isGroup),
-    });
-    const callUrl = `/call/${encodeURIComponent(roomID)}?${params.toString()}`;
-    mutateCallInvite({
-      isVideoCall,
-      startedAt: new Date(),
-      conversationId: receiverDetails.conversationId!,
-      callUrl,
-      roomId: roomID,
-    });
-  };
+    openInfoModal,
+    setOpenInfoModal,
+    showThankYouModal,
+    setShowThankYouModal,
+    handleCalls,
+    group,
+    receiverDetails,
+  } = useChatPanelTopHook(isGroup);
 
   return (
     <header className="flex items-center justify-between p-6 h-[78px]  bg-white">

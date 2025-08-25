@@ -21,8 +21,8 @@ const callSchema = new mongoose.Schema({
       },
       status: {
         type: String,
-        enum: ['missed', 'pending', 'accepted', 'rejected'],
-        default: 'pending',
+        enum: ['missed', 'accepted', 'rejected'],
+        default: 'missed',
       },
       joinedAt: { type: Date },
       leftAt: { type: Date },
@@ -33,10 +33,8 @@ const callSchema = new mongoose.Schema({
     type: Boolean,
     required: true,
   },
-  status: {
-    type: String,
-    enum: ['missed', 'pending', 'accepted', 'rejected'],
-    default: 'pending',
+  isGroupCall: {
+    type: Boolean,
   },
   startedAt: { type: Date },
   endedAt: { type: Date },

@@ -1,19 +1,11 @@
 import { Card } from '@client/components/ui/card';
-import { RefObject, useEffect, useRef, useState } from 'react';
+import { RefObject } from 'react';
 import { Input } from '@client/components/ui/input';
-import ChatTab from '../ChatTab';
 import { GroupFixedData, SearchResultType } from '@bro/shared';
-import { searchUserHelper } from '@client/utils/searchUserHelper';
 import { Button } from '@client/components/ui/button';
 import { LuImagePlus } from 'react-icons/lu';
-import {
-  showLoader,
-  hideLoader,
-} from '@client/redux/features/commonSlices/LoaderSlice';
-import { useAppDispatch } from '@client/hooks/commonHooks/useAppDispatch';
-import { useCreateNewGroup } from '@client/hooks/home/groupHooks/useCreateNewGroup';
-import { useMutation } from '@tanstack/react-query';
-import { uploadFileApi } from '@client/services/home/commonServices';
+import ChatTabButton from '@client/components/customUi/commonElemets/ChatTabButton';
+import { useCreateNewGroupHook } from '@client/hooks/PageHooks/user/HomePage/Home/panels/ChatList/element/Header/useCreateNewGroupHook';
 
 function CreateNewGroup({
   newChatRef,
@@ -24,122 +16,23 @@ function CreateNewGroup({
   setActiveTab: React.Dispatch<React.SetStateAction<string>>;
   oneToOneChatListData: SearchResultType[];
 }) {
-  const dispatch = useAppDispatch();
-  const [searchResult, setSearchResult] = useState<SearchResultType[]>([]);
-  const [selectedUsers, setSelectedUsers] = useState<SearchResultType[]>([]);
-  const [groupName, setGroupName] = useState('');
-  const [step, setStep] = useState(1);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [groupAvatarFile, setGroupAvatarFile] = useState<File | null>(null);
-  const [groupAvatarPreview, setGroupAvatarPreview] = useState<string | null>(
-    null
-  );
-
-  useEffect(() => {
-    const result = searchUserHelper(oneToOneChatListData, '');
-    setSearchResult(result);
-  }, [oneToOneChatListData]);
-
-  const { mutate: uploadMutate, isPending: uploadIsPending } = useMutation({
-    mutationFn: uploadFileApi,
-    onSuccess: (mediaUrl) => {
-      createGroup(groupName, selectedUsers, mediaUrl);
-    },
-    onError: (err) => {
-      console.error('Upload error:', err.message);
-    },
-  });
   const {
-    isPending: newIsPending,
-    isError: newIsError,
-    mutate: newMutate,
-    isSuccess: newIsSuccess,
-    error: newError,
-  } = useCreateNewGroup();
-
-  useEffect(() => {
-    if (newIsSuccess) {
-      setActiveTab('');
-    }
-  }, [newIsSuccess]);
-
-  useEffect(() => {
-    if (newIsError) {
-      console.log(newError.message);
-    }
-  }, [newIsError]);
-
-  useEffect(() => {
-    const isLoading = uploadIsPending || newIsPending;
-    dispatch(isLoading ? showLoader() : hideLoader());
-  }, [uploadIsPending, newIsPending]);
-
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const result = searchUserHelper(oneToOneChatListData, e.target.value);
-    setSearchResult(result);
-  };
-
-  const toggleUserSelection = (user: SearchResultType) => {
-    setSelectedUsers((prev) => {
-      const alreadySelected = prev.find(
-        (u) => u.receiverId === user.receiverId
-      );
-
-      if (alreadySelected) {
-        return prev.filter((u) => u.receiverId !== user.receiverId);
-      } else {
-        const totalCount = prev.length + 1; // newly added user
-        if (totalCount + 1 > GroupFixedData.Member_limit) {
-          return prev;
-        }
-        return [...prev, user];
-      }
-    });
-  };
-
-  const isSelected = (id: string) =>
-    selectedUsers.some((user) => user.receiverId === id);
-
-  const resetGroupCreation = () => {
-    setSelectedUsers([]);
-    setGroupName('');
-    setStep(1);
-  };
-
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setGroupAvatarFile(file);
-
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setGroupAvatarPreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleCreateGroup = () => {
-    if (groupName.trim() === '') return;
-    if (groupAvatarFile) {
-      uploadMutate({
-        file: groupAvatarFile,
-        fileType: 'image',
-        extension: 'png',
-      });
-    } else {
-      createGroup(groupName, selectedUsers, '');
-    }
-  };
-
-  const createGroup = (
-    groupName: string,
-    members: SearchResultType[],
-    groupAvatarUrl: string
-  ) => {
-    const groupMembers = members.map((user) => user.receiverId);
-    newMutate({ groupName, groupMembers, groupAvatarUrl });
-  };
+    searchResult,
+    selectedUsers,
+    groupName,
+    step,
+    fileInputRef,
+    groupAvatarPreview,
+    handleSearch,
+    toggleUserSelection,
+    isSelected,
+    resetGroupCreation,
+    handleAvatarChange,
+    handleCreateGroup,
+    setStep,
+    setGroupAvatarPreview,
+    setGroupName,
+  } = useCreateNewGroupHook(setActiveTab, oneToOneChatListData);
 
   return (
     <Card
@@ -181,7 +74,7 @@ function CreateNewGroup({
                       !isDisabled && toggleUserSelection(receiverTab)
                     }
                   >
-                    <ChatTab
+                    <ChatTabButton
                       isAddUser={true}
                       className={`${
                         !isDisabled ? 'hover:bg-white cursor-pointer' : ''
@@ -288,7 +181,7 @@ function CreateNewGroup({
             {/* selected users */}
             <div className="flex flex-col gap-1 overflow-y-auto custom-scrollbar w-full max-h-[320px]">
               {selectedUsers.map((receiverTab: SearchResultType, index) => (
-                <ChatTab
+                <ChatTabButton
                   key={index}
                   isAddUser={true}
                   className="hover:cursor-default hover:bg-[#F3F3F3]"

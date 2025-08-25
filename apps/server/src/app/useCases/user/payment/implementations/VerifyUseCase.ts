@@ -20,7 +20,6 @@ export class VerifyUseCase implements IVerifyUseCase {
         razorpay_order_id: data.orderId,
         razorpay_signature: data.signature,
       });
-``
       if (!isValid) {
         return {
           success: false,
@@ -29,35 +28,39 @@ export class VerifyUseCase implements IVerifyUseCase {
       }
 
       await this.paymentWriteRepo.savePaymentDetails(data);
-
       switch (data.feature) {
-        case 'premium_group':
+        case 'paid_group':
           await this.premiumUpdateService.updatePremiumGroup(
             data.conversationId as string,
             userId
           );
           break;
 
-        case 'monthly':
-        case 'yearly': {
+        case 'subscription':
           const now = new Date();
           const end = new Date(now);
 
-          if (data.feature === 'monthly') {
-            end.setMonth(end.getMonth() + 1);
-          } else {
-            end.setFullYear(end.getFullYear() + 1);
-          }
+          end.setDate(end.getDate() + (data.duration || 30));
 
           await this.premiumUpdateService.updateSubscription(userId, {
             isSubscribed: true,
-            subscriptionPlan: data.feature,
+            subscriptionPlan: data.planName || 'Base Plan',
             subscriptionStart: now,
             subscriptionEnd: end,
           });
-
           break;
-        }
+
+        case 'exclusive_user':
+          await this.premiumUpdateService.exclusiveUserUpdate(userId);
+          break;
+
+        case 'exclusive_user_customer':
+          await this.premiumUpdateService.exclusiveUserCustomerUpdate(
+            data.paymentId,
+            data.orderId,
+            data.exclusiveUserId as string,
+            data.amount
+          );
       }
 
       return {

@@ -27,7 +27,8 @@ export function callInviteComposer(): IController {
   const useCase: ICallInviteUseCase = new CallInviteUseCase(
     receiverService,
     eventQueueService,
-    new CallWriteRepo()
+    new CallWriteRepo(),
+    conReadRepo, 
   );
   const controller: IController = new callInviteController(useCase);
   return controller;

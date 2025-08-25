@@ -9,13 +9,25 @@ export class MessageWriteRepo implements IMessageWriteRepo {
       ...data,
       recipients: receiversId,
       status: 'sent',
+      replyTo: data.replyTo?._id,
     });
 
     const message = (await messageModel
       .findById(result._id)
-      .populate('senderId', 'name avatar'))!;
+      .populate('senderId', 'name avatar')
+      .populate({
+        path: 'replyTo',
+        select: '_id senderId MessageType content mediaUrl',
+        populate: {
+          path: 'senderId',
+          select: 'name',
+          options: { strictPopulate: false },
+        },
+        options: { strictPopulate: false },
+      }))!;
 
     const sender = message.senderId as any;
+    const replyTo = message.replyTo as any;
 
     return {
       _id: message._id.toString(),
@@ -26,19 +38,18 @@ export class MessageWriteRepo implements IMessageWriteRepo {
       MessageType: message.MessageType,
       content: message.content,
       mediaUrl: message.mediaUrl,
-      deliveredBy:
-        message.deliveredBy?.map((entry: any) => ({
-          userId: entry.userId.toString(),
-          time: entry.time,
-        })) || [],
-      readBy:
-        message.readBy?.map((entry: any) => ({
-          userId: entry.userId.toString(),
-          time: entry.time,
-        })) || [],
       status: message.status,
       messageTime: message.messageTime,
       createdAt: message.createdAt,
+      isForward: message.isForward,
+      replyTo: {
+        _id: String(replyTo?._id),
+        senderId: String(replyTo?.senderId?._id),
+        senderName: replyTo?.senderId?.name,
+        MessageType: replyTo?.MessageType,
+        content: replyTo?.content,
+        mediaUrl: replyTo?.mediaUrl,
+      },
     };
   }
 
@@ -127,5 +138,39 @@ export class MessageWriteRepo implements IMessageWriteRepo {
     }
 
     return null;
+  }
+
+  async addOrUpdateReaction(
+    messageId: string,
+    emoji: string,
+    userId: string
+  ): Promise<void> {
+    await messageModel.updateOne({ _id: messageId }, [
+      {
+        $set: {
+          reactions: {
+            $cond: [
+              {
+                $in: [userId, '$reactions.userId'],
+              },
+              {
+                $map: {
+                  input: '$reactions',
+                  as: 'reaction',
+                  in: {
+                    $cond: [
+                      { $eq: ['$$reaction.userId', userId] },
+                      { userId, emoji },
+                      '$$reaction',
+                    ],
+                  },
+                },
+              },
+              { $concatArrays: ['$reactions', [{ userId, emoji }]] },
+            ],
+          },
+        },
+      },
+    ]);
   }
 }

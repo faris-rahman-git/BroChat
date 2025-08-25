@@ -19,6 +19,7 @@ const initialState: Receiver = {
   hasBlockedMe: false,
   isSubscribed: false,
   isBlocked: false,
+  isExclusive: false,
 };
 
 const activeReceiverSlice = createSlice({
@@ -42,6 +43,7 @@ const activeReceiverSlice = createSlice({
       state.hasBlockedMe = action.payload.receiver.hasBlockedMe;
       state.isSubscribed = action.payload.receiver.isSubscribed ?? false;
       state.isBlocked = action.payload.receiver.isBlocked ?? false;
+      state.isExclusive = action.payload.receiver.isExclusive ?? false;
     },
 
     setActiveReceiverConversationId(state, action: PayloadAction<string>) {
@@ -70,6 +72,7 @@ const activeReceiverSlice = createSlice({
         state.hasBlockedMe = false;
         state.isSubscribed = false;
         state.isBlocked = false;
+        state.isExclusive = false;
       }
     },
 

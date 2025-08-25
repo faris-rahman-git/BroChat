@@ -26,4 +26,6 @@ export interface IUserWriteRepo {
     userId: string,
     profileInfo: ProfileUpdateInfoParams
   ): Promise<void>;
+
+  makeUserAsExclusive(userId: string): Promise<void>;
 }

@@ -1,131 +1,25 @@
 import { CellContext, createColumnHelper } from '@tanstack/react-table';
 import DataTable from '../../../commonElemets/DataTable';
 import ConfirmActionButton from '../../../commonElemets/ConfirmActionButton';
-import { useEffect, useState } from 'react';
-import { useAppDispatch } from '@client/hooks/commonHooks/useAppDispatch';
-import {
-  showLoader,
-  hideLoader,
-} from '@client/redux/features/commonSlices/LoaderSlice';
 import { AllUsersType } from '@bro/shared';
 import { MdOutlineDeleteForever, MdOutlineRestore } from 'react-icons/md';
-import { useGetDeletedUsers } from '@client/hooks/admin/userManagement/useGetDeletedUsers';
-import { useRestoreUser } from '@client/hooks/admin/userManagement/useRestoreUser';
-import { useHardDeleteUser } from '@client/hooks/admin/userManagement/useHardDeleteUser';
 import { LuMenu } from 'react-icons/lu';
 import DetailsModalContent from '../../elements/userElemets/DetailsModalContent';
-import { getPageNumber } from '@client/utils/getPageNumber';
+import { useDeletedUsersPanelHook } from '@client/hooks/PageHooks/admin/user/useDeletedUsersPanelHook';
 
 function DeletedUsersPanel() {
-  const [userList, setUserList] = useState<AllUsersType[]>([]);
-  const [totalPages, setTotalPages] = useState(1);
-  const [searchValue, setSearchValue] = useState<string>('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const dispatch = useAppDispatch();
-  const { isPending, isSuccess, isError, mutate, error, data } =
-    useGetDeletedUsers();
-
   const {
-    isPending: isPendingRestore,
-    isError: isErrorRestore,
-    mutate: mutateRestore,
-    isSuccess: isSuccessRestore,
-    error: errorRestore,
-    data: dataRestore,
-  } = useRestoreUser();
-
-  const {
-    isPending: isPendingHardDelete,
-    isError: isErrorHardDelete,
-    mutate: mutateHardDelete,
-    isSuccess: isSuccessHardDelete,
-    error: errorHardDelete,
-    data: dataHardDelete,
-  } = useHardDeleteUser();
-
-  useEffect(() => {
-    if (searchValue.trim().length < 1) {
-      mutate({
-        searchValue,
-        page: 1,
-      });
-    }
-  }, [searchValue]);
-
-  useEffect(() => {
-    const delay = setTimeout(() => {
-      if (searchValue.trim().length > 1) {
-        mutate({
-          searchValue,
-          page: 1,
-        });
-      }
-    }, 300);
-
-    return () => clearTimeout(delay);
-  }, [searchValue]);
-
-  //success handles
-  useEffect(() => {
-    if (isSuccess) {
-      setUserList(data.usersList);
-      setTotalPages(data.totalPages);
-    }
-  }, [isSuccess]);
-  useEffect(() => {
-    if (isSuccessRestore) {
-      setUserList(dataRestore.updatedUsersList);
-      setTotalPages(dataRestore.totalPages);
-    }
-  }, [isSuccessRestore]);
-  useEffect(() => {
-    if (isSuccessHardDelete) {
-      setUserList(dataHardDelete.updatedUsersList);
-      setTotalPages(dataHardDelete.totalPages);
-    }
-  }, [isSuccessHardDelete]);
-
-  //error handles
-  useEffect(() => {
-    if (isError && error?.message) {
-      console.log(error.message);
-    }
-  }, [isError, error]);
-  useEffect(() => {
-    if (isErrorRestore) {
-      console.log(errorRestore.message);
-    }
-  }, [isErrorRestore]);
-  useEffect(() => {
-    if (isErrorHardDelete) {
-      console.log(errorHardDelete.message);
-    }
-  }, [isErrorHardDelete]);
-
-  useEffect(() => {
-    const anyPending = isPendingRestore || isPendingHardDelete;
-    dispatch(anyPending ? showLoader() : hideLoader());
-  }, [isPendingRestore, isPendingHardDelete]);
-
-  const handleRestoreUser = (userId: string) => {
-    const pagenumber = getPageNumber(currentPage, userList.length);
-    setCurrentPage(pagenumber);
-    mutateRestore({
-      userId,
-      searchValue,
-      page: pagenumber,
-    });
-  };
-
-  const handleHardDeleteUser = (userId: string) => {
-    const pagenumber = getPageNumber(currentPage, userList.length);
-    setCurrentPage(pagenumber);
-    mutateHardDelete({
-      userId,
-      searchValue,
-      page: pagenumber,
-    });
-  };
+    handleRestoreUser,
+    handleHardDeleteUser,
+    userList,
+    totalPages,
+    searchValue,
+    setSearchValue,
+    currentPage,
+    setCurrentPage,
+    isPending,
+    mutate,
+  } = useDeletedUsersPanelHook();
 
   const columnHelper = createColumnHelper<AllUsersType>();
 

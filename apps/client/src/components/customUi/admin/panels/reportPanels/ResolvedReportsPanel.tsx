@@ -1,48 +1,20 @@
 import { CellContext, createColumnHelper } from '@tanstack/react-table';
-import { useEffect, useState } from 'react';
 import { ReportSubResponse } from '@bro/shared';
 import DataTable from '@client/components/customUi/commonElemets/DataTable';
 import ConfirmActionButton from '@client/components/customUi/commonElemets/ConfirmActionButton';
 import ReportDetailsModalContent from '../../elements/reportElements/ReportDetailsModalContent';
-import { useGetResolvedReports } from '@client/hooks/admin/reportManagement/useGetResolvedReports';
 import { LuMenu } from 'react-icons/lu';
+import { useResolvedReportsPanelHook } from '@client/hooks/PageHooks/admin/report/useResolvedReportsPanelHook';
 
 function ResolvedReportsPanel() {
-  const [reportList, setReportList] = useState<ReportSubResponse[]>([]);
-  const [totalPages, setTotalPages] = useState(1);
-  const [searchValue, setSearchValue] = useState<string>('');
-
-  const { isPending, isSuccess, mutate, data } = useGetResolvedReports();
-
-  useEffect(() => {
-    if (searchValue.trim().length < 1) {
-      mutate({
-        searchValue,
-        page: 1,
-      });
-    }
-  }, [searchValue]);
-
-  useEffect(() => {
-    const delay = setTimeout(() => {
-      if (searchValue.trim().length > 1) {
-        mutate({
-          searchValue,
-          page: 1,
-        });
-      }
-    }, 300);
-
-    return () => clearTimeout(delay);
-  }, [searchValue]);
-
-  //success handles
-  useEffect(() => {
-    if (isSuccess) {
-      setReportList(data.reportList);
-      setTotalPages(data.totalPages);
-    }
-  }, [isSuccess]);
+  const {
+    isPending,
+    mutate,
+    reportList,
+    searchValue,
+    setSearchValue,
+    totalPages,
+  } = useResolvedReportsPanelHook();
 
   const columnHelper = createColumnHelper<ReportSubResponse>();
 
@@ -68,7 +40,6 @@ function ResolvedReportsPanel() {
       },
     }),
     columnHelper.accessor('reason', { header: 'Reason' }),
-
     {
       header: 'Actions',
       cell: (info: CellContext<ReportSubResponse, unknown>) => {

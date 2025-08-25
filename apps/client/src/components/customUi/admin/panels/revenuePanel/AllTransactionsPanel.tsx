@@ -1,12 +1,9 @@
-import { usegetAllTransactions } from '@client/hooks/admin/revenueManagement/useGetSubscriptionDetails';
 import { CellContext, createColumnHelper } from '@tanstack/react-table';
-import { useEffect, useState } from 'react';
 import { AllTransactionsOutType } from '@bro/shared';
 import ConfirmActionButton from '@client/components/customUi/commonElemets/ConfirmActionButton';
 import { LuMenu, LuSearch } from 'react-icons/lu';
 import DataTable from '@client/components/customUi/commonElemets/DataTable';
 import { format } from 'date-fns';
-
 import {
   Select,
   SelectContent,
@@ -14,7 +11,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@client/components/ui/select';
-
 import {
   Popover,
   PopoverContent,
@@ -25,61 +21,24 @@ import { Calendar } from '@client/components/ui/calendar';
 import ButtonIcon from '@client/components/customUi/commonElemets/ButtonIcon';
 import { MdClear } from 'react-icons/md';
 import TransactionDetailsModalContent from '../../elements/revenueElements/TransactionDetailsModalContent';
+import { useAllTransactionsPanelHook } from '@client/hooks/PageHooks/admin/revenue/useAllTransactionsPanelHook';
 
 function AllTransactionsPanel() {
-  const [transactionList, setTransactionList] = useState<
-    AllTransactionsOutType[]
-  >([]);
-  const [searchValue, setSearchValue] = useState<string>('');
-  const [totalPages, setTotalPages] = useState(1);
-  const [currentPage, setCurrentPage] = useState(1);
-
-  const [filters, setFilters] = useState({
-    type: '',
-    createdAt: '',
-  });
-
-  const { isPending, isSuccess, isError, mutate, error, data } =
-    usegetAllTransactions();
-
-  useEffect(() => {
-    if (searchValue.trim().length < 1) {
-      mutate({
-        searchValue,
-        ...filters,
-        page: 1,
-      });
-    }
-  }, [searchValue]);
-
-  useEffect(() => {
-    const delay = setTimeout(() => {
-      if (searchValue.trim().length > 1) {
-        mutate({
-          searchValue,
-          ...filters,
-          page: 1,
-        });
-      }
-    }, 300);
-
-    return () => clearTimeout(delay);
-  }, [searchValue]);
-
-  //success handles
-  useEffect(() => {
-    if (isSuccess) {
-      setTransactionList(data.transactions);
-      setTotalPages(data.totalPages);
-    }
-  }, [isSuccess]);
-
-  //error handles
-  useEffect(() => {
-    if (isError) {
-      console.log(error.message);
-    }
-  }, [isError]);
+  const {
+    filters,
+    handleClearFilters,
+    handleDateSelect,
+    handleSearchWithFilters,
+    isPending,
+    mutate,
+    searchValue,
+    setSearchValue,
+    totalPages,
+    transactionList,
+    setFilters,
+    currentPage,
+    setCurrentPage,
+  } = useAllTransactionsPanelHook();
 
   const columnHelper = createColumnHelper<AllTransactionsOutType>();
   const columns = [
@@ -129,35 +88,6 @@ function AllTransactionsPanel() {
     },
   ];
 
-  const handleDateSelect = (selectedDate: Date | undefined) => {
-    if (!selectedDate) return;
-    setFilters((prev) => ({
-      ...prev,
-      createdAt: selectedDate.toLocaleDateString('en-CA'),
-    }));
-  };
-
-  const handleSearchWithFilters = () => {
-    mutate({
-      searchValue,
-      ...filters,
-      page: 1,
-    });
-  };
-
-  const handleClearFilters = () => {
-    const clearedFilters = {
-      type: '', // ✅ Corrected key
-      createdAt: '', // ✅ Corrected key
-    };
-    setFilters(clearedFilters);
-    mutate({
-      searchValue,
-      ...clearedFilters,
-      page: 1,
-    });
-  };
-
   return (
     <DataTable
       columns={columns}
@@ -186,9 +116,9 @@ function AllTransactionsPanel() {
             <SelectValue placeholder="Select Type" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="monthly">Monthly</SelectItem>
-            <SelectItem value="yearly">Yearly</SelectItem>
-            <SelectItem value="premium_group">Paid Group</SelectItem>
+            <SelectItem value="subscription">subscription</SelectItem>
+            <SelectItem value="paid_group">Paid Group</SelectItem>
+            <SelectItem value="exclusive_user">Exclusive User</SelectItem>
           </SelectContent>
         </Select>
         <Popover>

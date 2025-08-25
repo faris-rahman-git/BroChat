@@ -1,5 +1,21 @@
 export type MessageStatusType = 'sending' | 'sent' | 'delivered' | 'seen';
 
+export type ReactionsType = {
+  userId: string;
+  name: string;
+  avatar: string;
+  emoji: string;
+};
+
+export type ReplyToType = {
+  _id ?: string;
+  senderId?:string;
+  senderName: string;
+  MessageType: ContentType;
+  content?: string;
+  mediaUrl?: string;
+};
+
 export type MessageType = {
   tempId?: string | null;
   _id?: string | null;
@@ -10,12 +26,13 @@ export type MessageType = {
   MessageType: ContentType;
   content?: string | null;
   mediaUrl?: string | null;
-  deliveredBy?: { userId?: string | null; time: Date }[];
   isEdited?: boolean;
-  readBy?: { userId?: string | null; time: Date }[];
   status: MessageStatusType;
   messageTime: Date | string;
   createdAt?: Date;
+  isForward?: boolean;
+  reactions?: ReactionsType[];
+  replyTo?: ReplyToType;
 };
 
 export type DeleteMessageType = 'me' | 'everyone';

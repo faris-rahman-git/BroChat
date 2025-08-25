@@ -39,6 +39,14 @@ const messageSchema = new mongoose.Schema({
     enum: ['sending', 'sent', 'delivered', 'seen'],
     default: 'sent',
   },
+  reactions: [
+    {
+      userId: { type: mongoose.Schema.Types.ObjectId, ref: 'userModel' },
+      emoji: String,
+    },
+  ],
+  replyTo: { type: mongoose.Schema.Types.ObjectId, ref: 'messageModel' },
+  isForward: { type: Boolean, default: false },
   messageTime: { type: Date, default: Date.now },
   createdAt: { type: Date, default: Date.now },
 });

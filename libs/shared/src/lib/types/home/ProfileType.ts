@@ -1,8 +1,8 @@
 export type ProfileUpdateInfoParams = {
   name: string;
   username: string;
-  phoneNumber?: number | null;
-  avatar: string;
   about: string;
+  phoneNumber?: number | null;
   email: string;
+  avatar: string;
 };

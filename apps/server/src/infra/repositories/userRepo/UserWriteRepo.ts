@@ -79,4 +79,8 @@ export class UserWriteRepo implements IUserWriteRepo {
   ): Promise<void> {
     await userModel.findByIdAndUpdate(userId, profileInfo);
   }
+
+  async makeUserAsExclusive(userId: string): Promise<void> {
+    await userModel.findByIdAndUpdate(userId, { isExclusive: true });
+  }
 }

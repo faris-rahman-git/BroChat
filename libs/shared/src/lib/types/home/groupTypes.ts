@@ -33,3 +33,8 @@ export type updateGroupInfoType = {
   about?: string | null;
   avatar?: string | null;
 };
+
+export type findConversationNameType = {
+  name: string;
+  avatar: string;
+};

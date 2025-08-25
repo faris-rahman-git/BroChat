@@ -6,21 +6,16 @@ import {
 
 type Props = {
   avatarUrl?: string;
-  showAvatar?: boolean;
 };
 
-const TypingBubble = ({ avatarUrl, showAvatar = true }: Props) => {
+const TypingBubble = ({ avatarUrl }: Props) => {
   return (
     <div className="flex w-full gap-2 justify-start">
       <div className="min-w-6 h-6">
-        {showAvatar ? (
-          <Avatar className="size-6 self-end">
-            <AvatarImage src={avatarUrl} alt="avatar" />
-            <AvatarFallback>U</AvatarFallback>
-          </Avatar>
-        ) : (
-          <div className="size-6 opacity-0 pointer-events-none" />
-        )}
+        <Avatar className="size-6 self-end">
+          <AvatarImage src={avatarUrl} alt="avatar" />
+          <AvatarFallback>U</AvatarFallback>
+        </Avatar>
       </div>
 
       <div className="relative max-w-[65%] min-w-[80px] h-[40px] flex justify-center items-center rounded-[6px] px-4 py-2 bg-white text-black rounded-tl-none">

@@ -86,6 +86,7 @@ export class QueryService implements IQueryService {
     createdAt,
   }: Omit<getAllPaymetsType, 'page'>): any {
     const query: any = { $and: [] };
+    query.$and.push({ feature: { $ne: 'exclusive_user_customer' } });
 
     // Search by recipient name, email, or order/payment ID
     if (searchValue.trim() !== '') {

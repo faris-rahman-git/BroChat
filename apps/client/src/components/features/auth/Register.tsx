@@ -1,18 +1,4 @@
 import regImg from '../../../assets/auth/register.webp';
-import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useNavigate } from 'react-router-dom';
-import { useAppDispatch } from '../../../hooks/commonHooks/useAppDispatch';
-import { useRegister } from '../../../hooks/auth/useRegister';
-import {
-  clearRegisterData,
-  setRegisterData,
-} from '../../../redux/features/userSlices/authSlices/authSlice';
-import {
-  showLoader,
-  hideLoader,
-} from '@client/redux/features/commonSlices/LoaderSlice';
 import FixedLogo from '../../customUi/auth/FixedLogo';
 import AuthHeading from '../../customUi/auth/AuthHeading';
 import { registerFormFields } from '../../../constants/authConstant/authConstants';
@@ -21,61 +7,13 @@ import AuthNextButton from '../../customUi/auth/AuthNextButton';
 import SocialLogin from '../../customUi/auth/SocialLogin';
 import SwitchBWLoginAndRegister from '../../customUi/auth/SwitchBWLoginAndRegister';
 import MainSideImage from '../../customUi/auth/MainSideImage';
-import { registerSchema, type RegisterSchemaType } from '@bro/shared';
+import { type RegisterSchemaType } from '@bro/shared';
 import Errorspan from '@client/components/customUi/auth/Errorspan';
-import axios from 'axios';
-import { useSelector } from 'react-redux';
-import { RootState } from '@client/redux/store';
-import { setError } from '@client/redux/features/userSlices/authSlices/errorSlice';
+import { useRegisterHook } from '@client/hooks/PageHooks/auth/useRegisterHook';
 
 function Register() {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<RegisterSchemaType>({
-    resolver: zodResolver(registerSchema),
-  });
-
-  const dispatch = useAppDispatch();
-  const navigate = useNavigate();
-  const errorMessage = useSelector((state: RootState) => state.error.message);
-  const { isPending, isSuccess, isError, mutate, error } = useRegister();
-
-  const onSubmit = (data: RegisterSchemaType) => {
-    dispatch(
-      setRegisterData({
-        name: data.name,
-        email: data.email,
-        phoneNumber: data.phoneNumber,
-      })
-    );
-    mutate(data);
-  };
-
-  useEffect(() => {
-    dispatch(isPending ? showLoader() : hideLoader());
-  }, [isPending]);
-
-  useEffect(() => {
-    if (isSuccess) {
-      dispatch(setError('Please check your email For OTP'));
-      navigate('/otpandpassword?mode=register');
-    }
-  }, [isSuccess, navigate]);
-
-  useEffect(() => {
-    if (isError) {
-      dispatch(clearRegisterData());
-      if (axios.isAxiosError(error)) {
-        dispatch(
-          setError(error.response?.data?.message || 'Somthing went wrong')
-        );
-      } else {
-        dispatch(setError(error.message || 'Somthing went wrong'));
-      }
-    }
-  }, [isError, error, dispatch]);
+  const { onSubmit, register, handleSubmit, errors, errorMessage } =
+    useRegisterHook();
 
   return (
     <div className="h-full w-full z-20 flex">

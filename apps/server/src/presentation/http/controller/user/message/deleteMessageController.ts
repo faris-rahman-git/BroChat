@@ -25,14 +25,16 @@ export class deleteMessageController implements IController {
 
     try {
       const { id: userId } = httpRequest.user as CustomPayloadType;
-      const { messageId, conversationId } = httpRequest.path as {
+      const { conversationId } = httpRequest.path as {
         conversationId: string;
-        messageId: string;
       };
-      const { type } = httpRequest.query as { type: DeleteMessageType };
+      const { type, messageIds } = httpRequest.body as {
+        type: DeleteMessageType;
+        messageIds: string[];
+      };
 
       response = await this.deleteMessageUseCase.execute(
-        messageId,
+        messageIds,
         conversationId,
         userId,
         type

@@ -1,16 +1,11 @@
 import ButtonIcon from '@client/components/customUi/commonElemets/ButtonIcon';
 import { MdAttachFile } from 'react-icons/md';
 import { ContentType } from '@bro/shared';
-
 import ChatInputControls from './chatPanelBottom/ChatInputControls';
 import AttachmentOptionsModal from './chatPanelBottom/AttachmentOptionsModal';
 import EmojiGifPickerPanel from './chatPanelBottom/EmojiGifPickerPanel';
 import HiddenFileInput from './chatPanelBottom/HiddenFileInput';
-
-import { useMessageInputLogic } from '@client/hooks/home/chatBottomHooks/useMessageInputLogic';
-import { useEmojiStickerPicker } from '@client/hooks/home/chatBottomHooks/useEmojiStickerPicker';
-import { useVoiceRecording } from '@client/hooks/home/chatBottomHooks/useVoiceRecording';
-import { useFileAttachment } from '@client/hooks/home/chatBottomHooks/useFileAttachment';
+import { useChatPanelBottomHook } from '@client/hooks/PageHooks/user/HomePage/Home/panels/ChatPanel/element/useChatPanelBottomHook';
 
 interface ChatPanelBottomProps {
   onSend: ({
@@ -33,9 +28,6 @@ function ChatPanelBottom({ onSend, receiverId }: ChatPanelBottomProps) {
     isEditing,
     clearEditState,
     appendMessage,
-  } = useMessageInputLogic(onSend, receiverId);
-
-  const {
     showPicker,
     setShowPicker,
     pickerRef,
@@ -46,27 +38,18 @@ function ChatPanelBottom({ onSend, receiverId }: ChatPanelBottomProps) {
     fetchGifs,
     handleGifClick,
     searchTerm,
-  } = useEmojiStickerPicker(onSend);
-
-  const {
     isRecording,
     recordingTime,
     handleMicClick,
     stopRecording,
-    isUploadingAudio,
-  } = useVoiceRecording(onSend);
-
-  const {
     showAttachmentModal,
     setShowAttachmentModal,
     fileInputType,
     hiddenFileInputRef,
     handleFileSelect,
     handleFileChange,
-    isUploadingFile,
-  } = useFileAttachment(onSend);
-
-  const isSending = isUploadingAudio || isUploadingFile;
+    isSending,
+  } = useChatPanelBottomHook(onSend, receiverId);
 
   return (
     <footer className={'flex items-center gap-6 p-6'}>

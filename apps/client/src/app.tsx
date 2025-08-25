@@ -1,9 +1,9 @@
+import './App.css';
 import { useSelector } from 'react-redux';
 import { RootState } from './redux/store';
 import Loader from './components/features/loading/Loader';
 import { BrowserRouter } from 'react-router-dom';
 import Routers from './router/Routers';
-import './App.css';
 import { useEffect } from 'react';
 import { useAppDispatch } from './hooks/commonHooks/useAppDispatch';
 import { setOnline } from './redux/features/commonSlices/browserOnlineSlice';

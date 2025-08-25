@@ -3,7 +3,12 @@ import { Schema, model } from 'mongoose';
 const paymentSchema = new Schema({
   feature: {
     type: String,
-    enum: ['premium_group', 'monthly', 'yearly'],
+    enum: [
+      'subscription',
+      'paid_group',
+      'exclusive_user',
+      'exclusive_user_customer',
+    ],
     required: true,
   },
   userId: {
@@ -22,5 +27,11 @@ const paymentSchema = new Schema({
   recipientName: { type: String, required: true },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date },
+
+  exclusiveDetails: {
+    exclusiveUserId: { type: Schema.Types.ObjectId, ref: 'userModel' },
+    adminShare: { type: Number },
+    userShare: { type: Number },
+  },
 });
 export default model('paymentModel', paymentSchema);

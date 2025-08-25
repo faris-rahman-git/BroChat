@@ -1,7 +1,9 @@
 import {
   DeleteGroupsReturnType,
+  findConversationNameType,
   GroupChatListType,
   GroupChatType,
+  StatsReturn,
 } from '@bro/shared';
 import { usersList } from '../../../domain/dtos/user/ConversationRepoTypes';
 
@@ -24,4 +26,15 @@ export interface IConversationReadRepo {
     searchValue: string,
     page: number
   ): Promise<{ data: DeleteGroupsReturnType[]; totalPages: number }>;
+
+  findConversationName(
+    conversationId: string,
+    userId: string
+  ): Promise<findConversationNameType>;
+
+  findPersonalChatCounts(): Promise<{ totalChat: number; newChat: number }>;
+
+  findGroupChatCounts(): Promise<{ totalChat: number; newChat: number }>;
+
+  getGroupStatsData(): Promise<StatsReturn>
 }

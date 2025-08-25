@@ -1,129 +1,34 @@
 import { CellContext, createColumnHelper } from '@tanstack/react-table';
 import DataTable from '../../../commonElemets/DataTable';
-import { useEffect, useState } from 'react';
-import { useAppDispatch } from '@client/hooks/commonHooks/useAppDispatch';
-import {
-  showLoader,
-  hideLoader,
-} from '@client/redux/features/commonSlices/LoaderSlice';
-import { DeleteGroupsReturnType, GroupChatType } from '@bro/shared';
+import { DeleteGroupsReturnType } from '@bro/shared';
 import { MdOutlineDeleteForever, MdOutlineRestore } from 'react-icons/md';
 import { getPageNumber } from '@client/utils/getPageNumber';
-import { useGetDeletedGroups } from '@client/hooks/admin/groupManagement/useGetDeletedGroups';
 import CustomModals from '@client/components/customUi/commonElemets/CustomModals';
 import ButtonIcon from '@client/components/customUi/commonElemets/ButtonIcon';
 import ConfirmActionButton from '@client/components/customUi/commonElemets/ConfirmActionButton';
 import GroupDetailsModalContent from '../../elements/groupElements/GroupDetailsModalContent';
 import { LuMenu } from 'react-icons/lu';
-import { useGroupSoftDeleteManagement } from '@client/hooks/admin/groupManagement/useGroupSoftDeleteManagement';
-import { useHardDeleteGroup } from '@client/hooks/admin/groupManagement/useHardDeleteGroup';
+import { useGetDeletedGroupsHook } from '@client/hooks/PageHooks/admin/group/useGetDeletedGroupsHook';
 
 function DeletedGroups() {
-  const dispatch = useAppDispatch();
-  const [groupList, setGroupList] = useState<DeleteGroupsReturnType[]>([]);
-  const [totalPages, setTotalPages] = useState(1);
-  const [searchValue, setSearchValue] = useState<string>('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [openModal, setOpenModal] = useState(false);
-  const [selectedButton, setSelectedButton] = useState<
-    'restore' | 'hardDelete' | ''
-  >('');
-  const [selectedGroup, setSelectedGroup] = useState<GroupChatType | null>(
-    null
-  );
-
-  const { isPending, isSuccess, isError, mutate, error, data } =
-    useGetDeletedGroups();
-  useEffect(() => {
-    if (isSuccess) {
-      setGroupList(data.groupList);
-      setTotalPages(data.totalPages);
-    }
-  }, [isSuccess]);
-  useEffect(() => {
-    if (isError && error?.message) {
-      console.log(error.message);
-    }
-  }, [isError, error]);
-  useEffect(() => {
-    const trimmed = searchValue.trim();
-
-    const delay = setTimeout(() => {
-      mutate({
-        searchValue: trimmed,
-        page: 1,
-      });
-    }, 300);
-
-    return () => clearTimeout(delay);
-  }, [searchValue]);
-
   const {
-    isPending: isPendingRestore,
-    isError: isErrorRestore,
-    mutate: mutateRestore,
-    isSuccess: isSuccessRestore,
-    error: errorRestore,
-    data: dataRestore,
-  } = useGroupSoftDeleteManagement();
-  useEffect(() => {
-    if (isSuccessRestore) {
-      setGroupList(dataRestore.updatedGroupList);
-      setTotalPages(dataRestore.totalPages);
-    }
-  }, [isSuccessRestore]);
-  useEffect(() => {
-    if (isErrorRestore) {
-      console.log(errorRestore.message);
-    }
-  }, [isErrorRestore]);
-  const handleRestoreUser = (conversationId: string) => {
-    const pagenumber = getPageNumber(currentPage, groupList.length);
-    setCurrentPage(pagenumber);
-    mutateRestore({
-      conversationId,
-      isDeleted: false,
-      searchValue,
-      createdAt: '',
-      status: '',
-      page: pagenumber,
-    });
-  };
-
-  const {
-    isPending: isPendingHardDelete,
-    isError: isErrorHardDelete,
-    mutate: mutateHardDelete,
-    isSuccess: isSuccessHardDelete,
-    error: errorHardDelete,
-    data: dataHardDelete,
-  } = useHardDeleteGroup();
-  useEffect(() => {
-    if (isSuccessHardDelete) {
-      setGroupList(dataHardDelete.updatedGroupList);
-      setTotalPages(dataHardDelete.totalPages);
-    }
-  }, [isSuccessHardDelete]);
-  useEffect(() => {
-    if (isErrorHardDelete) {
-      console.log(errorHardDelete.message);
-    }
-  }, [isErrorHardDelete]);
-  const handleHardDeleteUser = (conversationId: string) => {
-    const pagenumber = getPageNumber(currentPage, groupList.length);
-    setCurrentPage(pagenumber);
-    mutateHardDelete({
-      conversationId,
-      searchValue,
-      page: pagenumber,
-    });
-  };
-
-  //common pending loader
-  useEffect(() => {
-    const anyPending = isPendingRestore || isPendingHardDelete;
-    dispatch(anyPending ? showLoader() : hideLoader());
-  }, [isPendingRestore, isPendingHardDelete]);
+    currentPage,
+    groupList,
+    handleHardDeleteUser,
+    handleRestoreUser,
+    isPending,
+    searchValue,
+    setCurrentPage,
+    setSearchValue,
+    totalPages,
+    mutate,
+    openModal,
+    setOpenModal,
+    selectedButton,
+    setSelectedButton,
+    selectedGroup,
+    setSelectedGroup,
+  } = useGetDeletedGroupsHook();
 
   const columnHelper = createColumnHelper<DeleteGroupsReturnType>();
 

@@ -1,5 +1,10 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { EditMessageType, MessageStatusType, MessageType } from '@bro/shared';
+import {
+  EditMessageType,
+  MessageStatusType,
+  MessageType,
+  ReactionsType,
+} from '@bro/shared';
 
 type MessagesState = {
   [conversationId: string]: MessageType[];
@@ -79,6 +84,56 @@ const messageHistorySlice = createSlice({
         (msg) => msg._id !== action.payload.messageId
       );
     },
+
+    addReaction: (
+      state,
+      action: PayloadAction<{
+        conversationId: string;
+        messageId: string;
+        reaction: ReactionsType;
+      }>
+    ) => {
+      const { conversationId, messageId, reaction } = action.payload;
+
+      const messages = state[conversationId];
+      if (!messages) return;
+
+      const msg = messages.find((m) => m._id === messageId);
+      if (!msg) return;
+
+      if (!msg.reactions) {
+        msg.reactions = [];
+      }
+
+      const existingReaction = msg.reactions.find(
+        (r) => r.userId === reaction.userId
+      );
+
+      if (existingReaction) {
+        existingReaction.emoji = reaction.emoji;
+      } else {
+        msg.reactions.push(reaction);
+      }
+    },
+
+    removeReaction: (
+      state,
+      action: PayloadAction<{
+        conversationId: string;
+        messageId: string;
+        userId: string;
+      }>
+    ) => {
+      const { conversationId, messageId, userId } = action.payload;
+
+      const messages = state[conversationId];
+      if (!messages) return;
+
+      const msg = messages.find((m) => m._id === messageId);
+      if (!msg || !msg.reactions) return;
+
+      msg.reactions = msg.reactions.filter((r) => r.userId !== userId);
+    },
   },
 });
 
@@ -89,6 +144,8 @@ export const {
   replaceMessageByTempId,
   deleteMessage,
   editMessage,
+  addReaction,
+  removeReaction,
 } = messageHistorySlice.actions;
 
 export default messageHistorySlice.reducer;

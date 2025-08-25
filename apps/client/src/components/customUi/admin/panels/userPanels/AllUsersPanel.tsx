@@ -1,15 +1,5 @@
 import { CellContext, createColumnHelper } from '@tanstack/react-table';
 import { LuBan, LuMenu, LuSearch, LuTrash2 } from 'react-icons/lu';
-import { useEffect, useState } from 'react';
-import { useAppDispatch } from '@client/hooks/commonHooks/useAppDispatch';
-import {
-  showLoader,
-  hideLoader,
-} from '@client/redux/features/commonSlices/LoaderSlice';
-import { AllUsersType } from '@bro/shared';
-import { useGetAllUsers } from '@client/hooks/admin/userManagement/useGetAllUsers';
-import { useSoftDeleteUser } from '@client/hooks/admin/userManagement/useSoftDeleteUser';
-import { useUserBlockManagement } from '@client/hooks/admin/userManagement/useUserBlockManagement';
 import {
   Select,
   SelectContent,
@@ -32,109 +22,33 @@ import DetailsModalContent from '../../elements/userElemets/DetailsModalContent'
 import ButtonIcon from '@client/components/customUi/commonElemets/ButtonIcon';
 import { getPageNumber } from '@client/utils/getPageNumber';
 import CustomModals from '@client/components/customUi/commonElemets/CustomModals';
+import { AllUsersType } from '@bro/shared';
+import { useAllUsersPanelHook } from '@client/hooks/PageHooks/admin/user/useAllUsersPanelHook';
 
 function AllUsersPanel() {
-  const [userList, setUserList] = useState<AllUsersType[]>([]);
-  const [searchValue, setSearchValue] = useState<string>('');
-  const [totalPages, setTotalPages] = useState(1);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [openModal, setOpenModal] = useState(false);
-  const [selectedButton, setSelectedButton] = useState<'block' | 'delete' | ''>(
-    ''
-  );
-  const [selectedUser, setSelectedUser] = useState<AllUsersType | null>(null);
-
-  const [filters, setFilters] = useState({
-    status: '',
-    joinedAt: '',
-  });
-
-  const dispatch = useAppDispatch();
-  const { isPending, isSuccess, isError, mutate, error, data } =
-    useGetAllUsers();
-
   const {
-    isPending: isPendingBlock,
-    isError: isErrorBlock,
-    mutate: mutateBlock,
-    isSuccess: isSuccessBlock,
-    error: errorBlock,
-    data: dataBlock,
-  } = useUserBlockManagement();
-  const {
-    isPending: isPendingSoftDelete,
-    isError: isErrorSoftDelete,
-    mutate: mutateSoftDelete,
-    isSuccess: isSuccessSoftDelete,
-    error: errorSoftDelete,
-    data: dataSoftDelete,
-  } = useSoftDeleteUser();
-
-  useEffect(() => {
-    if (searchValue.trim().length < 1) {
-      mutate({
-        searchValue,
-        ...filters,
-        page: 1,
-      });
-    }
-  }, [searchValue]);
-
-  useEffect(() => {
-    const delay = setTimeout(() => {
-      if (searchValue.trim().length > 1) {
-        mutate({
-          searchValue,
-          ...filters,
-          page: 1,
-        });
-      }
-    }, 300);
-
-    return () => clearTimeout(delay);
-  }, [searchValue]);
-
-  //success handles
-  useEffect(() => {
-    if (isSuccess) {
-      setUserList(data.usersList);
-      setTotalPages(data.totalPages);
-    }
-  }, [isSuccess]);
-  useEffect(() => {
-    if (isSuccessBlock) {
-      setUserList(dataBlock.updatedUsersList);
-      setTotalPages(dataBlock.totalPages);
-    }
-  }, [isSuccessBlock]);
-  useEffect(() => {
-    if (isSuccessSoftDelete) {
-      setUserList(dataSoftDelete.updatedUsersList);
-      setTotalPages(dataSoftDelete.totalPages);
-    }
-  }, [isSuccessSoftDelete]);
-
-  //error handles
-  useEffect(() => {
-    if (isError) {
-      console.log(error.message);
-    }
-  }, [isError]);
-  useEffect(() => {
-    if (isErrorBlock) {
-      console.log(errorBlock.message);
-    }
-  }, [isErrorBlock]);
-  useEffect(() => {
-    if (isErrorSoftDelete) {
-      console.log(errorSoftDelete.message);
-    }
-  }, [isErrorSoftDelete]);
-
-  useEffect(() => {
-    const anyPending = isPendingBlock || isPendingSoftDelete;
-    dispatch(anyPending ? showLoader() : hideLoader());
-  }, [isPendingBlock, isPendingSoftDelete]);
+    userList,
+    searchValue,
+    setSearchValue,
+    totalPages,
+    currentPage,
+    setCurrentPage,
+    openModal,
+    setOpenModal,
+    selectedButton,
+    setSelectedButton,
+    selectedUser,
+    setSelectedUser,
+    filters,
+    setFilters,
+    handleBlockUser,
+    handleSoftDeleteUser,
+    handleDateSelect,
+    handleSearchWithFilters,
+    handleClearFilters,
+    isPending,
+    mutate,
+  } = useAllUsersPanelHook();
 
   const columnHelper = createColumnHelper<AllUsersType>();
   const columns = [
@@ -248,58 +162,6 @@ ${isSubscribed ? 'bg-red-900' : 'bg-sky-500'}
       },
     },
   ];
-
-  const handleBlockUser = (userId: string, isBlocked: boolean) => {
-    const pagenumber = getPageNumber(currentPage, userList.length);
-    setCurrentPage(pagenumber);
-    mutateBlock({
-      userId,
-      isBlocked: !isBlocked,
-      searchValue,
-      ...filters,
-      page: pagenumber,
-    });
-  };
-
-  const handleSoftDeleteUser = (userId: string) => {
-    const pagenumber = getPageNumber(currentPage, userList.length);
-    setCurrentPage(pagenumber);
-    mutateSoftDelete({
-      userId,
-      searchValue,
-      ...filters,
-      page: pagenumber,
-    });
-  };
-
-  const handleDateSelect = (selectedDate: Date | undefined) => {
-    if (!selectedDate) return;
-    setFilters((prev) => ({
-      ...prev,
-      joinedAt: selectedDate.toLocaleDateString('en-CA'),
-    }));
-  };
-
-  const handleSearchWithFilters = () => {
-    mutate({
-      searchValue,
-      ...filters,
-      page: 1,
-    });
-  };
-
-  const handleClearFilters = () => {
-    const clearedFilters = {
-      status: '',
-      joinedAt: '',
-    };
-    setFilters(clearedFilters);
-    mutate({
-      searchValue,
-      ...clearedFilters,
-      page: 1,
-    });
-  };
 
   const renderModal = () => {
     if (!selectedUser) return null;

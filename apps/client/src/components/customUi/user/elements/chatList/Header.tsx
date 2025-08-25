@@ -1,65 +1,27 @@
 import logo from '@client/assets/logo/chatLogo.webp';
 import ButtonIcon from '@client/components/customUi/commonElemets/ButtonIcon';
-import { useState } from 'react';
-import { LuFilter, LuUserPlus } from 'react-icons/lu';
-import { useRef } from 'react';
-import useClickOutside from '@client/hooks/commonHooks/useClickOutside';
+import { LuUserPlus } from 'react-icons/lu';
 import AddUserCard from './header/AddUserCard';
-import FilterCard from './header/FilterCard';
 import { MdAddCall, MdOutlineGroupAdd } from 'react-icons/md';
 import CreateNewGroup from './header/CreateNewGroup';
-import { useSelector } from 'react-redux';
-import { RootState } from '@client/redux/store';
+import { useHeaderHook } from '@client/hooks/PageHooks/user/HomePage/Home/panels/ChatList/element/useHeaderHook';
 
 function Header({ tab }: { tab: string }) {
-  const [activeTab, setActiveTab] = useState('');
-  const oneToOneChatListData = useSelector(
-    (state: RootState) => state.oneToOneChat.chatList
-  );
-  const handleButtons = (label: string) => {
-    setActiveTab(label);
-  };
-
-  const filterRef = useRef<HTMLDivElement>(null);
-  const newChatRef = useRef<HTMLDivElement>(null);
-  const createGroupRef = useRef<HTMLDivElement>(null);
-
-  useClickOutside({
-    ref: filterRef,
-    onClickOutside: () => {
-      if (activeTab === 'Filter') setActiveTab('');
-    },
-  });
-
-  useClickOutside({
-    ref: newChatRef,
-    onClickOutside: () => {
-      if (activeTab === 'New Chat') setActiveTab('');
-    },
-  });
-
-  useClickOutside({
-    ref: createGroupRef,
-    onClickOutside: () => {
-      if (activeTab === 'Create Group') setActiveTab('');
-    },
-  });
+  const {
+    activeTab,
+    handleButtons,
+    oneToOneChatListData,
+    newChatRef,
+    createGroupRef,
+    setActiveTab,
+  } = useHeaderHook();
 
   const buttons =
     tab === 'DMs'
-      ? [
-          { icon: LuUserPlus, label: 'New Chat' },
-          { icon: LuFilter, label: 'Filter' },
-        ]
+      ? [{ icon: LuUserPlus, label: 'New Chat' }]
       : tab === 'Groups'
-      ? [
-          { icon: MdOutlineGroupAdd, label: 'Create Group' },
-          { icon: LuFilter, label: 'Filter' },
-        ]
-      : [
-          { icon: MdAddCall, label: 'Start Call' },
-          { icon: LuFilter, label: 'Filter' },
-        ];
+      ? [{ icon: MdOutlineGroupAdd, label: 'Create Group' }]
+      : [{ icon: MdAddCall, label: 'Start Call' }];
 
   return (
     <header className="inline-flex flex-col items-center w-full py-3 h-[78px] border-b-[.5px] border-[#0000012]">
@@ -81,9 +43,6 @@ function Header({ tab }: { tab: string }) {
                 className={` ${activeTab === label ? 'bg-[#f5f5f5]' : ''}`}
                 onClick={() => handleButtons(label)}
               ></ButtonIcon>
-              {label === 'Filter' && activeTab === 'Filter' && (
-                <FilterCard filterRef={filterRef} />
-              )}
               {label === 'New Chat' && activeTab === 'New Chat' && (
                 <AddUserCard
                   newChatRef={newChatRef}

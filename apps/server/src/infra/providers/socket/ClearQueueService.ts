@@ -33,7 +33,11 @@ export class ClearQueueService implements IClearQueueService {
         event !== 'update-subscription-details' &&
         event !== 'update-user-premium-status' &&
         event !== 'group-soft-delete' &&
-        event !== 'group-block-update'
+        event !== 'group-block-update' &&
+        event !== 'call-invite' &&
+        event !== 'call-cut' &&
+        event !== 'add-reaction' && 
+        event !== 'remove-reaction'
       ) {
         await this.offlineQueueRepo.addEventToQueue(userId, event, data);
       }

@@ -1,4 +1,5 @@
 import ButtonIcon from '@client/components/customUi/commonElemets/ButtonIcon';
+import { useDashBoardTopButtonsHook } from '@client/hooks/PageHooks/admin/main/sub/useDashBoardTopButtonsHook';
 import { LuUser, LuUserX, LuUsers, LuWallet } from 'react-icons/lu';
 import {
   MdArrowDropDown,
@@ -12,21 +13,14 @@ import {
   MdGroups2,
   MdOutlineGroupOff,
   MdGroups3,
+  MdSubscriptions,
+  MdGroup,
+  MdVerifiedUser,
+  MdOutlinePaid,
+  MdAttachMoney,
 } from 'react-icons/md';
-import { RootState } from '@client/redux/store';
-import { useSelector } from 'react-redux';
-import { useAppDispatch } from '@client/hooks/commonHooks/useAppDispatch';
-import {
-  setActiveDropdown,
-  setSelectedChild,
-  setSelectedTab,
-} from '@client/redux/features/admin/adminSidebarSlice';
 
 function DashBoardTopButtons() {
-  const dispatch = useAppDispatch();
-  const { selectedTab, selectedChild, activeDropdown } = useSelector(
-    (state: RootState) => state.adminSidebar
-  );
   const buttons = [
     {
       icon: MdOutlineDashboard,
@@ -60,29 +54,46 @@ function DashBoardTopButtons() {
     },
     {
       icon: LuWallet,
+      label: 'Plan Management',
+      children: [
+        {
+          label: 'Subscriptions',
+          icon: MdSubscriptions,
+        },
+        {
+          label: 'Paid Groups',
+          icon: MdGroup,
+        },
+        {
+          label: 'Exclusive User',
+          icon: MdVerifiedUser,
+        },
+      ],
+    },
+
+    {
+      icon: MdOutlinePaid,
       label: 'Revenue Management',
       children: [
         {
           label: 'All Transactions',
           icon: MdOutlinePayment,
         },
+        {
+          label: 'Exclusive User Payments',
+          icon: MdAttachMoney,
+        },
       ],
     },
   ];
 
-  const handleButtons = (label: string, childrenLength: number) => {
-    dispatch(setActiveDropdown(activeDropdown === label ? null : label));
-
-    if (childrenLength === 0) {
-      dispatch(setSelectedTab(label));
-      dispatch(setSelectedChild(null));
-    }
-  };
-
-  const handleChildClick = (parentLabel: string, childLabel: string) => {
-    dispatch(setSelectedTab(parentLabel));
-    dispatch(setSelectedChild(childLabel));
-  };
+  const {
+    handleButtons,
+    handleChildClick,
+    selectedTab,
+    selectedChild,
+    activeDropdown,
+  } = useDashBoardTopButtonsHook();
 
   return (
     <div className="flex flex-col gap-4 border-t-[.2px] pt-[25px] border-[#E0E0E0] w-full">

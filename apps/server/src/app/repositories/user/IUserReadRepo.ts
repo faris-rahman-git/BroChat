@@ -1,13 +1,17 @@
-import { MainAllUsersListType, GroupMember, userDetailsType } from '@bro/shared';
+import {
+  MainAllUsersListType,
+  GroupMember,
+  userDetailsType,
+  StatsReturn,
+} from '@bro/shared';
 import {
   FindEmailType,
-  
   SearchRawType,
 } from '../../../domain/dtos/user/UserRepoTypes';
 
 export interface IUserReadRepo {
   findEmail(email: string): Promise<FindEmailType | null>;
-  findUserDetailsById(userId: string): Promise<userDetailsType>
+  findUserDetailsById(userId: string): Promise<userDetailsType>;
   findUsername(username: string): Promise<string | null>;
   findMatchUsers(searchData: string, userId: string): Promise<SearchRawType[]>;
   findDetailsById(userId: string): Promise<Omit<SearchRawType, '_id'>>;
@@ -24,4 +28,8 @@ export interface IUserReadRepo {
   findIsSubscribed(userId: string): Promise<boolean>;
 
   findExpiredSubscriptionsUserId(): Promise<string[]>;
+
+  findUserCounts(): Promise<{ totalUsers: number; activeUsers: number }>;
+
+  getUserStatsData(): Promise<StatsReturn>;
 }

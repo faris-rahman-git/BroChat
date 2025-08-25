@@ -1,18 +1,18 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
-import RegisterPage from '../pages/userPages/auth/RegisterPage';
-import OtpAndPasswordPage from '../pages/userPages/auth/OtpAndPasswordPage';
-import LoginPage from '../pages/userPages/auth/LoginPage';
-import ForgotPasswordPage from '../pages/userPages/auth/ForgotPasswordPage';
 import ClearErrorOnBackForward from '@client/components/customUi/auth/ClearErrorOnBackForward ';
-import HomePage from '@client/pages/userPages/home/HomePage';
 import { useSelector } from 'react-redux';
 import { RootState } from '@client/redux/store';
 import Loader from '@client/components/features/loading/Loader';
-import { useAxiosAuth } from '@client/hooks/auth/useAxiosAuth';
-import DashboardPage from '@client/pages/userPages/home/DashboardPage';
-import useSocialAuthFromQuery from '@client/hooks/auth/useSocialAuthFromQuery';
-import VideoPlayerPage from '@client/pages/userPages/home/VideoPlayerPage';
-import CallPageWrapper from '@client/components/customUi/user/elements/chatPanel/subChatPanelTop/CallPageWrapper';
+import { useAxiosAuth } from '@client/hooks/auth/api/useAxiosAuth';
+import useSocialAuthFromQuery from '@client/hooks/auth/api/useSocialAuthFromQuery';
+import RegisterPage from '@client/pages/auth/RegisterPage';
+import OtpAndPasswordPage from '@client/pages/auth/OtpAndPasswordPage';
+import LoginPage from '@client/pages/auth/LoginPage';
+import ForgotPasswordPage from '@client/pages/auth/ForgotPasswordPage';
+import HomePage from '@client/pages/user/HomePage';
+import VideoPlayerPage from '@client/pages/user/VideoPlayerPage';
+import DashboardPage from '@client/pages/admin/DashboardPage';
+import CallPage from '@client/pages/user/CallPage';
 
 function Routers() {
   useAxiosAuth();
@@ -27,7 +27,7 @@ function Routers() {
     <>
       <ClearErrorOnBackForward />
       <Routes>
-        {/* Common Routes */}
+        {/* auth Routes start */}
         <Route
           path="/register"
           element={
@@ -79,22 +79,25 @@ function Routers() {
             )
           }
         />
+        {/* auth Routes end */}
 
-        {/* User Routes */}
+        {/* User Routes start*/}
         <Route
           path="/"
           element={role == 'user' ? <HomePage /> : <Navigate to="/login" />}
         />
         <Route path="/video-player" element={<VideoPlayerPage />} />
-        <Route path="/call/:roomID" element={<CallPageWrapper />} />
+        <Route path="/call/:roomID" element={<CallPage />} />
+        {/* User Routes end*/}
 
-        {/* Admin Routes */}
+        {/* Admin Routes start*/}
         <Route
           path="/admin/dashboard"
           element={
             role == 'admin' ? <DashboardPage /> : <Navigate to="/login" />
           }
         />
+        {/* Admin Routes end*/}
       </Routes>
     </>
   );

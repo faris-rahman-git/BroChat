@@ -4,6 +4,7 @@ import { useAppDispatch } from '@client/hooks/commonHooks/useAppDispatch';
 import { setLoading } from '@client/redux/features/userSlices/authSlices/userSlice';
 
 function SocialLogin() {
+  
   const socialLogins = [
     { icon: <FaGoogle className="h-5 w-5" />, alt: 'Google', type: 'google' },
     { icon: <FaGithub className="h-5 w-5" />, alt: 'Github', type: 'github' },
@@ -13,6 +14,7 @@ function SocialLogin() {
       type: 'facebook',
     },
   ];
+
   const dispatch = useAppDispatch();
 
   const handleSocialLogin = async (provider: string) => {

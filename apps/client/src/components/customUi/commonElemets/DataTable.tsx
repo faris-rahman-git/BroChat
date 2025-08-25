@@ -1,13 +1,9 @@
-import {
-  useReactTable,
-  getCoreRowModel,
-  flexRender,
-  ColumnDef,
-} from '@tanstack/react-table';
+import { flexRender, ColumnDef } from '@tanstack/react-table';
 import { Input } from '@client/components/ui/input';
 import { Button } from '@client/components/ui/button';
 import { Quantum } from 'ldrs/react';
-import { ReactNode, useState, useMemo } from 'react';
+import { ReactNode } from 'react';
+import { useDataTableHook } from '@client/hooks/PageHooks/common/useDataTableHook';
 
 type DataTableProps<T> = {
   columns: ColumnDef<T, any>[];
@@ -32,36 +28,13 @@ function DataTable<T extends object>({
   onPageChange,
   totalPages,
 }: DataTableProps<T>) {
-  const [page, setPage] = useState(1);
-  const handlePageChange = (p: number) => {
-    setPage(p);
-    onPageChange(p);
-  };
-
-  const table = useReactTable({
+  
+  const { table, page, handlePageChange, paginationItems } = useDataTableHook(
+    onPageChange,
+    totalPages,
     columns,
-    data,
-    getCoreRowModel: getCoreRowModel(),
-  });
-
-  const paginationItems = useMemo(() => {
-    const items: (number | 'dots')[] = [];
-    const maxPagesToShow = 5;
-
-    if (totalPages <= maxPagesToShow) {
-      for (let i = 1; i <= totalPages; i++) items.push(i);
-    } else {
-      if (page <= 3) {
-        items.push(1, 2, 3, 'dots', totalPages);
-      } else if (page >= totalPages - 2) {
-        items.push(1, 'dots', totalPages - 2, totalPages - 1, totalPages);
-      } else {
-        items.push(1, 'dots', page, 'dots', totalPages);
-      }
-    }
-
-    return items;
-  }, [page, totalPages]);
+    data
+  );
 
   return (
     <div className="overflow-x-auto min-h-screen w-full bg-[#F4F4F4] flex justify-center items-start py-10 px-5">

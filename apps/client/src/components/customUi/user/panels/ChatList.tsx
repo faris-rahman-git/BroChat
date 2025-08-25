@@ -1,13 +1,9 @@
 import { Card } from '@client/components/ui/card';
 import Header from '../elements/chatList/Header';
 import ChatSearch from '../elements/chatList/ChatSearch';
-import ChatTab from '../elements/chatList/ChatTab';
-import { useAppDispatch } from '@client/hooks/commonHooks/useAppDispatch';
-import { setActiveReceiver } from '@client/redux/features/userSlices/homeSlices/commonSlices/activeReceiverSlice';
-import { useSelector } from 'react-redux';
-import { RootState } from '@client/redux/store';
 import { GroupChatListType, SearchResultType } from '@bro/shared';
-import { useMemo, useState } from 'react';
+import ChatTabButton from '@client/components/customUi/commonElemets/ChatTabButton';
+import { useChatListHook } from '@client/hooks/PageHooks/user/HomePage/Home/panels/ChatList/useChatListHook';
 
 type ChatListProps<T> = {
   chatListData: T[];
@@ -18,51 +14,14 @@ const ChatList = <T extends SearchResultType | GroupChatListType>({
   chatListData,
   activeSectionTab,
 }: ChatListProps<T>) => {
-  const dispatch = useAppDispatch();
-  const activeReceiver = useSelector(
-    (state: RootState) => state.activeReceiver
-  );
-  const newMessages = useSelector(
-    (state: RootState) => state.newMessages.messagesByConversation
-  );
-  const browserIsOnline = useSelector(
-    (state: RootState) => state.browserOnlineStatus.isOnline
-  );
-
-  const [searchQuery, setSearchQuery] = useState('');
-  const filteredChatList = useMemo(() => {
-    return chatListData.filter((item) => {
-      const name = 'name' in item ? item.name : item.groupName || '';
-
-      return name.toLowerCase().includes(searchQuery.toLowerCase());
-    });
-  }, [chatListData, searchQuery]);
-
-  const handleUserClick = (
-    receiverAndChatDetails: SearchResultType | GroupChatListType
-  ) => {
-    const conversationId =
-      'conversationId' in receiverAndChatDetails
-        ? receiverAndChatDetails.conversationId
-        : receiverAndChatDetails._id?.toString();
-
-    const name =
-      'name' in receiverAndChatDetails
-        ? receiverAndChatDetails.name
-        : receiverAndChatDetails.groupName;
-
-    const isGroup = 'conversationId' in receiverAndChatDetails ? false : true;
-    dispatch(
-      setActiveReceiver({
-        receiver: {
-          ...receiverAndChatDetails,
-          conversationId: conversationId ?? null,
-          name,
-          isGroup,
-        },
-      })
-    );
-  };
+  const {
+    setSearchQuery,
+    filteredChatList,
+    handleUserClick,
+    newMessages,
+    activeReceiver,
+    browserIsOnline,
+  } = useChatListHook(chatListData);
 
   return (
     <div className=" h-screen w-full select-none">
@@ -121,7 +80,7 @@ const ChatList = <T extends SearchResultType | GroupChatListType>({
                   : false;
 
               return (
-                <ChatTab
+                <ChatTabButton
                   key={index}
                   onClick={() => handleUserClick(receiverTab)}
                   lastMessageOrUserName={lastMessage}

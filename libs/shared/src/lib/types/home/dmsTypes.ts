@@ -22,4 +22,5 @@ export type SearchResultType = {
   hasBlockedMe?: boolean;
 
   isSubscribed?: boolean;
+  isExclusive?: boolean;
 };

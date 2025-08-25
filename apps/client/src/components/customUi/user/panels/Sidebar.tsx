@@ -1,10 +1,11 @@
-import SidebarLogo from '../elements/sidebar/SidebarLogo';
-import TopButtons from '../elements/sidebar/TopButtons';
-import BottomButtons from '../elements/sidebar/BottomButtons';
-import React, { useState } from 'react';
+import React from 'react';
+import SidebarLogo from '../elements/sidebar/sidebarLogo/SidebarLogo';
+import TopButtons from '../elements/sidebar/topButton/TopButtons';
+import BottomButtons from '../elements/sidebar/bottomButton/BottomButtons';
+import { useSidebarHook } from '@client/hooks/PageHooks/user/HomePage/HomeLayoutSideBar/useSidebarHook';
 
 export function Sidebar({}) {
-  const [isExpanded, setIsExpanded] = useState(false);
+  const { isExpanded, setIsExpanded } = useSidebarHook();
 
   return (
     <nav

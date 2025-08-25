@@ -61,7 +61,7 @@ export class SendMessageUseCase implements ISendMessageUseCase {
 
       return true;
     } catch (err: any) {
-      console.log('Error in SendMessageUseCase: ', err.message);
+      console.log('Error in SendMessageUseCase: ', err);
       this.tempIdCache.remove(tempId);
       return false;
     }

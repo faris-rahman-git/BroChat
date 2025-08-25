@@ -21,6 +21,7 @@ const initialState: UserReduxType = {
   avatar: null,
   about: null,
   blockedUsers: null,
+  isExclusive: false,
 };
 
 const userSlice = createSlice({
@@ -36,6 +37,7 @@ const userSlice = createSlice({
       state.subscriptionPlan = action.payload.user.subscriptionPlan ?? null;
       state.subscriptionStart = action.payload.user.subscriptionStart ?? null;
       state.subscriptionEnd = action.payload.user.subscriptionEnd ?? null;
+      state.isExclusive = action.payload.user.isExclusive ?? false;
       state.username = action.payload.user.username ?? null;
       state.phoneNumber = action.payload.user.phoneNumber ?? null;
       state.avatar = action.payload.user.avatar ?? null;
@@ -52,6 +54,7 @@ const userSlice = createSlice({
       state.subscriptionPlan = null;
       state.subscriptionStart = null;
       state.subscriptionEnd = null;
+      state.isExclusive = false;
       state.username = null;
       state.phoneNumber = null;
       state.avatar = null;
@@ -80,6 +83,13 @@ const userSlice = createSlice({
       state.avatar = action.payload.profileData.avatar;
       state.about = action.payload.profileData.about;
     },
+
+    updateIsExclusiveStatus(
+      state,
+      action: PayloadAction<{ isExclusive: boolean }>
+    ) {
+      state.isExclusive = action.payload.isExclusive;
+    },
   },
 });
 
@@ -89,5 +99,6 @@ export const {
   setLoading,
   updateSubscriptionDetails,
   updateProfileInfo,
+  updateIsExclusiveStatus,
 } = userSlice.actions;
 export default userSlice.reducer;

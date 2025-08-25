@@ -17,7 +17,7 @@ function VideoCallStatus({
   ) => (
     <span className={`relative inline-block text-${color}`}>
       <MainIcon className={className} />
-      <BadgeIcon className="absolute bottom-0 right-0 size-[6px] -translate-x-1.5 -translate-y-[5px]" />
+      <BadgeIcon className="absolute bottom-0 right-0 size-[8px] -translate-x-2.5 -translate-y-[8px]" />
     </span>
   );
 

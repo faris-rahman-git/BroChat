@@ -18,14 +18,11 @@ const UserSchema = new Schema({
   updatedAt: { type: Date },
   blockedUsers: [{ type: Schema.Types.ObjectId, ref: 'userModel' }],
   blockedByUsers: [{ type: Schema.Types.ObjectId, ref: 'userModel' }],
+  isExclusive: { type: Boolean, default: false },
 
   // Subscription fields
   isSubscribed: { type: Boolean, default: false },
-  subscriptionPlan: {
-    type: String,
-    enum: ['monthly', 'yearly'],
-    default: null,
-  },
+  subscriptionPlan: { type: String },
   subscriptionStart: { type: Date },
   subscriptionEnd: { type: Date },
 });

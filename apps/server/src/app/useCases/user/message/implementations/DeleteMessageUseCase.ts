@@ -19,47 +19,49 @@ export class DeleteMessageUseCase implements IDeleteMessageUseCase {
   ) {}
 
   async execute(
-    messageId: string,
+    messageIds: string[],
     conversationId: string,
     userId: string,
     type: DeleteMessageType
   ): Promise<ResponseDTO> {
     try {
       if (type === 'me') {
-        await this.mesDeleteRepo.deleteMessageForUser(messageId, userId);
+        await this.mesDeleteRepo.deleteMessageForUser(messageIds, userId);
       } else {
-        const createdAt = await this.MesReadRepo.findMessageCreatedAt(
-          messageId
-        );
-        const isSubscribed = await this.userReadRepo.findIsSubscribed(
-          userId
-        );
+        for (const messageId of messageIds) {
+          const createdAt = await this.MesReadRepo.findMessageCreatedAt(
+            messageId
+          );
+          const isSubscribed = await this.userReadRepo.findIsSubscribed(userId);
 
-        const canDeleteForEveryone =
-          isSubscribed || this.getMinutesSince(createdAt) <= 60;
-        if (!canDeleteForEveryone) {
-          return {
-            success: false,
-            data: { message: UserMessages.No_Permission },
-          };
+          const canDeleteForEveryone =
+            isSubscribed || this.getMinutesSince(createdAt) <= 60;
+
+          if (!canDeleteForEveryone) {
+            return {
+              success: false,
+              data: { message: UserMessages.No_Permission },
+            };
+          }
+
+          await this.mesDeleteRepo.deleteMessage(messageId);
+
+          const receiversId = await this.receiverService.getReceiverIds(
+            conversationId,
+            userId
+          );
+
+          await Promise.all(
+            receiversId.map((receiverId) =>
+              this.eventQueueService.emitWithQueue({
+                userId: receiverId,
+                event: 'delete-message',
+                data: { conversationId, messageId },
+                isDirect: true,
+              })
+            )
+          );
         }
-
-        await this.mesDeleteRepo.deleteMessage(messageId);
-        const receiversId = await this.receiverService.getReceiverIds(
-          conversationId,
-          userId
-        );
-
-        await Promise.all(
-          receiversId.map((receiverId) =>
-            this.eventQueueService.emitWithQueue({
-              userId: receiverId,
-              event: 'delete-message',
-              data: { conversationId, messageId },
-              isDirect: true,
-            })
-          )
-        );
       }
 
       return {

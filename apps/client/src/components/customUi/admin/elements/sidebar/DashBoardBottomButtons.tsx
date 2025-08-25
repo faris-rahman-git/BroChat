@@ -1,37 +1,16 @@
 import ButtonIcon from '@client/components/customUi/commonElemets/ButtonIcon';
-import { useLogout } from '@client/hooks/auth/useLogout';
-import { useAppDispatch } from '@client/hooks/commonHooks/useAppDispatch';
-import { showLoader, hideLoader } from '@client/redux/features/commonSlices/LoaderSlice';
-import { logout } from '@client/redux/features/userSlices/authSlices/userSlice';
-import { useEffect } from 'react';
+import { useLogoutForm } from '@client/hooks/auth/logic/useLogoutForm';
 import { LuLogOut } from 'react-icons/lu';
-import { useNavigate } from 'react-router-dom';
 
 function DashBoardBottomButtons() {
-  const dispatch = useAppDispatch();
-  const navigate = useNavigate();
-  const { isPending, isSuccess, mutate } = useLogout();
+  const { appLogout } = useLogoutForm();
 
-  useEffect(() => {
-    if (isPending) {
-      dispatch(showLoader());
-    } else {
-      dispatch(hideLoader());
-    }
-  }, [isPending]);
-
-  useEffect(() => {
-    if (isSuccess) {
-      dispatch(logout());
-      navigate('/login');
-    }
-  }, [isSuccess, navigate]);
   return (
     <div className="flex flex-col gap-6 pb-[20px]  w-full">
       <ButtonIcon
         Icon={LuLogOut}
         label={'Logout'}
-        onClick={() => mutate()}
+        onClick={() => appLogout()}
         className="justify-start ps-[9px] w-auto h-[50px]"
       >
         <span className="whitespace-nowrap">Logout</span>

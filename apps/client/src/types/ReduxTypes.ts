@@ -21,6 +21,8 @@ export type Receiver = {
   isSubscribed?: boolean;
 
   isBlocked?: boolean;
+
+  isExclusive?: boolean;
 };
 
 export type UserReduxType = {
@@ -34,4 +36,5 @@ export type UserReduxType = {
   blockedUsers: GroupMember[] | null;
   role: string | null;
   isLoading: boolean;
+  isExclusive?: boolean;
 } & SubscriptionDetailsType;

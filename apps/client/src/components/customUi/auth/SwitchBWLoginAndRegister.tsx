@@ -21,9 +21,6 @@ function SwitchBWLoginAndRegister({
     <div className="w-full  flex justify-center items-start">
       <p className="font-normal text-[14px] text-[#BCBEC0]">
         {content} ?{' '}
-        {/* <Link to={"/" + type} className="text-[#465685] font-semibold hover:underline" >
-          {type == "login" ? "Login" : "Register"}
-        </Link> */}
         <button
           className="text-[#465685] font-semibold hover:underline hover:cursor-pointer"
           onClick={handleButton}

@@ -23,6 +23,7 @@ import { UserWriteRepo } from '../../../../repositories/userRepo/UserWriteRepo';
 export function verifyComposer(): IController {
   const paymentService: IPaymentService = new PaymentService();
   const conReadRepo: IConversationReadRepo = new ConversationReadRepo();
+  const paymentWriteRepo: IPaymentWriteRepo = new PaymentWriteRepo();
   const eventQueueService: IEventQueueService = new EventQueueService(
     new OfflineQueueRepo(),
     new TypingQueueRepo(),
@@ -35,9 +36,9 @@ export function verifyComposer(): IController {
     new ReceiverService(conReadRepo),
     eventQueueService,
     new UserWriteRepo(),
-    conReadRepo
+    conReadRepo,
+    paymentWriteRepo
   );
-  const paymentWriteRepo: IPaymentWriteRepo = new PaymentWriteRepo();
   const useCase: IVerifyUseCase = new VerifyUseCase(
     paymentService,
     premiumUpdateService,

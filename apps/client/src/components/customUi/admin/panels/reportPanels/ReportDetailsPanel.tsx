@@ -1,23 +1,12 @@
 import { CellContext, createColumnHelper } from '@tanstack/react-table';
-import { useEffect, useRef, useState } from 'react';
 import { ReportSubResponse } from '@bro/shared';
 import DataTable from '@client/components/customUi/commonElemets/DataTable';
-import { useGetAllReports } from '@client/hooks/admin/reportManagement/useGetAllReports';
 import ConfirmActionButton from '@client/components/customUi/commonElemets/ConfirmActionButton';
 import { LuBan, LuEyeOff, LuMenu, LuTrash2 } from 'react-icons/lu';
-import {
-  showLoader,
-  hideLoader,
-} from '@client/redux/features/commonSlices/LoaderSlice';
 import CustomModals from '@client/components/customUi/commonElemets/CustomModals';
-
-import { useAppDispatch } from '@client/hooks/commonHooks/useAppDispatch';
-import { useBlockReporedUser } from '@client/hooks/admin/reportManagement/useBlockReporedUser';
 import ReportDetailsModalContent from '../../elements/reportElements/ReportDetailsModalContent';
 import { Textarea } from '@client/components/ui/textarea';
 import ButtonIcon from '@client/components/customUi/commonElemets/ButtonIcon';
-import { useIgnoreReport } from '@client/hooks/admin/reportManagement/useIgnoreReport';
-import { useDeleteReport } from '../../../../../hooks/admin/reportManagement/useDeleteReportedUser';
 import {
   Popover,
   PopoverContent,
@@ -26,115 +15,30 @@ import {
 import { Button } from '@client/components/ui/button';
 import { Calendar } from '@client/components/ui/calendar';
 import { format } from 'date-fns';
+import { useReportDetailsPanelHook } from '@client/hooks/PageHooks/admin/report/useReportDetailsPanelHook';
 
 function ReportDetailsPanel() {
-  const [reportList, setReportList] = useState<ReportSubResponse[]>([]);
-  const [totalPages, setTotalPages] = useState(1);
-  const [searchValue, setSearchValue] = useState<string>('');
-  const [filters, setFilters] = useState({
-    createdAt: '',
-  });
-  const [openModal, setOpenModal] = useState(false);
-  const [selectedButton, setSelectedButton] = useState('');
-  const [selectedReport, setSelectedReport] =
-    useState<ReportSubResponse | null>(null);
-
-  const inpRef = useRef<HTMLTextAreaElement>(null);
-  const dispatch = useAppDispatch();
-
-  const { isPending, isSuccess, mutate, data } = useGetAllReports();
-  useEffect(() => {
-    mutate({
-      searchValue,
-      ...filters,
-      page: 1,
-    });
-  }, []);
-  useEffect(() => {
-    const delay = setTimeout(() => {
-      mutate({
-        searchValue,
-        ...filters,
-        page: 1,
-      });
-    }, 300);
-
-    return () => clearTimeout(delay);
-  }, [searchValue, filters]);
-
-  //success handles
-  useEffect(() => {
-    if (isSuccess) {
-      setReportList(data.reportList);
-      setTotalPages(data.totalPages);
-    }
-  }, [isSuccess]);
-
-  //handle block user
   const {
-    isPending: isPendingBlock,
-    mutate: mutateBlock,
-    isSuccess: isSuccessBlock,
-    data: dataBlock,
-  } = useBlockReporedUser();
-
-  const handleBlockUser = (reportId: string, reportedUserId: string) => {
-    const note = inpRef.current?.value || '';
-    console.log(note, reportId, '====handleDeleteReport');
-    mutateBlock({ reportId, reportedUserId, note });
-  };
-  useEffect(() => {
-    if (isSuccessBlock) {
-      setReportList((prev) =>
-        prev.filter((item) => item._id !== dataBlock.reportId)
-      );
-    }
-  }, [isSuccessBlock]);
-
-  //handle ignore report
-  const {
-    isPending: isPendingIgnore,
-    mutate: mutateIgnore,
-    isSuccess: isSuccessIgnore,
-    data: dataIgnore,
-  } = useIgnoreReport();
-  const handleIgnoreReport = (reportId: string) => {
-    const note = inpRef.current?.value || '';
-
-    mutateIgnore({ reportId, note });
-  };
-  useEffect(() => {
-    if (isSuccessIgnore) {
-      setReportList((prev) =>
-        prev.filter((item) => item._id !== dataIgnore.reportId)
-      );
-    }
-  }, [isSuccessIgnore]);
-
-  //handle delete report
-  const {
-    isPending: isPendingDeleteReport,
-    mutate: mutateDeleteReport,
-    isSuccess: isSuccessDeleteReport,
-    data: dataDeleteReport,
-  } = useDeleteReport();
-  const handleDeleteReport = (reportId: string) => {
-    const note = inpRef.current?.value || '';
-    mutateDeleteReport({ reportId, note });
-  };
-  useEffect(() => {
-    if (isSuccessDeleteReport) {
-      setReportList((prev) =>
-        prev.filter((item) => item._id !== dataDeleteReport.reportId)
-      );
-    }
-  }, [isSuccessDeleteReport]);
-
-  useEffect(() => {
-    const anyPending =
-      isPendingBlock || isPendingIgnore || isPendingDeleteReport;
-    dispatch(anyPending ? showLoader() : hideLoader());
-  }, [isPendingBlock, isPendingIgnore, isPendingDeleteReport]);
+    filters,
+    handleBlockUser,
+    handleDeleteReport,
+    handleIgnoreReport,
+    inpRef,
+    isPending,
+    reportList,
+    searchValue,
+    setFilters,
+    setSearchValue,
+    totalPages,
+    mutate,
+    handleDateSelect,
+    selectedReport,
+    setSelectedReport,
+    selectedButton,
+    setSelectedButton,
+    openModal,
+    setOpenModal,
+  } = useReportDetailsPanelHook();
 
   const columnHelper = createColumnHelper<ReportSubResponse>();
 
@@ -264,14 +168,6 @@ function ReportDetailsPanel() {
       },
     },
   ];
-
-  const handleDateSelect = (selectedDate: Date | undefined) => {
-    if (!selectedDate) return;
-    setFilters((prev) => ({
-      ...prev,
-      createdAt: selectedDate.toLocaleDateString('en-CA'),
-    }));
-  };
 
   return (
     <DataTable

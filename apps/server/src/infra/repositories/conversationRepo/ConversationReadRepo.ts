@@ -4,9 +4,13 @@ import { IConversationReadRepo } from '../../../app/repositories/conversation/IC
 import { usersList } from '../../../domain/dtos/user/ConversationRepoTypes';
 import {
   DeleteGroupsReturnType,
+  findConversationNameType,
   GroupChatListType,
   GroupChatType,
+  Point,
+  StatsReturn,
 } from '@bro/shared';
+import { PipelineStage } from 'mongoose';
 
 export class ConversationReadRepo implements IConversationReadRepo {
   async findDMs(userId: string): Promise<usersList[]> {
@@ -17,7 +21,7 @@ export class ConversationReadRepo implements IConversationReadRepo {
       )
       .populate(
         'participants',
-        '_id name avatar username email phoneNumber about blockedUsers blockedByUsers createdAt isSubscribed'
+        '_id name avatar username email phoneNumber about blockedUsers blockedByUsers createdAt isSubscribed isExclusive'
       )
       .lean();
 
@@ -36,6 +40,7 @@ export class ConversationReadRepo implements IConversationReadRepo {
         isSubscribed: p.isSubscribed,
         blockedUsers: (p.blockedUsers ?? []).map((id: any) => String(id)),
         blockedByUsers: (p.blockedByUsers ?? []).map((id: any) => String(id)),
+        isExclusive: p.isExclusive,
       })),
     }));
   }
@@ -310,6 +315,274 @@ export class ConversationReadRepo implements IConversationReadRepo {
     return {
       data: groupData,
       totalPages: Math.ceil(countResult / pageSize),
+    };
+  }
+
+  async findConversationName(
+    conversationId: string,
+    userId: string
+  ): Promise<findConversationNameType> {
+    const conversation = await conversationModel
+      .findOne({ _id: conversationId })
+      .select('isGroup groupName avatar participants')
+      .populate('participants', '_id name avatar');
+
+    if (!conversation) return { name: '', avatar: '' };
+
+    if (conversation.isGroup) {
+      return {
+        name: conversation.groupName ?? '',
+        avatar: conversation.avatar ?? '',
+      };
+    }
+
+    const otherParticipant = (conversation.participants as any[]).find(
+      (p) => p._id.toString() !== userId
+    );
+
+    return {
+      name: otherParticipant?.name ?? '',
+      avatar: otherParticipant?.avatar ?? '',
+    };
+  }
+
+  async findPersonalChatCounts(): Promise<{
+    totalChat: number;
+    newChat: number;
+  }> {
+    const totalChat = await conversationModel.countDocuments({
+      isGroup: false,
+    });
+    const newChat = await conversationModel.countDocuments({
+      isGroup: false,
+      createdAt: { $gt: new Date(Date.now() - 48 * 60 * 60 * 1000) },
+    });
+    return { totalChat, newChat };
+  }
+
+  async findGroupChatCounts(): Promise<{ totalChat: number; newChat: number }> {
+    const totalChat = await conversationModel.countDocuments({
+      isGroup: true,
+    });
+    const newChat = await conversationModel.countDocuments({
+      isGroup: true,
+      createdAt: { $gt: new Date(Date.now() - 48 * 60 * 60 * 1000) },
+    });
+    return { totalChat, newChat };
+  }
+
+  async getGroupStatsData(): Promise<StatsReturn> {
+    const now = new Date();
+
+    // TODAY (UTC)
+    const startOfToday = new Date(
+      Date.UTC(
+        now.getUTCFullYear(),
+        now.getUTCMonth(),
+        now.getUTCDate(),
+        0,
+        0,
+        0
+      )
+    );
+    const startOfTomorrow = new Date(
+      Date.UTC(
+        now.getUTCFullYear(),
+        now.getUTCMonth(),
+        now.getUTCDate() + 1,
+        0,
+        0,
+        0
+      )
+    );
+
+    // CURRENT WEEK (UTC) — Monday..Sunday (ISO)
+    const utcDay = now.getUTCDay(); 
+    const isoDay = utcDay === 0 ? 7 : utcDay;
+    const daysSinceMonday = isoDay - 1;
+    const startOfWeek = new Date(startOfToday);
+    startOfWeek.setUTCDate(startOfWeek.getUTCDate() - daysSinceMonday);
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setUTCDate(startOfWeek.getUTCDate() + 7);
+
+    // CURRENT MONTH (UTC)
+    const startOfMonth = new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1, 0, 0, 0)
+    );
+    const startOfNextMonth = new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1, 0, 0, 0)
+    );
+
+    // CURRENT YEAR (UTC)
+    const startOfYear = new Date(Date.UTC(now.getUTCFullYear(), 0, 1, 0, 0, 0));
+    const startOfNextYear = new Date(
+      Date.UTC(now.getUTCFullYear() + 1, 0, 1, 0, 0, 0)
+    );
+
+    // 1) DAY: bucket every 4 hours for today using $dateTrunc (hour, binSize:4)
+    const dayPipeline: PipelineStage[] = [
+      {
+        $match: {
+          createdAt: { $gte: startOfToday, $lt: startOfTomorrow },
+          isGroup: true,
+        },
+      },
+      {
+        $group: {
+          _id: {
+            $dateTrunc: {
+              date: '$createdAt',
+              unit: 'hour',
+              binSize: 4,
+              timezone: 'UTC',
+            },
+          },
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ];
+
+    // 2) WEEK: group by ISO weekday (1 = Mon .. 7 = Sun)
+    const weekPipeline: PipelineStage[] = [
+      {
+        $match: {
+          createdAt: { $gte: startOfWeek, $lt: endOfWeek },
+          isGroup: true,
+        },
+      },
+      {
+        $group: {
+          _id: { $isoDayOfWeek: { date: '$createdAt', timezone: 'UTC' } },
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ];
+
+    // 3) MONTH: group by week-of-month (floor((dayOfMonth-1)/7)+1)
+    const monthPipeline: PipelineStage[] = [
+      {
+        $match: {
+          createdAt: { $gte: startOfMonth, $lt: startOfNextMonth },
+          isGroup: true,
+        },
+      },
+      { $project: { dayOfMonth: { $dayOfMonth: '$createdAt' } } },
+      {
+        $group: {
+          _id: {
+            $add: [
+              { $floor: { $divide: [{ $subtract: ['$dayOfMonth', 1] }, 7] } },
+              1,
+            ],
+          },
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ];
+
+    // 4) YEAR: group by quarter (ceil(month/3))
+    const yearPipeline: PipelineStage[] = [
+      {
+        $match: {
+          createdAt: { $gte: startOfYear, $lt: startOfNextYear },
+          isGroup: true,
+        },
+      },
+      { $project: { month: { $month: '$createdAt' } } },
+      {
+        $group: {
+          _id: { $ceil: { $divide: ['$month', 3] } }, // 1..4
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ];
+
+    // Run pipelines in parallel
+    const [dayAgg, weekAgg, monthAgg, yearAgg] = await Promise.all([
+      conversationModel.aggregate(dayPipeline).allowDiskUse(true).exec(),
+      conversationModel.aggregate(weekPipeline).allowDiskUse(true).exec(),
+      conversationModel.aggregate(monthPipeline).allowDiskUse(true).exec(),
+      conversationModel.aggregate(yearPipeline).allowDiskUse(true).exec(),
+    ]);
+
+    // Convert aggregations to maps for quick lookup
+    const dayMap = new Map<number, number>();
+    (dayAgg || []).forEach((r: any) => {
+      const d = r._id instanceof Date ? r._id : new Date(r._id);
+      const hour = d.getUTCHours();
+      dayMap.set(hour, r.count ?? 0);
+    });
+
+    const weekMap = new Map<number, number>();
+    (weekAgg || []).forEach((r: any) =>
+      weekMap.set(Number(r._id), r.count ?? 0)
+    );
+
+    const monthMap = new Map<number, number>();
+    (monthAgg || []).forEach((r: any) =>
+      monthMap.set(Number(r._id), r.count ?? 0)
+    );
+
+    const yearMap = new Map<number, number>();
+    (yearAgg || []).forEach((r: any) =>
+      yearMap.set(Number(r._id), r.count ?? 0)
+    );
+
+    // DAY: 00:00, 04:00, 08:00, 12:00, 16:00, 20:00 (UTC)
+    const dayBuckets: Point[] = [];
+    for (let h = 0; h < 24; h += 4) {
+      const labelDate = new Date(
+        Date.UTC(
+          startOfToday.getUTCFullYear(),
+          startOfToday.getUTCMonth(),
+          startOfToday.getUTCDate(),
+          h,
+          0,
+          0
+        )
+      );
+      const label = labelDate.toISOString().slice(11, 16); // 'HH:MM'
+      const value = dayMap.get(h) ?? 0;
+      dayBuckets.push({ name: label, value });
+    }
+
+    // WEEK: Mon..Sun
+    const weekdayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const weekBuckets: Point[] = weekdayNames.map((label, idx) => {
+      const iso = idx + 1;
+      return { name: label, value: weekMap.get(iso) ?? 0 };
+    });
+
+    // MONTH: week 1..weeksInMonth
+    const yearNum = startOfMonth.getUTCFullYear();
+    const monthNum = startOfMonth.getUTCMonth();
+    const daysInMonth = new Date(
+      Date.UTC(yearNum, monthNum + 1, 0)
+    ).getUTCDate();
+    const weeksInMonth = Math.ceil(daysInMonth / 7);
+    const monthBuckets: Point[] = Array.from({ length: weeksInMonth }).map(
+      (_, i) => {
+        const weekNo = i + 1;
+        return { name: `Week ${weekNo}`, value: monthMap.get(weekNo) ?? 0 };
+      }
+    );
+
+    // YEAR: Q1..Q4
+    const yearLabels = ['Q1', 'Q2', 'Q3', 'Q4'];
+    const yearBuckets: Point[] = yearLabels.map((label, idx) => {
+      const q = idx + 1;
+      return { name: label, value: yearMap.get(q) ?? 0 };
+    });
+
+    return {
+      day: dayBuckets,
+      week: weekBuckets,
+      month: monthBuckets,
+      year: yearBuckets,
     };
   }
 }

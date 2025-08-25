@@ -20,3 +20,8 @@ export const deleteAccountApi = async () => {
   const res = await api.patch(Profile_API + '/deleteaccount');
   return res.data;
 };
+
+export const getAllTransactionApi = async () => {
+  const res = await api.get(Profile_API + '/getalltransactions');
+  return res.data;
+};

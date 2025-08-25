@@ -2,7 +2,7 @@ import React from 'react';
 import { Input } from '@client/components/ui/input';
 import ButtonIcon from '@client/components/customUi/commonElemets/ButtonIcon';
 import { LuCheck, LuMic, LuSendHorizontal, LuSmile, LuX } from 'react-icons/lu';
-import RecordingIndicator from './RecordingIndicator';
+import RecordingIndicator from './ChatInputControls/RecordingIndicator';
 
 interface ChatInputControlsProps {
   message: string;

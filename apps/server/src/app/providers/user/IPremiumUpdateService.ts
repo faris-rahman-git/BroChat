@@ -11,4 +11,13 @@ export interface IPremiumUpdateService {
       subscriptionEnd,
     }: SubscriptionDetailsType
   ): Promise<void>;
+
+  exclusiveUserUpdate(userId: string): Promise<void>;
+
+  exclusiveUserCustomerUpdate(
+    paymentId: string,
+    orderId: string,
+    userId: string,
+    amount: number
+  ): Promise<void>;
 }

@@ -45,6 +45,7 @@ export class DmFilterService implements IDmFilterService {
           isSubscribed: receiver.isSubscribed,
           hasBlockedMe: blockedUsersStr.includes(userId),
           isBlockedByMe: blockedByUsersStr.includes(userId),
+          isExclusive: receiver.isExclusive,
         };
       })
     );
@@ -81,6 +82,7 @@ export class DmFilterService implements IDmFilterService {
         isSubscribed: receiver.isSubscribed,
         hasBlockedMe: receiver.blockedUsers?.includes(userId),
         isBlockedByMe: receiver.blockedByUsers?.includes(userId),
+        isExclusive: receiver.isExclusive,
       });
     }
     return result;
