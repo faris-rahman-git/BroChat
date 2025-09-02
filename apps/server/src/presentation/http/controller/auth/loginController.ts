@@ -46,26 +46,26 @@ export class loginController implements IController {
 
       const success = this.httpSuccess.success_200(response.data);
       return new HttpResponse(success.statusCode, success.body, [
-        {
-          name: 'accessToken',
-          value: response.cookies?.accessToken as string,
-          options: {
-            httpOnly: true,
-            secure: true,
-            sameSite: 'none',
-            maxAge: 15 * 60 * 1000,
+          {
+            name: 'accessToken',
+            value: response.cookies?.accessToken as string,
+            options: {
+              httpOnly: true,
+              secure: true,
+              sameSite: 'none',
+              maxAge: 15 * 60 * 1000,
+            },
           },
-        },
-        {
-          name: 'refreshToken',
-          value: response.cookies?.refreshToken as string,
-          options: {
-            httpOnly: true,
-            secure: true,
-            sameSite: 'none',
-            maxAge: 7 * 24 * 60 * 60 * 1000,
+          {
+            name: 'refreshToken',
+            value: response.cookies?.refreshToken as string,
+            options: {
+              httpOnly: true,
+              secure: true,
+              sameSite: 'none',
+              maxAge: 7 * 24 * 60 * 60 * 1000,
+            },
           },
-        },
       ]);
     } catch (err) {
       console.error('Error in loginController:', error);

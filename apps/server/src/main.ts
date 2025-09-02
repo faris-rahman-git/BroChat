@@ -14,7 +14,6 @@ const server = http.createServer(app);
 
 // Setup all socket handlers
 export const io = new Server(server, {
-  path: '/socket.io/',
   cors: {
     origin: process.env.CLIENT_URL,
     credentials: true,

@@ -21,6 +21,7 @@ export const authExpress = (
     res.status(403).json({ message: AuthMessages.TokenInvalid });
     return;
   }
+  
   req.user = decoded;
   next();
 };
