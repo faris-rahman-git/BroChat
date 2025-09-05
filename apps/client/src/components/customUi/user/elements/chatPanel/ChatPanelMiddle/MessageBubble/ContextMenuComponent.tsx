@@ -244,22 +244,36 @@ function ContextMenuComponent({
           </div>
         </Link>
       )}
-      {MessageType === 'document' && mediaUrl?.endsWith('.pdf') && (
+      {MessageType === 'document' && mediaUrl && (
         <Link
           to={mediaUrl}
           target="_blank"
-          className="relative block w-full max-w-[300px] h-[200px] rounded-[6px] overflow-hidden shadow"
+          className="relative block w-full max-w-[300px] rounded-[6px] overflow-hidden shadow"
         >
-          <div className="w-full h-full overflow-hidden">
-            <embed
-              src={`${mediaUrl}#toolbar=0&navpanes=0&scrollbar=0`}
-              type="application/pdf"
-              className="w-full h-[400px] pointer-events-none scale-[1.1] -translate-y-[50px]"
-            />
-          </div>
-          <div className="absolute bottom-0 left-0 w-full px-3 py-2 bg-gradient-to-t from-black/60 to-transparent text-white text-sm text-center">
-            📄 Click to open
-          </div>
+          {mediaUrl.endsWith('.pdf') ? (
+            // 📄 Inline PDF preview
+            <div className="w-full h-[200px] overflow-hidden">
+              <embed
+                src={`${mediaUrl}#toolbar=0&navpanes=0&scrollbar=0`}
+                type="application/pdf"
+                className="w-full h-[250px] pointer-events-none scale-[1.1] -translate-y-[25px]"
+              />
+              <div className="absolute bottom-0 left-0 w-full px-3 py-2 bg-gradient-to-t from-black/60 to-transparent text-white text-sm text-center">
+                📄 Click to open PDF
+              </div>
+            </div>
+          ) : (
+            // 📦 Generic file preview card
+            <div className="flex flex-col items-center justify-center h-[200px] bg-gray-100 text-gray-700">
+              <div className="text-4xl">📦</div>
+              <p className="mt-2 text-sm font-medium truncate max-w-[250px]">
+                {decodeURIComponent(mediaUrl.split('/').pop() || 'Document')}
+              </p>
+              <span className="mt-1 text-xs text-gray-500">
+                (Click to download)
+              </span>
+            </div>
+          )}
         </Link>
       )}
 
