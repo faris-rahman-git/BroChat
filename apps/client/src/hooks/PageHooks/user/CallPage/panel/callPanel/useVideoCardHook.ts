@@ -16,12 +16,19 @@ export const useVideoCardHook = (
   const name = peer.userName;
 
   useEffect(() => {
-    peer.on('stream', (stream: MediaStream) => {
+    // When the peer's stream is received, attach it to the video element.
+    const handleStream = (stream: MediaStream) => {
       if (ref.current) {
-        ref.current.srcObject = stream;
+        // 1. Set the video source
+        ref.current.srcObject = stream; // 2. *** THE FIX: Attach the video element reference to the peer object. *** // This allows the parent component (useCallPanelHook) to access it.
+        (peer as any).videoElement = ref.current;
       }
-    });
-    peer.on('track', () => {});
+    };
+
+    peer.on('stream', handleStream); // Optional but good practice: Add a cleanup function to remove the listener
+    return () => {
+      peer.off('stream', handleStream);
+    };
   }, [peer]);
 
   return { ref, info, userAvatar, name };

@@ -31,6 +31,148 @@ export const useCallPanelHook = (
   const peersRef = useRef<PeerInfo[]>([]);
   const navigate = useNavigate();
   const firstJoinRef = useRef(false);
+  const [microphones, setMicrophones] = useState<MediaDeviceInfo[]>([]);
+  const [cameras, setCameras] = useState<MediaDeviceInfo[]>([]);
+  const [speakers, setSpeakers] = useState<MediaDeviceInfo[]>([]);
+
+  const [selectedMicrophone, setSelectedMicrophone] = useState<string>('');
+  const [selectedCamera, setSelectedCamera] = useState<string>('');
+  const [selectedSpeaker, setSelectedSpeaker] = useState<string>('');
+
+  useEffect(() => {
+    const loadDevices = async () => {
+      try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+
+        const mics = devices.filter((d) => d.kind === 'audioinput');
+        const cams = devices.filter((d) => d.kind === 'videoinput');
+        const spks = devices.filter((d) => d.kind === 'audiooutput');
+
+        setMicrophones(mics);
+        setCameras(cams);
+        setSpeakers(spks);
+
+        if (mics.length > 0 && !selectedMicrophone) {
+          setSelectedMicrophone(mics[0].deviceId);
+        }
+        if (cams.length > 0 && !selectedCamera) {
+          setSelectedCamera(cams[0].deviceId);
+        }
+        if (spks.length > 0 && !selectedSpeaker) {
+          setSelectedSpeaker(spks[0].deviceId);
+        }
+      } catch (err) {
+        console.error('Error loading devices:', err);
+      }
+    };
+
+    loadDevices();
+
+    // update when devices change (e.g., USB mic plugged in)
+    navigator.mediaDevices.addEventListener('devicechange', loadDevices);
+
+    return () => {
+      navigator.mediaDevices.removeEventListener('devicechange', loadDevices);
+    };
+  }, [selectedMicrophone, selectedCamera, selectedSpeaker]);
+
+  const switchMicrophone = async (deviceId: string) => {
+    try {
+      if (!userStream.current) return;
+
+      const isMuted = !userVideoAudio[currentUserId]?.audio; // current mute state
+
+      const newStream = await navigator.mediaDevices.getUserMedia({
+        audio: { deviceId: { exact: deviceId } },
+        video: userVideoAudio[currentUserId]?.video
+          ? { deviceId: { exact: selectedCamera } }
+          : false,
+      });
+
+      // Replace audio track in current stream
+      const oldAudioTrack = userStream.current.getAudioTracks()[0];
+      const newAudioTrack = newStream.getAudioTracks()[0];
+
+      if (!newAudioTrack) return;
+
+      newAudioTrack.enabled = !isMuted;
+
+      if (oldAudioTrack) {
+        userStream.current.removeTrack(oldAudioTrack);
+        oldAudioTrack.stop();
+      }
+
+      userStream.current.addTrack(newAudioTrack);
+
+      peersRef.current.forEach(({ peer }) => {
+        if (oldAudioTrack && newAudioTrack) {
+          peer.replaceTrack(oldAudioTrack, newAudioTrack, userStream.current!);
+        }
+      });
+
+      setSelectedMicrophone(deviceId);
+    } catch (err) {
+      console.error('Error switching microphone:', err);
+    }
+  };
+
+  const switchCamera = async (deviceId: string) => {
+    try {
+      if (!userStream.current) return;
+
+      const newStream = await navigator.mediaDevices.getUserMedia({
+        audio: { deviceId: { exact: selectedMicrophone } },
+        video: { deviceId: { exact: deviceId } },
+      });
+
+      // Replace video track in current stream
+      const oldVideoTrack = userStream.current.getVideoTracks()[0];
+      const newVideoTrack = newStream.getVideoTracks()[0];
+
+      if (oldVideoTrack) {
+        userStream.current.removeTrack(oldVideoTrack);
+        oldVideoTrack.stop();
+      }
+
+      userStream.current.addTrack(newVideoTrack);
+
+      // Update video element
+      if (userVideoRef.current) {
+        userVideoRef.current.srcObject = userStream.current;
+      }
+
+      peersRef.current.forEach(({ peer }) => {
+        if (oldVideoTrack && newVideoTrack) {
+          peer.replaceTrack(oldVideoTrack, newVideoTrack, userStream.current!);
+        }
+      });
+
+      setSelectedCamera(deviceId);
+    } catch (err) {
+      console.error('Error switching camera:', err);
+    }
+  };
+
+  const switchSpeaker = async (deviceId: string) => {
+    try {
+      // Set speaker for user's own video element
+      if (userVideoRef.current && 'setSinkId' in userVideoRef.current) {
+        await (userVideoRef.current as any).setSinkId(deviceId);
+      }
+
+      // Set speaker for all peer video elements
+      peersRef.current.forEach(({ peer }) => {
+        const videoElement = (peer as any).videoElement;
+        if (videoElement && 'setSinkId' in videoElement) {
+          (videoElement as any).setSinkId(deviceId);
+        }
+      });
+
+      setSelectedSpeaker(deviceId);
+    } catch (err) {
+      console.error('Error switching speaker:', err);
+    }
+  };
 
   useEffect(() => {
     const socket = getSocket();
@@ -255,6 +397,11 @@ export const useCallPanelHook = (
     ) => {
       if (typeof ack === 'function') ack(true);
       if (data.roomId === roomId) {
+        if (userStream.current) {
+          userStream.current.getTracks().forEach((track) => {
+            track.stop();
+          });
+        }
         navigate('/');
       }
     };
@@ -339,6 +486,13 @@ export const useCallPanelHook = (
     e?.preventDefault();
     const socket = getSocket();
     socket?.emit('web-leave-room', { roomId, leaver: currentUserId });
+
+    if (userStream.current) {
+      userStream.current.getTracks().forEach((track) => {
+        track.stop();
+      });
+    }
+
     navigate('/');
   };
 
@@ -358,5 +512,15 @@ export const useCallPanelHook = (
     toggleCameraAudio,
     goToBack,
     userVideoRef,
+
+    microphones,
+    cameras,
+    speakers,
+    selectedMicrophone,
+    selectedCamera,
+    selectedSpeaker,
+    switchMicrophone,
+    switchCamera,
+    switchSpeaker,
   };
 };

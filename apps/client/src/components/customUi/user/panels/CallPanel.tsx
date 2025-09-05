@@ -22,8 +22,23 @@ const CallPanel = ({
   userAvatar: string;
   isVideoCall: boolean;
 }) => {
-  const { peers, userVideoAudio, toggleCameraAudio, goToBack, userVideoRef } =
-    useCallPanelHook(roomId, currentUserId, isVideoCall);
+  const {
+    peers,
+    userVideoAudio,
+    toggleCameraAudio,
+    goToBack,
+    userVideoRef,
+
+    microphones,
+    cameras,
+    speakers,
+    selectedMicrophone,
+    selectedCamera,
+    selectedSpeaker,
+    switchMicrophone,
+    switchCamera,
+    switchSpeaker,
+  } = useCallPanelHook(roomId, currentUserId, isVideoCall);
 
   return (
     <div className="flex w-full max-h-screen flex-row bg-[#080808]">
@@ -51,7 +66,7 @@ const CallPanel = ({
           >
             {!userVideoAudio[currentUserId]?.video && (
               <div className="absolute inset-0 size-full z-10">
-                {(userAvatar && userAvatar !== '')  ? (
+                {userAvatar && userAvatar !== '' ? (
                   <div
                     className="absolute inset-0 bg-center bg-cover blur-2xl scale-125"
                     style={{ backgroundImage: `url(${userAvatar})` }}
@@ -123,6 +138,15 @@ const CallPanel = ({
             goToBack={goToBack}
             toggleCameraAudio={toggleCameraAudio}
             userVideoAudio={userVideoAudio[currentUserId]}
+            microphones={microphones}
+            cameras={cameras}
+            speakers={speakers}
+                        selectedMicrophone={selectedMicrophone}
+            selectedCamera={selectedCamera}
+            selectedSpeaker={selectedSpeaker}
+            switchMicrophone={switchMicrophone}
+            switchCamera={switchCamera}
+            switchSpeaker={switchSpeaker}
           />
         </div>
       </div>
