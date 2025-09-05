@@ -77,7 +77,7 @@ function CallPanel({
   };
 
   return (
-    <div className="flex flex-col gap-5 my-5">
+    <div className="flex flex-col gap-5 my-5 overflow-y-auto custom-scrollbar">
       {calls.map((call) => {
         const isCaller = call.callerId._id === userId;
         const duration = call.isGroupCall
