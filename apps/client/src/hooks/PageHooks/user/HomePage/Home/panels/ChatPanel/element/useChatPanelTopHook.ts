@@ -23,12 +23,11 @@ export const useChatPanelTopHook = (isGroup: boolean) => {
     const roomID = getUrlParams().get('roomID') || randomID(10);
     const params = new URLSearchParams({
       isVideoCall: String(isVideoCall),
-      isGroup: String(isGroup),
     });
     const callUrl = `/call/${encodeURIComponent(roomID)}?${params.toString()}`;
     mutateCallInvite({
       isVideoCall,
-      startedAt: new Date(),
+      initiatedAt: new Date(),
       conversationId: receiverDetails.conversationId!,
       callUrl,
       roomId: roomID,

@@ -148,6 +148,26 @@ export class EventQueueService implements IEventQueueService {
     }
   }
 
+  async emitWithoutQueue({
+    userId,
+    event,
+    data,
+  }: Omit<EmitWithQueueType, 'isDirect'>): Promise<boolean> {
+    try {
+      const socketId = await this.userManagementRepo.findSocketByUserId(userId);
+      if (!socketId) return false;
+
+      const targetSocket = io.sockets.sockets.get(socketId);
+      if (!targetSocket) return false;
+
+      targetSocket.emit(event, data);
+      return true;
+    } catch (err) {
+      console.error('emitDirect error:', err);
+      return false;
+    }
+  }
+
   async sendPending(userId: string): Promise<void> {
     while (true) {
       const length = await this.offlineQueueRepo.getQueueLength(userId);
@@ -200,7 +220,6 @@ export class EventQueueService implements IEventQueueService {
   }
 
   async disconnectSocket(userId: string): Promise<void> {
-
     const socketId = await this.userManagementRepo.findSocketByUserId(userId);
 
     if (socketId) {

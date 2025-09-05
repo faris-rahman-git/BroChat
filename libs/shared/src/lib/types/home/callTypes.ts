@@ -2,7 +2,7 @@ export type CallInvite = {
   conversationId: string;
   callUrl: string;
   isVideoCall: boolean;
-  startedAt: Date;
+  initiatedAt: Date;
   roomId: string;
   isGroupCall: boolean;
 };
@@ -15,17 +15,6 @@ export type acceptCallApiType = {
 export type rejectCallApiType = {
   isGroupCall: boolean;
   roomId: string;
-};
-
-export type callLeftApiType = {
-  roomId: string;
-  leftAt: Date;
-};
-
-export type callEndApiType = {
-  roomId: string;
-  endedAt: Date;
-  firstUser: boolean;
 };
 
 type receiversType = {
@@ -45,12 +34,20 @@ type userDetailstype = {
 
 export type callListType = {
   conversationId: string;
-  callerId: userDetailstype;
+  callerId: userDetailstype ;
   roomId: string;
   receivers: receiversType[];
   isVideoCall: boolean;
   isGroupCall: boolean;
+  initiatedAt: Date;
   startedAt: Date;
   endedAt: Date;
   duration: Number;
+};
+
+export type callInfoType = {
+  userName: string;
+  userAvatar: string;
+  video: boolean;
+  audio: boolean;
 };

@@ -1,37 +1,24 @@
-import { Navigate } from 'react-router-dom';
-
 import CallPanel from '@client/components/customUi/user/panels/CallPanel';
 import { useCallPageHook } from '@client/hooks/PageHooks/user/CallPage/useCallPageHook';
+import { Navigate } from 'react-router-dom';
 
 const CallPage = () => {
-  const {
-    roomID,
-    isVideoCall,
-    isGroupCall,
-    userDetails,
-    isSuccess,
-    data,
-    error,
-  } = useCallPageHook();
+  const { roomID, isVideoCall, userDetails } = useCallPageHook();
 
-  if (!roomID || error) {
+  if (!userDetails.id || !userDetails.name || !roomID) {
     return <Navigate to="/" />;
   }
 
-  if (!isSuccess || !data) {
-    return null;
-  }
-
   return (
-    <CallPanel
-      userID={userDetails.id!}
-      appID={data.appID}
-      userName={userDetails.name ?? 'bro chat user'}
-      token={data.token}
-      roomID={roomID}
-      isVideoCall={isVideoCall}
-      isGroupCall={isGroupCall}
-    />
+    <div className="w-full h-screen bg-gray-900 text-white flex items-center justify-center">
+      <CallPanel
+        roomId={roomID!}
+        currentUserId={userDetails.id}
+        name={userDetails.name}
+        userAvatar={userDetails.avatar || ""}
+        isVideoCall={isVideoCall}
+      />
+    </div>
   );
 };
 

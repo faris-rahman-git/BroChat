@@ -122,9 +122,9 @@ function CallPanel({
           call.isVideoCall ? 'video' : 'voice'
         }-call-${finalStatus === 'accepted' ? callDirection : finalStatus}`;
 
-        const startedAt = new Date(call.startedAt);
-        const date = startedAt.toLocaleDateString();
-        const time = startedAt.toLocaleTimeString('en-US', {
+        const initiatedAt = new Date(call.initiatedAt);
+        const date = initiatedAt.toLocaleDateString();
+        const time = initiatedAt.toLocaleTimeString('en-US', {
           hour: 'numeric',
           minute: '2-digit',
           hour12: true,
@@ -182,10 +182,18 @@ function CallPanel({
                 <p className="font-semibold mb-2">Participants</p>
 
                 {[
+                  // Add caller as the first participant
+                  {
+                    ...call.callerId, // from your mapped API response
+                    status: 'caller', // you can label it differently if needed
+                    duration: call.duration,
+                    joinedAt: call.startedAt,
+                    leftAt: call.endedAt,
+                  },
+                  // Then add all receivers
                   ...call.receivers.map((r) => ({
                     ...r.userId,
-                    status:
-                      r.userId._id === call.callerId._id ? 'caller' : r.status,
+                    status: r.status,
                     duration: r.duration,
                     joinedAt: r.joinedAt,
                     leftAt: r.leftAt,
@@ -216,9 +224,7 @@ function CallPanel({
                         <span className="text-sm text-gray-600">
                           {participant.status} •{' '}
                           {formatDurationMs(Number(participant.duration) || 0)}
-                          {participant._id === call.callerId._id
-                            ? ' (Call + Ringing Time)'
-                            : ''}
+                          
                         </span>
                       </div>
                     </div>

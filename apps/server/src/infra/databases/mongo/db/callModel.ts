@@ -6,10 +6,15 @@ const callSchema = new mongoose.Schema({
     ref: 'conversationModel',
     required: true,
   },
-  callerId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'userModel',
-    required: true,
+  caller: {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'userModel',
+      required: true,
+    },
+    joinedAt: { type: Date },
+    leftAt: { type: Date },
+    duration: { type: Number },
   },
   roomId: { type: String, required: true },
   receivers: [
@@ -36,6 +41,7 @@ const callSchema = new mongoose.Schema({
   isGroupCall: {
     type: Boolean,
   },
+  initiatedAt: { type: Date },
   startedAt: { type: Date },
   endedAt: { type: Date },
   duration: { type: Number },

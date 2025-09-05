@@ -10,7 +10,7 @@ import { logout } from '@client/redux/features/userSlices/authSlices/userSlice';
 export const useSocket = () => {
   const [socketInstance, setSocketInstance] = useState<Socket | null>(null);
   const [loading, setLoading] = useState(true);
-  const userId = useSelector((state: RootState) => state.user?.id);
+  const userDetails = useSelector((state: RootState) => state.user);
 
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -22,7 +22,15 @@ export const useSocket = () => {
     };
 
     const setup = async () => {
-      const connected = await initSocket(userId as string, handleAuthFail);
+      if (!userDetails.id || userDetails.role !== 'user') {
+        setLoading(false);
+        return;
+      }
+
+      const connected = await initSocket(
+        userDetails.id as string,
+        handleAuthFail
+      );
       setSocketInstance(connected);
       setLoading(false);
     };
@@ -33,7 +41,7 @@ export const useSocket = () => {
       setSocketInstance(getSocket());
       setLoading(false);
     }
-  }, []);
+  }, [userDetails, dispatch, navigate]);
 
   return { socket: socketInstance, loading };
 };

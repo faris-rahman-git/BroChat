@@ -19,8 +19,6 @@ const UserSchema = new Schema({
   blockedUsers: [{ type: Schema.Types.ObjectId, ref: 'userModel' }],
   blockedByUsers: [{ type: Schema.Types.ObjectId, ref: 'userModel' }],
   isExclusive: { type: Boolean, default: false },
-
-  // Subscription fields
   isSubscribed: { type: Boolean, default: false },
   subscriptionPlan: { type: String },
   subscriptionStart: { type: Date },

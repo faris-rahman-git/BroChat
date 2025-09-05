@@ -5,7 +5,7 @@ import { ISocketRequest } from '../../socketHelper/ISocketRequest';
 export class disconnectController implements ISocketController {
   constructor(private disconnectUseCase: IDisconnectUseCase) {}
 
-  async handle(socketRequest: ISocketRequest): Promise<any> {
+  async handle(socketRequest: ISocketRequest): Promise<boolean> {
     try {
       const socketId = socketRequest.socketId as string;
 

@@ -91,6 +91,8 @@ export const useHomeHook = () => {
   const [combinedCallChats, setCombinedCallChats] = useState<
     (SearchResultType | GroupChatListType)[]
   >([]);
+  const [openExpiredSubscriptionModal, setOpenExpiredSubscriptionModal] =
+    useState(false);
 
   const { oneToOneMutate } = useOneToOneChatListForm();
   const { groupMutate } = useGroupChatListForm();
@@ -548,6 +550,15 @@ export const useHomeHook = () => {
       );
     };
 
+    //22. Subscription Expired
+    const handleSubscriptionExpired = async (
+      data: null,
+      ack?: (status: boolean) => void
+    ) => {
+      if (typeof ack === 'function') ack(true);
+      setOpenExpiredSubscriptionModal(true);
+    };
+
     //  Attach all listener
     socket.on('new-message', handleNewMessage);
     socket.on('user-online', handleUserOnline);
@@ -574,6 +585,7 @@ export const useHomeHook = () => {
     socket.on('message-status-sent', handleMessageStatusSent);
     socket.on('add-reaction', handleAddReaction);
     socket.on('remove-reaction', handleRemoveReaction);
+    socket.on('subscription-expired-notification', handleSubscriptionExpired);
 
     return () => {
       socket.off('new-message', handleNewMessage);
@@ -604,6 +616,7 @@ export const useHomeHook = () => {
       socket.off('message-status-sent', handleMessageStatusSent);
       socket.off('add-reaction', handleAddReaction);
       socket.off('remove-reaction', handleRemoveReaction);
+      socket.off('subscription-expired-notification', handleRemoveReaction);
     };
   }, []);
 
@@ -615,5 +628,8 @@ export const useHomeHook = () => {
     activeSectionTab,
     groupChatListData,
     oneToOneChatListData,
+    openExpiredSubscriptionModal,
+    setOpenExpiredSubscriptionModal,
+    dispatch,
   };
 };

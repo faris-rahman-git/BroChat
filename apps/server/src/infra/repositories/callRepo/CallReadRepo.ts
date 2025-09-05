@@ -11,18 +11,20 @@ export class CallReadRepo implements ICallReadRepo {
 
   async findAllCallList(userId: string): Promise<callListType[]> {
     const result = await callModel
-      .find({ 'receivers.userId': userId })
-      .populate('callerId', '_id name avatar username')
+      .find({
+        $or: [{ 'caller.userId': userId }, { 'receivers.userId': userId }],
+      })
+      .populate('caller.userId', '_id name avatar username')
       .populate('receivers.userId', '_id name avatar username')
       .lean();
 
     return result.map((call: any) => ({
       conversationId: String(call.conversationId),
       callerId: {
-        _id: String(call.callerId._id),
-        name: call.callerId.name,
-        avatar: call.callerId.avatar,
-        username: call.callerId.username,
+        _id: String(call.caller.userId._id),
+        name: call.caller.userId.name,
+        avatar: call.caller.userId.avatar,
+        username: call.caller.userId.username,
       },
       roomId: call.roomId,
       receivers: call.receivers.map((r: any) => ({
@@ -30,18 +32,39 @@ export class CallReadRepo implements ICallReadRepo {
         joinedAt: r.joinedAt,
         leftAt: r.leftAt,
         duration: r.duration,
-        userId: {
-          _id: String(r.userId._id),
-          name: r.userId.name,
-          avatar: r.userId.avatar,
-          username: r.userId.username,
-        },
+        userId: r.userId
+          ? {
+              _id: String(r.userId._id),
+              name: r.userId.name,
+              avatar: r.userId.avatar,
+              username: r.userId.username,
+            }
+          : null,
       })),
       isVideoCall: call.isVideoCall,
       isGroupCall: call.isGroupCall,
+      initiatedAt: call.initiatedAt,
       startedAt: call.startedAt,
       endedAt: call.endedAt,
       duration: call.duration,
     }));
+  }
+
+  async findCallStarted(roomId: string): Promise<boolean> {
+    const result = await callModel
+      .findOne({ roomId }, { startedAt: 1, _id: 0 })
+      .lean();
+
+    if (!result) return false;
+
+    return !!result.startedAt;
+  }
+
+  async findCallEnded(roomId: string): Promise<boolean> {
+    const result = await callModel
+      .findOne({ roomId }, { endedAt: 1, _id: 0 })
+      .lean();
+    if (!result) return false;
+    return !!result.endedAt;
   }
 }

@@ -7,7 +7,7 @@ import { ISocketRequest } from '../../socketHelper/ISocketRequest';
 export class startTypingController implements ISocketController {
   constructor(private startTypingUseCase: IStartTypingUseCase) {}
 
-  async handle(socketRequest: ISocketRequest): Promise<any> {
+  async handle(socketRequest: ISocketRequest): Promise<boolean> {
     try {
       const data = socketRequest.body as TypingType;
 

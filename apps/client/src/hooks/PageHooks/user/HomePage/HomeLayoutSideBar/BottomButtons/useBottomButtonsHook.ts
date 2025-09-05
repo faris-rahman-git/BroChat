@@ -4,9 +4,13 @@ import { RootState } from '@client/redux/store';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { PlanType } from '@bro/shared';
+import { useAppDispatch } from '@client/hooks/commonHooks/useAppDispatch';
 
 export const useBottomButtonsHook = () => {
-  const [showPlans, setShowPlans] = useState(false);
+  const dispatch = useAppDispatch();
+  const showPlans = useSelector(
+    (state: RootState) => state.subscriptionPlan.value
+  );
   const [showSubscribedModal, setShowSubscribedModal] = useState(false);
   const [showThankYouModal, setShowThankYouModal] = useState(false);
   const [isModalOpen, setModalOpen] = useState(false);
@@ -28,7 +32,7 @@ export const useBottomButtonsHook = () => {
 
   return {
     showPlans,
-    setShowPlans,
+    dispatch,
     showSubscribedModal,
     setShowSubscribedModal,
     showThankYouModal,
@@ -44,5 +48,4 @@ export const useBottomButtonsHook = () => {
     exclusivePlan,
     setExclusivePlan,
   };
-  
 };

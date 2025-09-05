@@ -1,24 +1,14 @@
 import { getSocket } from '@client/configs/socket';
 import { useLogoutForm } from '@client/hooks/auth/logic/useLogoutForm';
 import { useAppDispatch } from '@client/hooks/commonHooks/useAppDispatch';
-import { useSocket } from '@client/hooks/socket/useSocket';
-import {
-  hideLoader,
-  showLoader,
-} from '@client/redux/features/commonSlices/LoaderSlice';
 import { setError } from '@client/redux/features/userSlices/authSlices/errorSlice';
 import { startQueueProcessor } from '@client/services/socket/startQueueProcessor';
 import { useEffect } from 'react';
 
 export const useHomePageHook = () => {
   const dispatch = useAppDispatch();
-  const { loading } = useSocket();
 
   const { appLogout } = useLogoutForm();
-
-  useEffect(() => {
-    dispatch(loading ? showLoader() : hideLoader());
-  }, [loading]);
 
   useEffect(() => {
     const socket = getSocket();

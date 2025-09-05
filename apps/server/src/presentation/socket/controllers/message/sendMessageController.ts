@@ -7,7 +7,7 @@ import { MessageType } from '@bro/shared';
 export class sendMessageController implements ISocketController {
   constructor(private sendMessageUseCase: ISendMessageUseCase) {}
 
-  async handle(socketRequest: ISocketRequest): Promise<any> {
+  async handle(socketRequest: ISocketRequest): Promise<boolean> {
     try {
       const data = socketRequest.body as MessageType;
       const { id: userId } = socketRequest.user as CustomPayloadType;

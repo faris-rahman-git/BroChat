@@ -14,12 +14,9 @@ export const useCallInviteForm = () => {
   const { isPending, mutate, isSuccess, data } = useCallInvite();
 
   useEffect(() => {
-    if (isPending) {
-      dispatch(showLoader());
-    } else {
-      dispatch(hideLoader());
-    }
+    dispatch(isPending ? showLoader() : hideLoader());
   }, [isPending]);
+
 
   useEffect(() => {
     if (isSuccess) {

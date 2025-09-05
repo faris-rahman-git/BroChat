@@ -5,7 +5,7 @@ import { ISocketRequest } from '../../socketHelper/ISocketRequest';
 export class userConnectedController implements ISocketController {
   constructor(private userConnectedUseCase: IUserConnectedUseCase) {}
 
-  async handle(socketRequest: ISocketRequest): Promise<any> {
+  async handle(socketRequest: ISocketRequest): Promise<boolean> {
     try {
       const userId = socketRequest.body as string;
 

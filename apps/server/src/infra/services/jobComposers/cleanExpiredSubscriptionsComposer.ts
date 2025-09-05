@@ -32,7 +32,7 @@ export function cleanExpiredSubscriptionsComposer(): IJobController {
       eventQueueService
     );
   const useCase: ICleanExpiredSubscriptionsUseCase =
-    new CleanExpiredSubscriptionsUseCase(subscriptionCleanupService);
+    new CleanExpiredSubscriptionsUseCase(subscriptionCleanupService , eventQueueService);
 
   const controller: IJobController = new cleanExpiredSubscriptionsController(
     useCase

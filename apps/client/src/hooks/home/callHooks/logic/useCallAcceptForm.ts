@@ -13,6 +13,9 @@ export const useCallAcceptForm = () => {
 
   useEffect(() => {
     dispatch(isPending ? showLoader() : hideLoader());
+    return () => {
+      dispatch(hideLoader());
+    };
   }, [isPending]);
 
   return {

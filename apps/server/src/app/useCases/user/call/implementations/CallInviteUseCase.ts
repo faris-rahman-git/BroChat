@@ -21,16 +21,16 @@ export class CallInviteUseCase implements ICallInviteUseCase {
         userId
       );
 
-      await this.callWriteRepo.saveCall(userId, data, [userId ,...receiverIds]);
+      await this.callWriteRepo.saveCall(userId, data, receiverIds);
 
       const userdata = await this.conReadRepo.findConversationName(
         data.conversationId,
         userId
       );
 
-      await Promise.all(
+      void Promise.all(
         receiverIds.map((id) =>
-          this.eventQueueService.emitWithQueue({
+          this.eventQueueService.emitWithoutQueue({
             userId: id,
             event: 'call-invite',
             data: {
@@ -40,7 +40,6 @@ export class CallInviteUseCase implements ICallInviteUseCase {
               isGroupCall: data.isGroupCall,
               roomId: data.roomId,
             },
-            isDirect: true,
           })
         )
       );

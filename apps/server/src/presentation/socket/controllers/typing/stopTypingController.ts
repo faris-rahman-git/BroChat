@@ -7,7 +7,7 @@ import { ISocketRequest } from '../../socketHelper/ISocketRequest';
 export class stopTypingController implements ISocketController {
   constructor(private stopTypingUseCase: IStopTypingUseCase) {}
 
-  async handle(socketRequest: ISocketRequest): Promise<any> {
+  async handle(socketRequest: ISocketRequest): Promise<boolean> {
     try {
       const data = socketRequest.body as TypingType;
       const { id: userId } = socketRequest.user as CustomPayloadType;

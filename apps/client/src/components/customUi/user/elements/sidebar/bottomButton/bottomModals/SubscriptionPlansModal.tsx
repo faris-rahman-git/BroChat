@@ -51,7 +51,7 @@ const SubscriptionPlansModal = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/*  Card */}
           {subscriptionPlan.map((plan) => (
-            <div className="border rounded-xl p-6 shadow hover:shadow-lg transition-all flex flex-col justify-between bg-gray-50">
+            <div key={plan._id} className="border rounded-xl p-6 shadow hover:shadow-lg transition-all flex flex-col justify-between bg-gray-50">
               <div>
                 <h3 className="text-lg font-bold mb-3 text-center">
                   {plan.name}

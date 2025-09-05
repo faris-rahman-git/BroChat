@@ -11,25 +11,24 @@ export class CallWriteRepo implements ICallWriteRepo {
   ): Promise<void> {
     await callModel.create({
       conversationId: data.conversationId,
-      callerId: userId,
       roomId: data.roomId,
       isVideoCall: data.isVideoCall,
       isGroupCall: data.isGroupCall,
-      startedAt: data.startedAt,
-      receivers: receiverIds.map((receiverId) => {
-        if (receiverId === userId) {
-          return {
-            userId: receiverId,
-            status: 'accepted',
-            joinedAt: data.startedAt,
-          };
-        } else {
-          return {
-            userId: receiverId,
-          };
-        }
-      }),
+      initiatedAt: data.initiatedAt,
+      caller: {
+        userId,
+      },
+      receivers: receiverIds.map((receiverId) => ({
+        userId: receiverId,
+      })),
     });
+  }
+
+  async startACall(roomId: string, startedAt: Date): Promise<void> {
+    await callModel.updateOne(
+      { roomId },
+      { $set: { startedAt, 'caller.joinedAt': startedAt } }
+    );
   }
 
   async acceptCall(
@@ -58,30 +57,60 @@ export class CallWriteRepo implements ICallWriteRepo {
       }
     ))!;
 
-    return result.callerId.toString();
+    return result.caller!.userId.toString();
   }
 
   async callLeft(roomId: string, leftAt: Date, userId: string): Promise<void> {
+    console.log('check left at: 1', userId);
+
+    const objectId = new Types.ObjectId(userId);
+
     const call = await callModel.findOne(
-      { roomId, 'receivers.userId': new Types.ObjectId(userId) },
-      { 'receivers.$': 1 }
+      { roomId, 'receivers.userId': objectId },
+      { 'receivers.$': 1, caller: 1 }
     );
 
-    if (!call || !call.receivers?.length) return;
+    if (call && call.receivers?.length) {
+      // User is a receiver
+      const joinedAt = call.receivers[0].joinedAt;
+      const leftAtDate = new Date(leftAt);
+      const duration = joinedAt ? leftAtDate.getTime() - joinedAt.getTime() : 0;
 
-    const joinedAt = call.receivers[0].joinedAt;
-    const leftAtDate = new Date(leftAt);
-    const duration = joinedAt ? leftAtDate.getTime() - joinedAt.getTime() : 0;
+      await callModel.updateOne(
+        { roomId, 'receivers.userId': objectId },
+        {
+          $set: {
+            'receivers.$.leftAt': leftAt,
+            'receivers.$.duration': duration,
+          },
+        }
+      );
+      return;
+    }
 
-    await callModel.updateOne(
-      { roomId, 'receivers.userId': new Types.ObjectId(userId) },
-      {
-        $set: {
-          'receivers.$.leftAt': leftAt,
-          'receivers.$.duration': duration,
-        },
-      }
+    const callerCall = await callModel.findOne(
+      { roomId, 'caller.userId': userId },
+      { caller: 1 }
     );
+
+    console.log('==== check left at: 2 ====', callerCall);
+
+    if (callerCall && callerCall.caller) {
+      const joinedAt = callerCall.caller.joinedAt;
+      const leftAtDate = new Date(leftAt);
+      const duration = joinedAt ? leftAtDate.getTime() - joinedAt.getTime() : 0;
+
+      await callModel.updateOne(
+        { roomId, 'caller.userId': userId },
+        {
+          $set: {
+            'caller.leftAt': leftAt,
+            'caller.duration': duration,
+          },
+        }
+      );
+      return;
+    }
   }
 
   async callEnd(roomId: string, endedAt: Date): Promise<void> {

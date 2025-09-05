@@ -5,6 +5,8 @@ import ChatPanel from '@client/components/customUi/user/panels/ChatPanel';
 import { GroupChatListType, SearchResultType } from '@bro/shared';
 import { ToastContainer } from 'react-toastify';
 import { useHomeHook } from '@client/hooks/PageHooks/user/HomePage/Home/useHomeHook';
+import ExpiredSubscriptionModal from '@client/components/customUi/commonElemets/ExpiredSubscriptionModal';
+import { setShowSubscriptionPlans } from '@client/redux/features/userSlices/homeSlices/commonSlices/subscriptionPlanSlice';
 
 function Home() {
   const {
@@ -15,6 +17,9 @@ function Home() {
     activeSectionTab,
     groupChatListData,
     oneToOneChatListData,
+    openExpiredSubscriptionModal,
+    setOpenExpiredSubscriptionModal,
+    dispatch,
   } = useHomeHook();
 
   return (
@@ -47,6 +52,11 @@ function Home() {
         defaultSize={size}
       />
       <ToastContainer />
+      <ExpiredSubscriptionModal
+        open={openExpiredSubscriptionModal}
+        onClose={() => setOpenExpiredSubscriptionModal(false)}
+        onRenew={() => dispatch(setShowSubscriptionPlans({ value: true }))}
+      />
     </>
   );
 }

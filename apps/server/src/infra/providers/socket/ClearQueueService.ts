@@ -35,6 +35,8 @@ export class ClearQueueService implements IClearQueueService {
         event !== 'group-soft-delete' &&
         event !== 'group-block-update' &&
         event !== 'call-invite' &&
+        event !== 'call-end' &&
+        event !== 'web-call-already-ended' &&
         event !== 'call-cut' &&
         event !== 'add-reaction' && 
         event !== 'remove-reaction'

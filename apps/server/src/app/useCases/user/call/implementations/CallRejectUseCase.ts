@@ -12,14 +12,12 @@ export class CallRejectUseCase implements ICallRejectUseCase {
 
   async execute(userId: string, data: rejectCallApiType): Promise<ResponseDTO> {
     try {
-      console.log('check CallRejectUseCase 1:', data);
       const callerId = await this.callWriteRepo.rejectCall(userId, data.roomId);
-      console.log('check CallRejectUseCase 2:', callerId);
 
       if (!data.isGroupCall) {
         this.eventQueueService.emitWithQueue({
           userId: callerId,
-          event: 'call-reject',
+          event: 'call-end',
           data: { roomId: data.roomId },
           isDirect: true,
         });

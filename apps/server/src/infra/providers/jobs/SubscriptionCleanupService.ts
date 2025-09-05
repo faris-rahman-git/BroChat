@@ -24,7 +24,7 @@ export class SubscriptionCleanupService implements ISubscriptionCleanupService {
     });
   }
 
-  async cleanExpiredSubscriptions(): Promise<number> {
+  async cleanExpiredSubscriptions(): Promise<string[]> {
     const expiredUsersId =
       await this.userReadRepo.findExpiredSubscriptionsUserId();
 
@@ -42,6 +42,6 @@ export class SubscriptionCleanupService implements ISubscriptionCleanupService {
       })
     );
 
-    return expiredUsersId.length;
+    return expiredUsersId;
   }
 }

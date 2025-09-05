@@ -18,6 +18,7 @@ import groupChatSlice from './features/userSlices/homeSlices/groupSlice/groupCha
 import messageHistorySlice from './features/userSlices/homeSlices/messageSlice/messageHistorySlice';
 import messageEditingSlice from './features/userSlices/homeSlices/messageSlice/messageEditingSlice';
 import callListSlice from './features/userSlices/homeSlices/callSlices/callListSlice';
+import subscriptionPlanSlice from './features/userSlices/homeSlices/commonSlices/subscriptionPlanSlice';
 
 const persistConfig = {
   key: 'root',
@@ -43,6 +44,7 @@ const rootReducer = combineReducers({
   messageHistory: messageHistorySlice,
   editingMessage: messageEditingSlice,
   callList: callListSlice,
+  subscriptionPlan: subscriptionPlanSlice,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

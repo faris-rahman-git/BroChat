@@ -12,14 +12,17 @@ import ForgotPasswordPage from '@client/pages/auth/ForgotPasswordPage';
 import HomePage from '@client/pages/user/HomePage';
 import VideoPlayerPage from '@client/pages/user/VideoPlayerPage';
 import DashboardPage from '@client/pages/admin/DashboardPage';
+import { useSocket } from '@client/hooks/socket/useSocket';
 import CallPage from '@client/pages/user/CallPage';
 
 function Routers() {
   useAxiosAuth();
   useSocialAuthFromQuery();
 
+  const { loading } = useSocket();
+
   const { isLoading, role } = useSelector((state: RootState) => state.user);
-  if (isLoading) {
+  if (isLoading || loading) {
     return <Loader />;
   }
 

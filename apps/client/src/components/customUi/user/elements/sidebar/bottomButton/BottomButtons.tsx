@@ -8,12 +8,12 @@ import { useBottomButtonsHook } from '@client/hooks/PageHooks/user/HomePage/Home
 import UserProfilePanel from './bottomModals/UserProfilePanel';
 import ExclusiveMakePlanTab from './bottomModals/ExclusiveMakePlanTab';
 import EditExclusivePlan from './bottomModals/EditExclusivePlan';
+import { setShowSubscriptionPlans } from '@client/redux/features/userSlices/homeSlices/commonSlices/subscriptionPlanSlice';
 
 function BottomButtons({ isExpanded }: { isExpanded: boolean }) {
-
   const {
     showPlans,
-    setShowPlans,
+    dispatch,
     showSubscribedModal,
     setShowSubscribedModal,
     showThankYouModal,
@@ -38,7 +38,7 @@ function BottomButtons({ isExpanded }: { isExpanded: boolean }) {
         onClick={() => {
           userDetails?.isSubscribed
             ? setShowSubscribedModal(true)
-            : setShowPlans(true);
+            : dispatch(setShowSubscriptionPlans({ value: true }));
         }}
         className={`justify-start ps-2 ${
           isExpanded ? 'w-[160px] justify-start' : ''
@@ -112,7 +112,7 @@ function BottomButtons({ isExpanded }: { isExpanded: boolean }) {
 
       <SubscriptionPlansModal
         open={showPlans}
-        onClose={() => setShowPlans(false)}
+        onClose={() => dispatch(setShowSubscriptionPlans({ value: false }))}
         setShowThankYouModal={() => setShowThankYouModal(true)}
       />
 

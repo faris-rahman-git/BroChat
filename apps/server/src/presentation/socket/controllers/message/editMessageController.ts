@@ -7,7 +7,7 @@ import { EditMessageType } from '@bro/shared';
 export class editMessageController implements ISocketController {
   constructor(private editMessageUseCase: IEditMessageUseCase) {}
 
-  async handle(socketRequest: ISocketRequest): Promise<any> {
+  async handle(socketRequest: ISocketRequest): Promise<boolean> {
     try {
       const data = socketRequest.body as EditMessageType;
       const { id: userId } = socketRequest.user as CustomPayloadType;

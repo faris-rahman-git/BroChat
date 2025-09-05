@@ -2,7 +2,9 @@
   "name": "@bro/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {"postinstall": "npm install -D nx@latest"},
+  "scripts": {
+    "postinstall": "npm install -D nx@latest"
+  },
   "private": true,
   "dependencies": {
     "axios": "^1.6.0",

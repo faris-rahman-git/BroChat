@@ -6,6 +6,9 @@ export interface ICallWriteRepo {
     data: CallInvite,
     receiverIds: string[]
   ): Promise<void>;
+
+  startACall(roomId: string, startedAt: Date): Promise<void>
+
   acceptCall(roomId: string, userId: string, joinedAt: Date): Promise<void>;
 
   rejectCall(userId: string, roomId: string): Promise<string>;

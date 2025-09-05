@@ -7,7 +7,7 @@ import { statusUpdateType } from '../../../../app/dtos/socketTypes';
 export class statusUpdateController implements ISocketController {
   constructor(private statusUpdateUseCase: IStatusUpdateUseCase) {}
 
-  async handle(socketRequest: ISocketRequest): Promise<any> {
+  async handle(socketRequest: ISocketRequest): Promise<boolean> {
     try {
       const data = socketRequest.body as statusUpdateType;
       const { id: userId } = socketRequest.user as CustomPayloadType;

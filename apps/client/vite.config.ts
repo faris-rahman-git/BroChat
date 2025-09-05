@@ -19,6 +19,9 @@ export default defineConfig(() => ({
   // worker: {
   //  plugins: [ nxViteTsPaths() ],
   // },
+  define: {
+    global: 'globalThis',
+  },
   build: {
     outDir: './dist',
     emptyOutDir: true,
@@ -27,9 +30,11 @@ export default defineConfig(() => ({
       transformMixedEsModules: true,
     },
   },
-   resolve: {
+  resolve: {
     alias: {
-      '@client': path.resolve(__dirname, 'src'), 
+      '@client': path.resolve(__dirname, 'src'),
+      process: 'process/browser',
+      buffer: 'buffer/',
     },
   },
 }));
