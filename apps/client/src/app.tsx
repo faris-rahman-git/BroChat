@@ -25,20 +25,20 @@ function App() {
     };
   }, []);
 
-  // useEffect(() => {
-  //   const socket = getSocket();
-  //   if (!socket) return;
+  useEffect(() => {
+    const socket = getSocket();
+    if (!socket) return;
 
-  //   socket.on('custom-ping', (data) => {
-  //     console.log('📡 Ping from server:', data);
-  //   });
+    socket.on('custom-ping', (data) => {
+      console.log('📡 Ping from server:', data);
+    });
 
-  //   socket.emit('custom-pong', { time: new Date().toISOString() });
+    socket.emit('custom-pong', { time: new Date().toISOString() });
 
-  //   return () => {
-  //     socket.off('ping');
-  //   };
-  // }, []);
+    return () => {
+      socket.off('ping');
+    };
+  }, []);
 
   return (
     <BrowserRouter>

@@ -1,5 +1,6 @@
 import http from 'http';
 import dotenv from 'dotenv';
+dotenv.config();
 import { Server } from 'socket.io';
 import { setupSocket } from './presentation/socket';
 
@@ -8,7 +9,6 @@ import app from './app';
 import connectMongo from './infra/databases/mongo/dbConnection';
 import { cleanExpiredSubscriptions } from './presentation/jobs/handler/cleanExpiredSubscriptions';
 
-dotenv.config();
 // Create HTTP server using Express app
 const server = http.createServer(app);
 

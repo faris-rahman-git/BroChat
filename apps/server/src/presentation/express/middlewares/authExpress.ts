@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { TokenService } from '../../../infra/providers/auth/TokenService';
 import { AuthMessages } from '../../../domain/enums/auth/AuthMessages';
-import { Role } from '../../../domain/enums/common/role';
 
 export const authExpress = (
   req: Request,
@@ -18,7 +17,7 @@ export const authExpress = (
   const tokenManager = new TokenService();
   const { valid, decoded } = tokenManager.verifyAccessToken(accessToken);
 
-  if (!valid || !decoded || decoded.role !== Role.User) {
+  if (!valid || !decoded) {
     res.status(403).json({ message: AuthMessages.TokenInvalid });
     return;
   }
