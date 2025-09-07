@@ -1,4 +1,4 @@
-import { ResponseDTO } from '../../../../../domain/dtos/return/ResponseDTO';
+import { ResponseDTO } from '../../../../../domain/entity/return/ResponseDTO';
 import { rejectCallApiType } from '@bro/shared';
 
 export interface ICallRejectUseCase {

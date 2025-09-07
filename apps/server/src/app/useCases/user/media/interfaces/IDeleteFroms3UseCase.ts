@@ -1,4 +1,4 @@
-import { ResponseDTO } from '../../../../../domain/dtos/return/ResponseDTO';
+import { ResponseDTO } from '../../../../../domain/entity/return/ResponseDTO';
 
 export interface IDeleteFroms3UseCase {
   execute(imageUrl: string): Promise<ResponseDTO>;

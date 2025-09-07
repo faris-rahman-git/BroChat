@@ -1,4 +1,4 @@
-import { ResponseDTO } from '../../../../../domain/dtos/return/ResponseDTO';
+import { ResponseDTO } from '../../../../../domain/entity/return/ResponseDTO';
 import { IMediaService } from '../../../../providers/user/IMediaService';
 import { IS3UrlUseCase } from '../interfaces/IS3UrlUseCase';
 
@@ -16,11 +16,11 @@ export class S3UrlUseCase implements IS3UrlUseCase {
         success: true,
         data: { uploadUrl },
       };
-    } catch (err: any) {
-      console.log('Error in S3UrlUseCase: ', err.message);
+    } catch (err) {
+      console.log('Error in S3UrlUseCase: ', err);
       return {
         success: false,
-        data: { message: err.message },
+        data: { message: (err as Error).message },
       };
     }
   }

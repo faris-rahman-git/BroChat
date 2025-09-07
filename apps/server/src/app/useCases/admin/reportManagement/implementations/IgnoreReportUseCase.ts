@@ -1,4 +1,4 @@
-import { ResponseDTO } from '../../../../../domain/dtos/return/ResponseDTO';
+import { ResponseDTO } from '../../../../../domain/entity/return/ResponseDTO';
 import { IReportWriteRepo } from '../../../../repositories/report/IReportWriteRepo';
 import { IIgnoreReportUseCase } from '../interfaces/IIgnoreReportUseCase';
 
@@ -18,11 +18,11 @@ export class IgnoreReportUseCase implements IIgnoreReportUseCase {
         success: true,
         data: { reportId },
       };
-    } catch (err: any) {
-      console.log('Error in IgnoreReportUseCase: ', err.message);
+    } catch (err) {
+      console.log('Error in IgnoreReportUseCase: ', err);
       return {
         success: false,
-        data: { message: err.message },
+        data: { message: (err as Error).message },
       };
     }
   }

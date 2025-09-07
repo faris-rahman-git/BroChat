@@ -1,6 +1,6 @@
 import { ISocketController } from '../../../../app/providers/controller/ISocketController';
 import { ISendMessageUseCase } from '../../../../app/socketUseCase/message/interfaces/ISendMessageUseCase';
-import { CustomPayloadType } from '../../../../domain/dtos/auth/authTypes';
+import { CustomPayloadType } from '../../../../domain/entity/auth/authTypes';
 import { ISocketRequest } from '../../socketHelper/ISocketRequest';
 import { MessageType } from '@bro/shared';
 

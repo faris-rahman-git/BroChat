@@ -1,4 +1,4 @@
-import { ResponseDTO } from '../../../../../domain/dtos/return/ResponseDTO';
+import { ResponseDTO } from '../../../../../domain/entity/return/ResponseDTO';
 import { ICallInviteUseCase } from '../interfaces/ICallInviteUseCase';
 import { CallInvite } from '@bro/shared';
 import { IEventQueueService } from '../../../../providers/socket/IEventQueueService';
@@ -50,11 +50,11 @@ export class CallInviteUseCase implements ICallInviteUseCase {
           callUrl: data.callUrl,
         },
       };
-    } catch (err: any) {
-      console.log('Error in CallInviteUseCase: ', err.message);
+    } catch (err) {
+      console.log('Error in CallInviteUseCase: ', err);
       return {
         success: false,
-        data: { message: err.message },
+        data: { message: err },
       };
     }
   }

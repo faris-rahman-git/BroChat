@@ -1,7 +1,7 @@
 import { IUserReadRepo } from '../../../repositories/user/IUserReadRepo';
 import { IOtpAndPasswordUseCase } from '../interfaces/IOtpAndPasswordUseCase';
 import { AuthMessages } from '../../../../domain/enums/auth/AuthMessages';
-import { ResponseDTO } from '../../../../domain/dtos/return/ResponseDTO';
+import { ResponseDTO } from '../../../../domain/entity/return/ResponseDTO';
 import { otpAndPasswordBodyType } from '../../../dtos/auth';
 import { IOtpService } from '../../../providers/auth/IOtpService';
 import { IPasswordService } from '../../../providers/auth/IPasswordService';
@@ -50,9 +50,9 @@ export class OtpAndPasswordUseCase implements IOtpAndPasswordUseCase {
       });
 
       return { success: true };
-    } catch (err: any) {
-      console.log('Error in OtpAndPasswordUseCase: ', err.message);
-      return { data: { message: err.message }, success: false };
+    } catch (err) {
+      console.log('Error in OtpAndPasswordUseCase: ', err);
+      return { data: { message: (err as Error).message }, success: false };
     }
   }
 }

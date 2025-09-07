@@ -7,7 +7,7 @@ import {
 import {
   FindEmailType,
   SearchRawType,
-} from '../../../domain/dtos/user/UserRepoTypes';
+} from '../../../domain/entity/user/UserRepoTypes';
 
 export interface IUserReadRepo {
   findEmail(email: string): Promise<FindEmailType | null>;

@@ -1,4 +1,4 @@
-import { ResponseDTO } from '../../../../../domain/dtos/return/ResponseDTO';
+import { ResponseDTO } from '../../../../../domain/entity/return/ResponseDTO';
 import { UserMessages } from '../../../../../domain/enums/user/UserMessages';
 import { iReceiverService } from '../../../../providers/common/iReceiverService';
 import { IConversationWriteRepo } from '../../../../repositories/conversation/IConversationWriteRepo';
@@ -55,11 +55,11 @@ export class DismissGroupAdminUseCase implements IDismissGroupAdminUseCase {
         success: true,
         data: { memberId },
       };
-    } catch (err: any) {
-      console.log('Error in DismissGroupAdminUseCase: ', err.message);
+    } catch (err) {
+      console.log('Error in DismissGroupAdminUseCase: ', err);
       return {
         success: false,
-        data: { message: err.message },
+        data: { message: (err as Error).message },
       };
     }
   }

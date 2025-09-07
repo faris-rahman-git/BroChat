@@ -1,4 +1,4 @@
-import { ResponseDTO } from '../../../../../domain/dtos/return/ResponseDTO';
+import { ResponseDTO } from '../../../../../domain/entity/return/ResponseDTO';
 import { iReceiverService } from '../../../../providers/common/iReceiverService';
 import { IEventQueueService } from '../../../../providers/socket/IEventQueueService';
 import { IMessageDeleteRepo } from '../../../../repositories/message/IMessageDeleteRepo';
@@ -44,11 +44,11 @@ export class RemoveReactionUseCase implements IRemoveReactionUseCase {
           messageId,
         },
       };
-    } catch (err: any) {
-      console.log('Error in RemoveReactionUseCase: ', err.message);
+    } catch (err) {
+      console.log('Error in RemoveReactionUseCase: ', err);
       return {
         success: false,
-        data: { message: err.message },
+        data: { message: (err as Error).message },
       };
     }
   }

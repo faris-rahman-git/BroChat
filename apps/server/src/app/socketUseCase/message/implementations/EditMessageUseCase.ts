@@ -48,8 +48,8 @@ export class EditMessageUseCase implements IEditMessageUseCase {
         });
       });
       return true;
-    } catch (err: any) {
-      console.log('Error in EditMessageUseCase: ', err.message);
+    } catch (err) {
+      console.log('Error in EditMessageUseCase: ', err);
       return false;
     }
   }

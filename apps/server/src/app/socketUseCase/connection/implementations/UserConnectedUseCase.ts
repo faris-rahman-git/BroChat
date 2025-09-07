@@ -18,8 +18,8 @@ export class UserConnectedUseCase implements IUserConnectedUseCase {
       await this.eventQueueService.notifyPresence(userId, true);
 
       return true;
-    } catch (err: any) {
-      console.log('Error in UserConnectedUseCase: ', err.message);
+    } catch (err) {
+      console.log('Error in UserConnectedUseCase: ', err);
       return false;
     }
   }

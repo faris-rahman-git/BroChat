@@ -1,6 +1,7 @@
 import { ICallReadRepo } from '../../../app/repositories/call/ICallReadRepo';
 import callModel from '../../databases/mongo/db/callModel';
 import { callListType } from '@bro/shared';
+import { ICallDocumentPopulated } from '../../types/callDocument';
 
 export class CallReadRepo implements ICallReadRepo {
   async findCallReceivers(roomId: string): Promise<string[]> {
@@ -10,15 +11,15 @@ export class CallReadRepo implements ICallReadRepo {
   }
 
   async findAllCallList(userId: string): Promise<callListType[]> {
-    const result = await callModel
+    const result = (await callModel
       .find({
         $or: [{ 'caller.userId': userId }, { 'receivers.userId': userId }],
       })
       .populate('caller.userId', '_id name avatar username')
       .populate('receivers.userId', '_id name avatar username')
-      .lean();
+      .lean()) as unknown as ICallDocumentPopulated[];
 
-    return result.map((call: any) => ({
+    return result.map((call) => ({
       conversationId: String(call.conversationId),
       callerId: {
         _id: String(call.caller.userId._id),
@@ -27,7 +28,7 @@ export class CallReadRepo implements ICallReadRepo {
         username: call.caller.userId.username,
       },
       roomId: call.roomId,
-      receivers: call.receivers.map((r: any) => ({
+      receivers: call.receivers.map((r) => ({
         status: r.status,
         joinedAt: r.joinedAt,
         leftAt: r.leftAt,
@@ -47,7 +48,7 @@ export class CallReadRepo implements ICallReadRepo {
       startedAt: call.startedAt,
       endedAt: call.endedAt,
       duration: call.duration,
-    }));
+    })) as callListType[];
   }
 
   async findCallStarted(roomId: string): Promise<boolean> {

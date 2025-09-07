@@ -1,4 +1,4 @@
-import { ResponseDTO } from '../../../../../domain/dtos/return/ResponseDTO';
+import { ResponseDTO } from '../../../../../domain/entity/return/ResponseDTO';
 import { IMessageReadRepo } from '../../../../repositories/message/IMessageReadRepo';
 import { IPrevMessageUseCase } from '../interfaces/IPrevMessageUseCase';
 
@@ -16,11 +16,11 @@ export class PrevMessageUseCase implements IPrevMessageUseCase {
         success: true,
         data: { messages },
       };
-    } catch (err: any) {
-      console.log('Error in PrevMessageUseCase: ', err.message);
+    } catch (err) {
+      console.log('Error in PrevMessageUseCase: ', err);
       return {
         success: false,
-        data: { message: err.message },
+        data: { message: (err as Error).message },
       };
     }
   }

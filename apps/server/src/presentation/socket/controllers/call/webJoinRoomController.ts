@@ -1,6 +1,6 @@
 import { ISocketController } from '../../../../app/providers/controller/ISocketController';
 import { IWebJoinRoomUseCase } from '../../../../app/socketUseCase/call/interfaces/IWebJoinRoomUseCase';
-import { CustomPayloadType } from '../../../../domain/dtos/auth/authTypes';
+import { CustomPayloadType } from '../../../../domain/entity/auth/authTypes';
 import { ISocketRequest } from '../../socketHelper/ISocketRequest';
 
 export class webJoinRoomController implements ISocketController {

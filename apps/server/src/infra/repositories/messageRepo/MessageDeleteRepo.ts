@@ -21,11 +21,9 @@ export class MessageDeleteRepo implements IMessageDeleteRepo {
   }
 
   async removeReaction(messageId: string, userId: string): Promise<void> {
-    const msg = (await messageModel.findById(messageId)) as any;
+    const msg = await messageModel.findById(messageId);
     if (msg) {
-      msg.reactions = msg.reactions?.filter(
-        (r: any) => r.userId.toString() !== userId
-      );
+      msg.reactions.pull({ userId });
       await msg.save();
     }
   }

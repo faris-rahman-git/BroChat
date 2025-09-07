@@ -3,7 +3,7 @@ import { IPaymentService } from '../../../app/providers/user/IPaymentService';
 import {
   CreateOrderType,
   verifyPaymentType,
-} from '../../../domain/dtos/user/PaymentTypes';
+} from '../../../domain/entity/user/PaymentTypes';
 import crypto from 'crypto';
 
 export class PaymentService implements IPaymentService {

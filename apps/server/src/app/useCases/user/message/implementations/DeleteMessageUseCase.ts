@@ -1,4 +1,4 @@
-import { ResponseDTO } from '../../../../../domain/dtos/return/ResponseDTO';
+import { ResponseDTO } from '../../../../../domain/entity/return/ResponseDTO';
 import { UserMessages } from '../../../../../domain/enums/user/UserMessages';
 import { iReceiverService } from '../../../../providers/common/iReceiverService';
 import { IEventQueueService } from '../../../../providers/socket/IEventQueueService';
@@ -67,11 +67,11 @@ export class DeleteMessageUseCase implements IDeleteMessageUseCase {
       return {
         success: true,
       };
-    } catch (err: any) {
-      console.log('Error in DeleteMessageUseCase: ', err.message);
+    } catch (err) {
+      console.log('Error in DeleteMessageUseCase: ', err);
       return {
         success: false,
-        data: { message: err.message },
+        data: { message: (err as Error).message },
       };
     }
   }

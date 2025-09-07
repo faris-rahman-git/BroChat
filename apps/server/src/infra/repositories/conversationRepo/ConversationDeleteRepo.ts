@@ -22,7 +22,7 @@ export class ConversationDeleteRepo implements IConversationDeleteRepo {
       if (isOnlyAdmin) {
         // Remove the user from participants and Admins
         group.participants = group.participants.filter(
-          (p: any) => p.toString() !== userId
+          (p) => p.toString() !== userId
         );
         group.Admins = [];
 

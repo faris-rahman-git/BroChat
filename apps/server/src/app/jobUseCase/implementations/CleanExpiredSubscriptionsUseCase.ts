@@ -27,7 +27,7 @@ export class CleanExpiredSubscriptionsUseCase
       );
 
       return expiredUsersId.length;
-    } catch (err: any) {
+    } catch (err) {
       console.log('Error in CleanExpiredSubscriptionsUseCase: ', err);
       return 0;
     }

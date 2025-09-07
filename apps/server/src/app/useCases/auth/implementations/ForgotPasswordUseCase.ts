@@ -1,7 +1,7 @@
 import { IUserReadRepo } from '../../../repositories/user/IUserReadRepo';
 
 import { AuthMessages } from '../../../../domain/enums/auth/AuthMessages';
-import { ResponseDTO } from '../../../../domain/dtos/return/ResponseDTO';
+import { ResponseDTO } from '../../../../domain/entity/return/ResponseDTO';
 import { ISendOtpUseCase } from '../interfaces/ISendOtpUseCase';
 import { IForgotPasswordUseCase } from '../interfaces/IForgotPasswordUseCase';
 
@@ -26,10 +26,10 @@ export class ForgotPasswordUseCase implements IForgotPasswordUseCase {
       const response = await this.sendOtpUseCase.execute(email);
 
       return { data: response.data, success: response.success };
-    } catch (err: any) {
-      console.log('Error in ForgotPasswordUseCase: ', err.message);
+    } catch (err) {
+      console.log('Error in ForgotPasswordUseCase: ', err);
 
-      return { data: { message: err.message }, success: false };
+      return { data: { message: (err as Error).message }, success: false };
     }
   }
 }

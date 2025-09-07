@@ -79,7 +79,7 @@ export const useMessageBubbleHook = (
     setShowEmojiPicker(!showEmojiPicker);
   };
 
-  const handleEmojiSelect = (emojiData: any) => {
+  const handleEmojiSelect = (emojiData: { emoji: string }) => {
     addReactionMutate({ messageId, emoji: emojiData.emoji, conversationId });
     setShowEmojiPicker(false);
   };

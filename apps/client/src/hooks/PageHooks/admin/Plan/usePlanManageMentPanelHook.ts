@@ -26,7 +26,6 @@ export const usePlanManageMentPanelHook = (selectedChild: string) => {
     mutatePlans(selectedChild);
   }, []);
 
-
   const handleOpenModal = (plan?: PlanType) => {
     if (plan) {
       setEditingPlan(plan);
@@ -77,6 +76,16 @@ export const usePlanManageMentPanelHook = (selectedChild: string) => {
       setErrorMessage(
         'Oops! Looks like some fields are missing. Please fill out all required information.'
       );
+      return;
+    }
+
+    if (formData.name.trim().length > 20) {
+      setErrorMessage('Plan name must be less than 20 characters.');
+      return;
+    }
+
+    if (formData.description.trim().length > 50) {
+      setErrorMessage('Plan description must be less than 50 characters.');
       return;
     }
 

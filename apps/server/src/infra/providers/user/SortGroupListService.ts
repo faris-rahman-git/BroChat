@@ -7,7 +7,7 @@ export class SortGroupListService implements ISortGroupListService {
     currentUserId: string,
     admins: string[]
   ): GroupMember[] {
-    return [...participants].sort((a: any, b: any) => {
+    return [...participants].sort((a: GroupMember, b: GroupMember) => {
       const aId = typeof a === 'string' ? a : a._id;
       const bId = typeof b === 'string' ? b : b._id;
 

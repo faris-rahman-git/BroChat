@@ -1,4 +1,4 @@
-import { ResponseDTO } from '../../../../../domain/dtos/return/ResponseDTO';
+import { ResponseDTO } from '../../../../../domain/entity/return/ResponseDTO';
 import { IQueryService } from '../../../../providers/admin/IQueryService';
 import { IConversationReadRepo } from '../../../../repositories/conversation/IConversationReadRepo';
 import { IGetAllGroupsUseCase } from '../interfaces/IGetAllGroupsUseCase';
@@ -27,11 +27,11 @@ export class GetAllGroupsUseCase implements IGetAllGroupsUseCase {
         success: true,
         data: { groupList: groupList.data, totalPages: groupList.totalPages },
       };
-    } catch (err: any) {
-      console.log('Error in GetAllGroupsUseCase: ', err.message);
+    } catch (err) {
+      console.log('Error in GetAllGroupsUseCase: ', err);
       return {
         success: false,
-        data: { message: err.message },
+        data: { message: (err as Error).message },
       };
     }
   }

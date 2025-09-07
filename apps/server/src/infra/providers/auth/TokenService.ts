@@ -4,7 +4,7 @@ import { ITokenService } from '../../../app/providers/auth/ITokenService';
 import {
   CustomPayloadType,
   VerifyTokensType,
-} from '../../../domain/dtos/auth/authTypes';
+} from '../../../domain/entity/auth/authTypes';
 
 export class TokenService implements ITokenService {
   createAccessToken(payload: CustomPayloadType): string {

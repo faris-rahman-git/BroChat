@@ -1,4 +1,4 @@
-import { ResponseDTO } from '../../../../../domain/dtos/return/ResponseDTO';
+import { ResponseDTO } from '../../../../../domain/entity/return/ResponseDTO';
 import { IPlanReadRepo } from '../../../../repositories/plan/IPlanReadRepo';
 import { IGetAllPlansUseCase } from '../interfaces/IGetAllPlansUseCase';
 import { PaymentType } from '@bro/shared';
@@ -16,11 +16,11 @@ export class GetAllPlansUseCase implements IGetAllPlansUseCase {
           planList,
         },
       };
-    } catch (err: any) {
-      console.log('Error in GetAllPlansUseCase: ', err.message);
+    } catch (err) {
+      console.log('Error in GetAllPlansUseCase: ', err);
       return {
         success: false,
-        data: { message: err.message },
+        data: { message: (err as Error).message },
       };
     }
   }

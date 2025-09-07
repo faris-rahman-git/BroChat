@@ -1,4 +1,4 @@
-import { ResponseDTO } from '../../../../../domain/dtos/return/ResponseDTO';
+import { ResponseDTO } from '../../../../../domain/entity/return/ResponseDTO';
 import { IDmFilterService } from '../../../../providers/user/IDmFilterService';
 import { IConversationReadRepo } from '../../../../repositories/conversation/IConversationReadRepo';
 import { IOneToOneChatListUseCase } from '../interfaces/IOneToOneChatListUseCase';
@@ -23,11 +23,11 @@ export class OneToOneChatListUseCase implements IOneToOneChatListUseCase {
         success: true,
         data: { usersList: userConversations },
       };
-    } catch (err: any) {
-      console.log('Error in OneToOneChatListUseCase: ', err.message);
+    } catch (err) {
+      console.log('Error in OneToOneChatListUseCase: ', err);
       return {
         success: false,
-        data: { message: err.message },
+        data: { message: (err as Error).message },
       };
     }
   }

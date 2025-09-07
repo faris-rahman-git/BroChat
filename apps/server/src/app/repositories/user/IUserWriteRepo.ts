@@ -2,7 +2,7 @@ import { ProfileUpdateInfoParams } from '@bro/shared';
 import {
   SaveUserInputType,
   SaveUserOutputType,
-} from '../../../domain/dtos/user/UserRepoTypes';
+} from '../../../domain/entity/user/UserRepoTypes';
 
 export interface IUserWriteRepo {
   saveUser(user: SaveUserInputType): Promise<SaveUserOutputType>;

@@ -2,6 +2,11 @@ import messageModel from '../../databases/mongo/db/messageModel';
 import { IMessageWriteRepo } from '../../../app/repositories/message/IMessageWriteRepo';
 import { Types } from 'mongoose';
 import { MessageType, MessageStatusType } from '@bro/shared';
+import {
+  DelivedByOrReadByType,
+  populatedReplyToType,
+  populatedSenderIdType,
+} from '../../types/messageDocumet';
 
 export class MessageWriteRepo implements IMessageWriteRepo {
   async save(data: MessageType, receiversId: string[]): Promise<MessageType> {
@@ -26,8 +31,8 @@ export class MessageWriteRepo implements IMessageWriteRepo {
         options: { strictPopulate: false },
       }))!;
 
-    const sender = message.senderId as any;
-    const replyTo = message.replyTo as any;
+    const sender = message.senderId as unknown as populatedSenderIdType;
+    const replyTo = message.replyTo as unknown as populatedReplyToType;
 
     return {
       _id: message._id.toString(),
@@ -104,13 +109,13 @@ export class MessageWriteRepo implements IMessageWriteRepo {
 
     // Step 2: Fetch updated message to compare
     const updatedMessage = await messageModel.findById(messageId);
-    const recipients = updatedMessage!.recipients.map((id: any) =>
-      id.toString()
+    const recipients = updatedMessage!.recipients.map((id) => id.toString());
+    const delivered = updatedMessage!.deliveredBy.map(
+      (d: DelivedByOrReadByType) => String(d.userId)
     );
-    const delivered = updatedMessage!.deliveredBy.map((d: any) =>
-      d.userId.toString()
+    const seen = updatedMessage!.readBy.map((r: DelivedByOrReadByType) =>
+      String(r.userId)
     );
-    const seen = updatedMessage!.readBy.map((r: any) => r.userId.toString());
 
     // Step 3: Update status if all users have the update
     if (

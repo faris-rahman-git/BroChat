@@ -1,4 +1,4 @@
-import { ResponseDTO } from '../../../../../domain/dtos/return/ResponseDTO';
+import { ResponseDTO } from '../../../../../domain/entity/return/ResponseDTO';
 import { IPaymentReadRepo } from '../../../../repositories/payment/IPaymentReadRepo';
 import { IGetExclusiveUserPaymentsUseCase } from '../interfaces/IGetExclusiveUserPaymentsUseCase';
 import { GetExclusiveUserPaymentsApiType } from '@bro/shared';
@@ -19,11 +19,11 @@ export class GetExclusiveUserPaymentsUseCase
           totalPages: result.totalPages,
         },
       };
-    } catch (err: any) {
-      console.log('Error in GetExclusiveUserPaymentsUseCase: ', err.message);
+    } catch (err) {
+      console.log('Error in GetExclusiveUserPaymentsUseCase: ', err);
       return {
         success: false,
-        data: { message: err.message },
+        data: { message: (err as Error).message },
       };
     }
   }

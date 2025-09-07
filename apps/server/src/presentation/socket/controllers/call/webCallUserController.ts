@@ -1,6 +1,7 @@
 import { ISocketController } from '../../../../app/providers/controller/ISocketController';
 import { IWebCallUserUseCase } from '../../../../app/socketUseCase/call/interfaces/IWebCallUserUseCase';
 import { ISocketRequest } from '../../socketHelper/ISocketRequest';
+import Peer from 'simple-peer';
 
 export class webCallUserController implements ISocketController {
   constructor(private webCallUserUseCase: IWebCallUserUseCase) {}
@@ -10,7 +11,7 @@ export class webCallUserController implements ISocketController {
       const { userToCall, from, signal } = socketRequest.body as {
         userToCall: string;
         from: string;
-        signal: any;
+        signal: Peer.SignalData;
       };
 
       const result = await this.webCallUserUseCase.execute(

@@ -173,7 +173,7 @@ export class EventQueueService implements IEventQueueService {
       const length = await this.offlineQueueRepo.getQueueLength(userId);
       if (length === 0) break;
 
-      let rawItem = await this.offlineQueueRepo.removeFirstEvent(userId);
+      const rawItem = await this.offlineQueueRepo.removeFirstEvent(userId);
 
       if (!rawItem) break;
 

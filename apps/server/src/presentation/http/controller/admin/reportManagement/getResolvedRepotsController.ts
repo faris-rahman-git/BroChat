@@ -1,5 +1,5 @@
 import { IController } from '../../../../../app/providers/controller/IController';
-import { ResponseDTO } from '../../../../../domain/dtos/return/ResponseDTO';
+import { ResponseDTO } from '../../../../../domain/entity/return/ResponseDTO';
 import { IHttpErrors } from '../../../helpers/IHttpErrors';
 import { HttpErrors } from '../../../helpers/implementations/HttpErrors';
 import { IHttpRequest } from '../../../helpers/IHttpRequest';

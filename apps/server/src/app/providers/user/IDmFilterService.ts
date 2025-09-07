@@ -1,6 +1,6 @@
 import { SearchResultType } from '@bro/shared';
-import { SearchRawType } from '../../../domain/dtos/user/UserRepoTypes';
-import { usersList } from '../../../domain/dtos/user/ConversationRepoTypes';
+import { SearchRawType } from '../../../domain/entity/user/UserRepoTypes';
+import { usersList } from '../../../domain/entity/user/ConversationRepoTypes';
 
 export interface IDmFilterService {
   filterUserConversationsHelper(

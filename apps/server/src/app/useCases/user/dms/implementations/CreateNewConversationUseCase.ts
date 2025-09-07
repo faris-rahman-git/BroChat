@@ -1,4 +1,4 @@
-import { ResponseDTO } from '../../../../../domain/dtos/return/ResponseDTO';
+import { ResponseDTO } from '../../../../../domain/entity/return/ResponseDTO';
 import { IEventQueueService } from '../../../../providers/socket/IEventQueueService';
 import { IConversationReadRepo } from '../../../../repositories/conversation/IConversationReadRepo';
 import { IConversationWriteRepo } from '../../../../repositories/conversation/IConversationWriteRepo';
@@ -43,11 +43,11 @@ export class CreateNewConversationUseCase
         success: true,
         data: { newConversationId },
       };
-    } catch (err: any) {
-      console.log('Error in CreateNewConversationUseCase: ', err.message);
+    } catch (err) {
+      console.log('Error in CreateNewConversationUseCase: ', err);
       return {
         success: false,
-        data: { message: err.message },
+        data: { message: (err as Error).message },
       };
     }
   }

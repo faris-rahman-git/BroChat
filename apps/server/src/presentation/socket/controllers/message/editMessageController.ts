@@ -1,6 +1,6 @@
 import { ISocketController } from '../../../../app/providers/controller/ISocketController';
 import { IEditMessageUseCase } from '../../../../app/socketUseCase/message/interfaces/IEditMessageUseCase';
-import { CustomPayloadType } from '../../../../domain/dtos/auth/authTypes';
+import { CustomPayloadType } from '../../../../domain/entity/auth/authTypes';
 import { ISocketRequest } from '../../socketHelper/ISocketRequest';
 import { EditMessageType } from '@bro/shared';
 

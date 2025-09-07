@@ -1,4 +1,4 @@
-import { ResponseDTO } from '../../../../../domain/dtos/return/ResponseDTO';
+import { ResponseDTO } from '../../../../../domain/entity/return/ResponseDTO';
 import { IReportWriteRepo } from '../../../../repositories/report/IReportWriteRepo';
 import { IDeleteReportUseCase } from '../interfaces/IDeleteReportUseCase';
 
@@ -18,11 +18,11 @@ export class DeleteReportUseCase implements IDeleteReportUseCase {
         success: true,
         data: { reportId },
       };
-    } catch (err: any) {
-      console.log('Error in DeleteReportUseCase: ', err.message);
+    } catch (err) {
+      console.log('Error in DeleteReportUseCase: ', err);
       return {
         success: false,
-        data: { message: err.message },
+        data: { message: (err as Error).message },
       };
     }
   }

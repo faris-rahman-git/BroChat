@@ -1,7 +1,7 @@
 import conversationModel from '../../databases/mongo/db/conversationModel';
 import { IConversationReadRepo } from '../../../app/repositories/conversation/IConversationReadRepo';
 
-import { usersList } from '../../../domain/dtos/user/ConversationRepoTypes';
+import { usersList } from '../../../domain/entity/user/ConversationRepoTypes';
 import {
   DeleteGroupsReturnType,
   findConversationNameType,
@@ -11,6 +11,11 @@ import {
   StatsReturn,
 } from '@bro/shared';
 import { PipelineStage } from 'mongoose';
+import {
+  populatedGroupParticipantType,
+  populatedParticipantType,
+} from '../../types/conversationDocment';
+import { populatedSenderIdType } from '../../types/messageDocumet';
 
 export class ConversationReadRepo implements IConversationReadRepo {
   async findDMs(userId: string): Promise<usersList[]> {
@@ -28,20 +33,27 @@ export class ConversationReadRepo implements IConversationReadRepo {
     return result.map((c) => ({
       _id: String(c._id),
       createdAt: c.createdAt,
-      participants: c.participants.map((p: any) => ({
-        _id: String(p._id),
-        name: p.name,
-        avatar: p.avatar,
-        username: p.username,
-        email: p.email,
-        phoneNumber: p.phoneNumber,
-        about: p.about,
-        createdAt: p.createdAt,
-        isSubscribed: p.isSubscribed,
-        blockedUsers: (p.blockedUsers ?? []).map((id: any) => String(id)),
-        blockedByUsers: (p.blockedByUsers ?? []).map((id: any) => String(id)),
-        isExclusive: p.isExclusive,
-      })),
+      participants: c.participants.map((p) => {
+        const participant = p as unknown as populatedParticipantType;
+        return {
+          _id: String(p._id),
+          name: participant.name,
+          avatar: participant.avatar,
+          username: participant.username,
+          email: participant.email,
+          phoneNumber: participant.phoneNumber,
+          about: participant.about,
+          createdAt: participant.createdAt,
+          isSubscribed: participant.isSubscribed,
+          blockedUsers: (participant.blockedUsers ?? []).map((id) =>
+            String(id)
+          ),
+          blockedByUsers: (participant.blockedByUsers ?? []).map((id) =>
+            String(id)
+          ),
+          isExclusive: participant.isExclusive,
+        };
+      }),
     }));
   }
 
@@ -56,12 +68,15 @@ export class ConversationReadRepo implements IConversationReadRepo {
 
     return groups.map((group) => ({
       _id: String(group._id),
-      participants: group.participants.map((p: any) => ({
-        _id: String(p._id),
-        name: p.name,
-        avatar: p.avatar,
-        username: p.username,
-      })),
+      participants: group.participants.map((p) => {
+        const participant = p as unknown as populatedGroupParticipantType;
+        return {
+          _id: String(participant._id),
+          name: participant.name,
+          avatar: participant.avatar,
+          username: participant.username,
+        };
+      }),
       Admins: group.Admins.map((id) => String(id)),
       groupName: group.groupName,
       about: group.about,
@@ -140,13 +155,16 @@ export class ConversationReadRepo implements IConversationReadRepo {
 
     return {
       _id: result._id.toString(),
-      participants: result.participants.map((p: any) => ({
-        _id: String(p._id),
-        name: p.name,
-        avatar: p.avatar,
-        username: p.username,
-      })),
-      Admins: result.Admins.map((id: any) => String(id)),
+      participants: result.participants.map((p) => {
+        const participant = p as unknown as populatedGroupParticipantType;
+        return {
+          _id: String(participant._id),
+          name: participant.name,
+          avatar: participant.avatar,
+          username: participant.username,
+        };
+      }),
+      Admins: result.Admins.map((id) => String(id)),
       groupName: result.groupName,
       about: result.about,
       createdAt: result.createdAt,
@@ -192,39 +210,36 @@ export class ConversationReadRepo implements IConversationReadRepo {
       conversationModel.countDocuments(query),
     ]);
 
-    const groupData: GroupChatType[] = groups.map((group) => ({
-      _id: String(group._id),
-      participants: group.participants.map((p: any) => ({
-        _id: String(p._id),
-        name: p.name,
-        avatar: p.avatar,
-        username: p.username,
-      })),
-      Admins: group.Admins.map((id: any) => String(id)),
-      groupName: group.groupName ?? null,
-      about: group.about ?? null,
-      createdAt: group.createdAt,
-      createdBy:
-        group.createdBy &&
-        typeof group.createdBy === 'object' &&
-        'name' in group.createdBy
-          ? {
-              _id: String((group.createdBy as any)._id),
-              name: (group.createdBy as any).name,
-              username: (group.createdBy as any).username,
-              avatar: (group.createdBy as any).avatar,
-            }
-          : {
-              _id: '',
-              name: 'Unknown',
-              username: 'unknown',
-              avatar: '',
-            },
-      avatar: group.avatar ?? null,
-      isPaid: group.isPaid ?? false,
-      isBlocked: group.isBlocked ?? false,
-      blockedAt: group.blockedAt ?? null,
-    }));
+    const groupData = groups.map((group) => {
+      const created =
+        group.createdBy as unknown as populatedGroupParticipantType;
+      return {
+        _id: String(group._id),
+        participants: group.participants.map((p) => {
+          const participant = p as unknown as populatedGroupParticipantType;
+          return {
+            _id: String(participant._id),
+            name: participant.name,
+            avatar: participant.avatar,
+            username: participant.username,
+          };
+        }),
+        Admins: group.Admins.map((id) => String(id)),
+        groupName: group.groupName ?? null,
+        about: group.about ?? null,
+        createdAt: group.createdAt,
+        createdBy: {
+          _id: String(created?._id) ?? '',
+          name: created?.name ?? 'Unknown',
+          username: created?.username ?? 'Unknown',
+          avatar: created?.avatar ?? '',
+        },
+        avatar: group.avatar ?? null,
+        isPaid: group.isPaid ?? false,
+        isBlocked: group.isBlocked ?? false,
+        blockedAt: group.blockedAt ?? null,
+      };
+    });
 
     return {
       data: groupData,
@@ -276,41 +291,38 @@ export class ConversationReadRepo implements IConversationReadRepo {
       conversationModel.countDocuments(filter),
     ]);
 
-    const groupData: DeleteGroupsReturnType[] = groups.map((group) => ({
-      _id: String(group._id),
-      participants: group.participants.map((p: any) => ({
-        _id: String(p._id),
-        name: p.name,
-        avatar: p.avatar,
-        username: p.username,
-      })),
-      Admins: group.Admins.map((id: any) => String(id)),
-      groupName: group.groupName ?? null,
-      about: group.about ?? null,
-      createdAt: group.createdAt,
-      createdBy:
-        group.createdBy &&
-        typeof group.createdBy === 'object' &&
-        'name' in group.createdBy
-          ? {
-              _id: String((group.createdBy as any)._id),
-              name: (group.createdBy as any).name,
-              username: (group.createdBy as any).username,
-              avatar: (group.createdBy as any).avatar,
-            }
-          : {
-              _id: '',
-              name: 'Unknown',
-              username: 'unknown',
-              avatar: '',
-            },
-      avatar: group.avatar ?? null,
-      isPaid: group.isPaid ?? false,
-      isBlocked: group.isBlocked ?? false,
-      blockedAt: group.blockedAt ?? null,
-      isDeleted: group.isDeleted ?? false,
-      deletedAt: group.deletedAt ?? null,
-    }));
+    const groupData = groups.map((group) => {
+      const created =
+        group.createdBy as unknown as populatedGroupParticipantType;
+      return {
+        _id: String(group._id),
+        participants: group.participants.map((p) => {
+          const participant = p as unknown as populatedGroupParticipantType;
+          return {
+            _id: String(participant._id),
+            name: participant.name,
+            avatar: participant.avatar,
+            username: participant.username,
+          };
+        }),
+        Admins: group.Admins.map((id) => String(id)),
+        groupName: group.groupName ?? null,
+        about: group.about ?? null,
+        createdAt: group.createdAt,
+        createdBy: {
+          _id: String(created?._id) ?? '',
+          name: created?.name ?? 'Unknown',
+          username: created?.username ?? 'Unknown',
+          avatar: created?.avatar ?? '',
+        },
+        avatar: group.avatar ?? null,
+        isPaid: group.isPaid ?? false,
+        isBlocked: group.isBlocked ?? false,
+        blockedAt: group.blockedAt ?? null,
+        isDeleted: group.isDeleted ?? false,
+        deletedAt: group.deletedAt ?? null,
+      };
+    });
 
     return {
       data: groupData,
@@ -336,7 +348,10 @@ export class ConversationReadRepo implements IConversationReadRepo {
       };
     }
 
-    const otherParticipant = (conversation.participants as any[]).find(
+    const participants =
+      conversation.participants as unknown as populatedSenderIdType[];
+
+    const otherParticipant = participants.find(
       (p) => p._id.toString() !== userId
     );
 
@@ -397,7 +412,7 @@ export class ConversationReadRepo implements IConversationReadRepo {
     );
 
     // CURRENT WEEK (UTC) — Monday..Sunday (ISO)
-    const utcDay = now.getUTCDay(); 
+    const utcDay = now.getUTCDay();
     const isoDay = utcDay === 0 ? 7 : utcDay;
     const daysSinceMonday = isoDay - 1;
     const startOfWeek = new Date(startOfToday);
@@ -511,26 +526,20 @@ export class ConversationReadRepo implements IConversationReadRepo {
 
     // Convert aggregations to maps for quick lookup
     const dayMap = new Map<number, number>();
-    (dayAgg || []).forEach((r: any) => {
+    (dayAgg || []).forEach((r) => {
       const d = r._id instanceof Date ? r._id : new Date(r._id);
       const hour = d.getUTCHours();
       dayMap.set(hour, r.count ?? 0);
     });
 
     const weekMap = new Map<number, number>();
-    (weekAgg || []).forEach((r: any) =>
-      weekMap.set(Number(r._id), r.count ?? 0)
-    );
+    (weekAgg || []).forEach((r) => weekMap.set(Number(r._id), r.count ?? 0));
 
     const monthMap = new Map<number, number>();
-    (monthAgg || []).forEach((r: any) =>
-      monthMap.set(Number(r._id), r.count ?? 0)
-    );
+    (monthAgg || []).forEach((r) => monthMap.set(Number(r._id), r.count ?? 0));
 
     const yearMap = new Map<number, number>();
-    (yearAgg || []).forEach((r: any) =>
-      yearMap.set(Number(r._id), r.count ?? 0)
-    );
+    (yearAgg || []).forEach((r) => yearMap.set(Number(r._id), r.count ?? 0));
 
     // DAY: 00:00, 04:00, 08:00, 12:00, 16:00, 20:00 (UTC)
     const dayBuckets: Point[] = [];

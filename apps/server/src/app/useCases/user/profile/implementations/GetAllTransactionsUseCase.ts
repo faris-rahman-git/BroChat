@@ -1,4 +1,4 @@
-import { ResponseDTO } from '../../../../../domain/dtos/return/ResponseDTO';
+import { ResponseDTO } from '../../../../../domain/entity/return/ResponseDTO';
 import { IPaymentReadRepo } from '../../../../repositories/payment/IPaymentReadRepo';
 import { IGetAllTransactionsUseCase } from '../interfaces/IGetAllTransactionsUseCase';
 
@@ -17,11 +17,11 @@ export class GetAllTransactionsUseCase implements IGetAllTransactionsUseCase {
           ...data,
         },
       };
-    } catch (err: any) {
-      console.log('Error in GetAllTransactionsUseCase: ', err.message);
+    } catch (err) {
+      console.log('Error in GetAllTransactionsUseCase: ', err);
       return {
         success: false,
-        data: { message: err.message },
+        data: { message: (err as Error).message },
       };
     }
   }

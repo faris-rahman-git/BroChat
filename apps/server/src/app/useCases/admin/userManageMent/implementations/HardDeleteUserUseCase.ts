@@ -1,4 +1,4 @@
-import { ResponseDTO } from '../../../../../domain/dtos/return/ResponseDTO';
+import { ResponseDTO } from '../../../../../domain/entity/return/ResponseDTO';
 import { AuthMessages } from '../../../../../domain/enums/auth/AuthMessages';
 import { IDeleteService } from '../../../../providers/auth/IDeleteService';
 import { IEventQueueService } from '../../../../providers/socket/IEventQueueService';
@@ -38,11 +38,11 @@ export class HardDeleteUserUseCase implements IHardDeleteUserUseCase {
           totalPages: updatedUsersList.totalPages,
         },
       };
-    } catch (err: any) {
-      console.log('Error in HardDeleteUserUseCase: ', err.message);
+    } catch (err) {
+      console.log('Error in HardDeleteUserUseCase: ', err);
       return {
         success: false,
-        data: { message: err.message },
+        data: { message: (err as Error).message },
       };
     }
   }

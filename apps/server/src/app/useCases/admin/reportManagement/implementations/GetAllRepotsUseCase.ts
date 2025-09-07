@@ -1,4 +1,4 @@
-import { ResponseDTO } from '../../../../../domain/dtos/return/ResponseDTO';
+import { ResponseDTO } from '../../../../../domain/entity/return/ResponseDTO';
 import { IQueryService } from '../../../../providers/admin/IQueryService';
 import { IReportReadRepo } from '../../../../repositories/report/IReportReadRepo';
 import { IGetAllRepotsUseCase } from '../interfaces/IGetAllRepotsUseCase';
@@ -29,11 +29,11 @@ export class GetAllRepotsUseCase implements IGetAllRepotsUseCase {
           totalPages: reportList.totalPages,
         },
       };
-    } catch (err: any) {
-      console.log('Error in GetAllRepotsUseCase: ', err.message);
+    } catch (err) {
+      console.log('Error in GetAllRepotsUseCase: ', err);
       return {
         success: false,
-        data: { message: err.message },
+        data: { message: (err as Error).message },
       };
     }
   }

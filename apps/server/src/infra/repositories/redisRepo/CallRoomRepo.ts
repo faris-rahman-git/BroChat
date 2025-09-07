@@ -15,7 +15,7 @@ export class CallRoomRepo implements ICallRoomRepo {
     name: string,
     avatar: string,
     isVideoCall: boolean,
-    audio: boolean = true
+    audio = true
   ): Promise<void> {
     const key = this.getUserKey(userId);
     const type = await redis.type(key);

@@ -1,6 +1,6 @@
 import { ISocketController } from '../../../../app/providers/controller/ISocketController';
 import { IStatusUpdateUseCase } from '../../../../app/socketUseCase/message/interfaces/IStatusUpdateUseCase';
-import { CustomPayloadType } from '../../../../domain/dtos/auth/authTypes';
+import { CustomPayloadType } from '../../../../domain/entity/auth/authTypes';
 import { ISocketRequest } from '../../socketHelper/ISocketRequest';
 import { statusUpdateType } from '../../../../app/dtos/socketTypes';
 

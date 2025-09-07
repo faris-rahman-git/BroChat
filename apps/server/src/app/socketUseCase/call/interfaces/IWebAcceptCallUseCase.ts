@@ -1,3 +1,4 @@
+import Peer from 'simple-peer';
 export interface IWebAcceptCallUseCase {
-  execute(signal: any, to: string, answerId: string): Promise<boolean>;
+  execute(signal: Peer.SignalData, to: string, answerId: string): Promise<boolean>;
 }

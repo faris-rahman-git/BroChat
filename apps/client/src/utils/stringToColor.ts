@@ -10,7 +10,7 @@ const COLORS = [
   '#FF5722', // deep orange
 ];
 
-export const stringToColor = (str: string = 'User') => {
+export const stringToColor = (str = 'User') => {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
     hash = str.charCodeAt(i) + ((hash << 5) - hash);

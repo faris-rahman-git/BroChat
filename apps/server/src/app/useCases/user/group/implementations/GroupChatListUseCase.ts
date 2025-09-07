@@ -1,4 +1,4 @@
-import { ResponseDTO } from '../../../../../domain/dtos/return/ResponseDTO';
+import { ResponseDTO } from '../../../../../domain/entity/return/ResponseDTO';
 import { ISortGroupListService } from '../../../../providers/user/ISortGroupListService';
 import { IConversationReadRepo } from '../../../../repositories/conversation/IConversationReadRepo';
 import { IGroupChatListUseCase } from '../interfaces/IGroupChatListUseCase';
@@ -22,11 +22,11 @@ export class GroupChatListUseCase implements IGroupChatListUseCase {
         success: true,
         data: { groupList: sortedGroupList },
       };
-    } catch (err: any) {
-      console.log('Error in GroupChatListUseCase: ', err.message);
+    } catch (err) {
+      console.log('Error in GroupChatListUseCase: ', err);
       return {
         success: false,
-        data: { message: err.message },
+        data: { message: (err as Error).message },
       };
     }
   }

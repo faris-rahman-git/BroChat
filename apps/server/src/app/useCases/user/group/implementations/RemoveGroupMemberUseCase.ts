@@ -1,4 +1,4 @@
-import { ResponseDTO } from '../../../../../domain/dtos/return/ResponseDTO';
+import { ResponseDTO } from '../../../../../domain/entity/return/ResponseDTO';
 import { UserMessages } from '../../../../../domain/enums/user/UserMessages';
 import { ICheckAuthorityService } from '../../../../providers/user/ICheckAuthorityService';
 import { iReceiverService } from '../../../../providers/common/iReceiverService';
@@ -64,11 +64,11 @@ export class RemoveGroupMemberUseCase implements IRemoveGroupMemberUseCase {
         success: true,
         data: { memberId },
       };
-    } catch (err: any) {
-      console.log('Error in RemoveGroupMemberUseCase: ', err.message);
+    } catch (err) {
+      console.log('Error in RemoveGroupMemberUseCase: ', err);
       return {
         success: false,
-        data: { message: err.message },
+        data: { message: (err as Error).message },
       };
     }
   }

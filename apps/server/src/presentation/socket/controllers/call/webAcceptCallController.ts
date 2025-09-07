@@ -1,7 +1,8 @@
 import { ISocketController } from '../../../../app/providers/controller/ISocketController';
 import { IWebAcceptCallUseCase } from '../../../../app/socketUseCase/call/interfaces/IWebAcceptCallUseCase';
-import { CustomPayloadType } from '../../../../domain/dtos/auth/authTypes';
+import { CustomPayloadType } from '../../../../domain/entity/auth/authTypes';
 import { ISocketRequest } from '../../socketHelper/ISocketRequest';
+import Peer from 'simple-peer';
 
 export class webAcceptCallController implements ISocketController {
   constructor(private webAcceptCallUseCase: IWebAcceptCallUseCase) {}
@@ -11,7 +12,7 @@ export class webAcceptCallController implements ISocketController {
 
       const { id: answerId } = socketRequest.user as CustomPayloadType;
       const { signal, to } = socketRequest.body as {
-        signal: any;
+        signal: Peer.SignalData;
         to: string;
       };
 

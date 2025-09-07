@@ -6,7 +6,7 @@ import { IHttpSuccess } from '../../helpers/IHttpSuccess';
 import { HttpErrors } from '../../helpers/implementations/HttpErrors';
 import { HttpResponse } from '../../helpers/implementations/HttpResponse';
 import { HttpSuccess } from '../../helpers/implementations/HttpSuccess';
-import { ResponseDTO } from '../../../../domain/dtos/return/ResponseDTO';
+import { ResponseDTO } from '../../../../domain/entity/return/ResponseDTO';
 import { ResetPasswordType } from '../../../../app/dtos/auth';
 import { IResetPasswordUseCase } from '../../../../app/useCases/auth/interfaces/IResetPasswordUseCase';
 import { combinedOtpPasswordAndResetSchema } from '../../../schemas/combinedOtpPasswordAndResetSchema';

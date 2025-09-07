@@ -12,7 +12,8 @@ import {
 import {
   FindEmailType,
   SearchRawType,
-} from '../../../domain/dtos/user/UserRepoTypes';
+} from '../../../domain/entity/user/UserRepoTypes';
+import { IUserDocumentPopulated } from '../../types/userDocument';
 
 export class UserReadRepo implements IUserReadRepo {
   async findEmail(email: string): Promise<FindEmailType | null> {
@@ -45,7 +46,7 @@ export class UserReadRepo implements IUserReadRepo {
   }
 
   async findUserDetailsById(userId: string): Promise<userDetailsType> {
-    const result = await userModel
+    const result = (await userModel
       .findOne(
         { _id: userId },
         {
@@ -70,7 +71,7 @@ export class UserReadRepo implements IUserReadRepo {
         select: '_id name avatar username',
         options: { strictPopulate: false },
       })
-      .lean();
+      .lean()) as unknown as IUserDocumentPopulated;
 
     if (!result) throw new Error('User not found');
 
@@ -82,7 +83,7 @@ export class UserReadRepo implements IUserReadRepo {
       avatar: result.avatar,
       about: result.about,
       email: result.email,
-      blockedUsers: (result.blockedUsers ?? []).map((user: any) => ({
+      blockedUsers: (result.blockedUsers ?? []).map((user) => ({
         _id: user._id.toString(),
         name: user.name,
         avatar: user.avatar,
@@ -147,8 +148,8 @@ export class UserReadRepo implements IUserReadRepo {
       phoneNumber: user.phoneNumber,
       createdAt: user.createdAt,
       isSubscribed: user.isSubscribed,
-      blockedUsers: (user.blockedUsers ?? []).map((id: any) => String(id)),
-      blockedByUsers: (user.blockedByUsers ?? []).map((id: any) => String(id)),
+      blockedUsers: (user.blockedUsers ?? []).map((id) => String(id)),
+      blockedByUsers: (user.blockedByUsers ?? []).map((id) => String(id)),
       isExclusive: user.isExclusive,
     }));
   }
@@ -457,26 +458,20 @@ export class UserReadRepo implements IUserReadRepo {
 
     // Convert results to maps
     const dayMap = new Map<number, number>();
-    (dayAgg || []).forEach((r: any) => {
+    (dayAgg || []).forEach((r) => {
       const d = r._id instanceof Date ? r._id : new Date(r._id);
       const hour = d.getUTCHours();
       dayMap.set(hour, r.count ?? 0);
     });
 
     const weekMap = new Map<number, number>();
-    (weekAgg || []).forEach((r: any) =>
-      weekMap.set(Number(r._id), r.count ?? 0)
-    );
+    (weekAgg || []).forEach((r) => weekMap.set(Number(r._id), r.count ?? 0));
 
     const monthMap = new Map<number, number>();
-    (monthAgg || []).forEach((r: any) =>
-      monthMap.set(Number(r._id), r.count ?? 0)
-    );
+    (monthAgg || []).forEach((r) => monthMap.set(Number(r._id), r.count ?? 0));
 
     const yearMap = new Map<number, number>();
-    (yearAgg || []).forEach((r: any) =>
-      yearMap.set(Number(r._id), r.count ?? 0)
-    );
+    (yearAgg || []).forEach((r) => yearMap.set(Number(r._id), r.count ?? 0));
 
     // DAY buckets: 00:00, 04:00, ..., 20:00
     const dayBuckets: Point[] = [];

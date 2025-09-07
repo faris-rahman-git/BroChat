@@ -33,8 +33,8 @@ export class StartTypingUseCase implements IStartTypingUseCase {
       });
 
       return true;
-    } catch (err: any) {
-      console.log('Error in StartTypingUseCase: ', err.message);
+    } catch (err) {
+      console.log('Error in StartTypingUseCase: ', err);
       return false;
     }
   }

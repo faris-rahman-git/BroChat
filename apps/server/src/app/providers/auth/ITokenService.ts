@@ -1,7 +1,7 @@
 import {
   CustomPayloadType,
   VerifyTokensType,
-} from '../../../domain/dtos/auth/authTypes';
+} from '../../../domain/entity/auth/authTypes';
 
 export interface ITokenService {
   createAccessToken(payload: CustomPayloadType): string;

@@ -35,9 +35,9 @@ function PlanManageMentPanel({ selectedChild }: { selectedChild: string }) {
   } = usePlanManageMentPanelHook(selectedChild);
 
   return (
-    <div className="w-full max-w-7xl mx-auto p-6">
+    <div className="w-full mx-auto px-6 pb-6 overflow-auto custom-scrollbar">
       {/* Header with Add Plan button */}
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex justify-between items-center pt-6 pb-3 mb-8 sticky top-0 z-10 bg-[#F3F3F3] ">
         <div>
           <h1 className="text-3xl font-bold text-foreground">
             {selectedChild === 'subscription'
@@ -195,7 +195,7 @@ function PlanManageMentPanel({ selectedChild }: { selectedChild: string }) {
       </div>
 
       {/* Plans Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ">
         {plans.map((plan) => (
           <Card
             key={plan._id}

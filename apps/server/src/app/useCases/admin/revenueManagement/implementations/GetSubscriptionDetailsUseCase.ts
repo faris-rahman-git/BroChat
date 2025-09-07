@@ -1,4 +1,4 @@
-import { ResponseDTO } from '../../../../../domain/dtos/return/ResponseDTO';
+import { ResponseDTO } from '../../../../../domain/entity/return/ResponseDTO';
 import { IQueryService } from '../../../../providers/admin/IQueryService';
 import { IGetAllTransactionsUseCase } from '../interfaces/IGetAllTransactionsUseCase';
 import { getAllPaymetsType } from '@bro/shared';
@@ -30,11 +30,11 @@ export class GetAllTransactionsUseCase implements IGetAllTransactionsUseCase {
           totalPages: transactions.totalPages,
         },
       };
-    } catch (err: any) {
-      console.log('Error in GetAllTransactionsUseCase: ', err.message);
+    } catch (err) {
+      console.log('Error in GetAllTransactionsUseCase: ', err);
       return {
         success: false,
-        data: { message: err.message },
+        data: { message: (err as Error).message },
       };
     }
   }

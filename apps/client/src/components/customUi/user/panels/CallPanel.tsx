@@ -28,7 +28,6 @@ const CallPanel = ({
     toggleCameraAudio,
     goToBack,
     userVideoRef,
-
     microphones,
     cameras,
     speakers,

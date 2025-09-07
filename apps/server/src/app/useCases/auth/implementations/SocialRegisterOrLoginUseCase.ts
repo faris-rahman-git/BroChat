@@ -1,6 +1,6 @@
 import { IUserReadRepo } from '../../../repositories/user/IUserReadRepo';
 import { AuthMessages } from '../../../../domain/enums/auth/AuthMessages';
-import { ResponseDTO } from '../../../../domain/dtos/return/ResponseDTO';
+import { ResponseDTO } from '../../../../domain/entity/return/ResponseDTO';
 import { SocialRegisterOrLoginType } from '../../../dtos/auth';
 import { IUsernameService } from '../../../providers/auth/IUsernameService';
 import { IUserWriteRepo } from '../../../repositories/user/IUserWriteRepo';
@@ -59,10 +59,10 @@ export class SocialRegisterOrLoginUseCase
         data: { ...userDetails },
         cookies: { accessToken, refreshToken },
       };
-    } catch (err: any) {
-      console.log('Error in SocialRegisterOrLoginUseCase: ', err.message);
+    } catch (err) {
+      console.log('Error in SocialRegisterOrLoginUseCase: ', err);
       return {
-        data: { message: err.message },
+        data: { message: (err as Error).message },
         success: false,
         statusCode: 500,
       };

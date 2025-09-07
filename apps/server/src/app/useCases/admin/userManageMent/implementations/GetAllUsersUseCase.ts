@@ -1,4 +1,4 @@
-import { ResponseDTO } from '../../../../../domain/dtos/return/ResponseDTO';
+import { ResponseDTO } from '../../../../../domain/entity/return/ResponseDTO';
 import { IQueryService } from '../../../../providers/admin/IQueryService';
 import { IUserReadRepo } from '../../../../repositories/user/IUserReadRepo';
 import { IGetAllUsersUseCase } from '../interfaces/IGetAllUsersUseCase';
@@ -29,11 +29,11 @@ export class GetAllUsersUseCase implements IGetAllUsersUseCase {
         success: true,
         data: { usersList: usersList.data, totalPages: usersList.totalPages },
       };
-    } catch (err: any) {
-      console.log('Error in GetAllUsersUseCase: ', err.message);
+    } catch (err) {
+      console.log('Error in GetAllUsersUseCase: ', err);
       return {
         success: false,
-        data: { message: err.message },
+        data: { message: (err as Error).message },
       };
     }
   }

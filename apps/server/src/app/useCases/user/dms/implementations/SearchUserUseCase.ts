@@ -1,4 +1,4 @@
-import { ResponseDTO } from '../../../../../domain/dtos/return/ResponseDTO';
+import { ResponseDTO } from '../../../../../domain/entity/return/ResponseDTO';
 import { IDmFilterService } from '../../../../providers/user/IDmFilterService';
 import { IUserReadRepo } from '../../../../repositories/user/IUserReadRepo';
 import { ISearchUserUseCase } from '../interfaces/ISearchUserUseCase';
@@ -26,11 +26,11 @@ export class SearchUserUseCase implements ISearchUserUseCase {
         success: true,
         data: { MatchedUsers: matchedUsersWithConversationId },
       };
-    } catch (err: any) {
-      console.log('Error in SearchUserUseCase: ', err.message);
+    } catch (err) {
+      console.log('Error in SearchUserUseCase: ', err);
       return {
         success: false,
-        data: { message: err.message },
+        data: { message: (err as Error).message },
       };
     }
   }

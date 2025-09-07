@@ -1,4 +1,4 @@
-import { ResponseDTO } from '../../../../../domain/dtos/return/ResponseDTO';
+import { ResponseDTO } from '../../../../../domain/entity/return/ResponseDTO';
 import { ICallReadRepo } from '../../../../repositories/call/ICallReadRepo';
 import { ICallListUseCase } from '../interfaces/ICallListUseCase';
 
@@ -13,11 +13,11 @@ export class CallListUseCase implements ICallListUseCase {
         success: true,
         data: { callList },
       };
-    } catch (err: any) {
-      console.log('Error in CallListUseCase: ', err.message);
+    } catch (err) {
+      console.log('Error in CallListUseCase: ', err);
       return {
         success: false,
-        data: { message: err.message },
+        data: { message: (err as Error).message },
       };
     }
   }

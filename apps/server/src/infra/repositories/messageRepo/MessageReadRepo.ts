@@ -2,6 +2,10 @@ import messageModel from '../../databases/mongo/db/messageModel';
 import { IMessageReadRepo } from '../../../app/repositories/message/IMessageReadRepo';
 import { MessageType, Point, StatsReturn } from '@bro/shared';
 import { PipelineStage } from 'mongoose';
+import {
+  populatedSenderIdType,
+  populatedReplyToType,
+} from '../../types/messageDocumet';
 
 export class MessageReadRepo implements IMessageReadRepo {
   async findByTempId(tempId: string): Promise<string | null> {
@@ -40,14 +44,16 @@ export class MessageReadRepo implements IMessageReadRepo {
       })
       .sort({ messageTime: 1 });
 
-    return result.map((m: any) => {
+    return result.map((m) => {
+      const sender = m.senderId as unknown as populatedSenderIdType;
+      const replyTo = m.replyTo as unknown as populatedReplyToType;
       return {
         tempId: m.tempId,
         _id: String(m._id),
         conversationId: String(m.conversationId),
-        senderId: String(m.senderId?._id),
-        senderName: m.senderId?.name,
-        senderAvatar: m.senderId?.avatar,
+        senderId: String(sender?._id),
+        senderName: sender?.name,
+        senderAvatar: sender?.avatar,
         MessageType: m.MessageType,
         content: m.content,
         mediaUrl: m.mediaUrl,
@@ -56,24 +62,25 @@ export class MessageReadRepo implements IMessageReadRepo {
         messageTime: m.messageTime,
         createdAt: m.createdAt,
         isForward: m.isForward,
-        reactions: m.reactions.map((r: any) => {
+        reactions: m.reactions.map((r) => {
+          const reaction = r.userId as unknown as populatedSenderIdType;
           return {
-            userId: String(r.userId?._id),
-            name: r.userId?.name,
-            avatar: r.userId?.avatar,
+            userId: String(reaction?._id),
+            name: reaction?.name,
+            avatar: reaction?.avatar,
             emoji: r.emoji,
           };
         }),
         replyTo: {
-          _id: m.replyTo?._id ? String(m.replyTo?._id) : undefined,
-          senderId : String(m.replyTo?.senderId?._id),
-          senderName: m.replyTo?.senderId?.name,
-          MessageType: m.replyTo?.MessageType,
-          content: m.replyTo?.content,
-          mediaUrl: m.replyTo?.mediaUrl,
+          _id: replyTo?._id ? String(replyTo?._id) : undefined,
+          senderId: String(replyTo?.senderId?._id),
+          senderName: replyTo?.senderId?.name,
+          MessageType: replyTo?.MessageType,
+          content: replyTo?.content,
+          mediaUrl: replyTo?.mediaUrl,
         },
       };
-    });
+    }) as MessageType[];
   }
 
   async findMessageCreatedAt(messageId: string): Promise<string | Date> {
@@ -213,26 +220,20 @@ export class MessageReadRepo implements IMessageReadRepo {
 
     // Convert results to maps
     const dayMap = new Map<number, number>();
-    (dayAgg || []).forEach((r: any) => {
+    (dayAgg || []).forEach((r) => {
       const d = r._id instanceof Date ? r._id : new Date(r._id);
       const hour = d.getUTCHours();
       dayMap.set(hour, r.count ?? 0);
     });
 
     const weekMap = new Map<number, number>();
-    (weekAgg || []).forEach((r: any) =>
-      weekMap.set(Number(r._id), r.count ?? 0)
-    );
+    (weekAgg || []).forEach((r) => weekMap.set(Number(r._id), r.count ?? 0));
 
     const monthMap = new Map<number, number>();
-    (monthAgg || []).forEach((r: any) =>
-      monthMap.set(Number(r._id), r.count ?? 0)
-    );
+    (monthAgg || []).forEach((r) => monthMap.set(Number(r._id), r.count ?? 0));
 
     const yearMap = new Map<number, number>();
-    (yearAgg || []).forEach((r: any) =>
-      yearMap.set(Number(r._id), r.count ?? 0)
-    );
+    (yearAgg || []).forEach((r) => yearMap.set(Number(r._id), r.count ?? 0));
 
     // DAY buckets: 00:00, 04:00, ..., 20:00
     const dayBuckets: Point[] = [];

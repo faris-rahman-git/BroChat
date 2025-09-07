@@ -29,7 +29,7 @@ function ProfileEditView({
   editData: ProfileUpdateInfoParams;
   setEditData: React.Dispatch<React.SetStateAction<ProfileUpdateInfoParams>>;
   updateProfileInfoIsError: boolean;
-  updateProfileInfoError: any;
+  updateProfileInfoError: Error | null;
   handleSaveProfileInfo: () => void;
 }) {
   return (

@@ -53,8 +53,8 @@ export class WebLeaveRoomUseCase implements IWebLeaveRoomUseCase {
       );
 
       return true;
-    } catch (err: any) {
-      console.log('Error in WebLeaveRoomUseCase: ', err.message);
+    } catch (err) {
+      console.log('Error in WebLeaveRoomUseCase: ', err);
       return false;
     }
   }

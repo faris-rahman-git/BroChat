@@ -1,4 +1,4 @@
-import { ResponseDTO } from '../../../../../domain/dtos/return/ResponseDTO';
+import { ResponseDTO } from '../../../../../domain/entity/return/ResponseDTO';
 import { IUserReadRepo } from '../../../../repositories/user/IUserReadRepo';
 import { IUserWriteRepo } from '../../../../repositories/user/IUserWriteRepo';
 import { IRestoreUserUseCase } from '../interfaces/IRestoreUserUseCase';
@@ -27,11 +27,11 @@ export class RestoreUserUseCase implements IRestoreUserUseCase {
           totalPages: updatedUsersList.totalPages,
         },
       };
-    } catch (err: any) {
-      console.log('Error in RestoreUserUseCase: ', err.message);
+    } catch (err) {
+      console.log('Error in RestoreUserUseCase: ', err);
       return {
         success: false,
-        data: { message: err.message },
+        data: { message: (err as Error).message },
       };
     }
   }

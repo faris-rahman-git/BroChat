@@ -4,6 +4,7 @@ export type CustomPeerInstance = PeerInstance & {
   userName?: string;
   peerID?: string;
   userAvatar?: string;
+  videoElement?: HTMLVideoElement;
 };
 
 export type UserVideoAudio = {

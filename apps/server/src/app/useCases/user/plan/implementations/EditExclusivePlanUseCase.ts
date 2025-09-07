@@ -1,4 +1,4 @@
-import { ResponseDTO } from '../../../../../domain/dtos/return/ResponseDTO';
+import { ResponseDTO } from '../../../../../domain/entity/return/ResponseDTO';
 import { IPlanWriteRepo } from '../../../../repositories/plan/IPlanWriteRepo';
 import { ExclusivePlanType } from '@bro/shared';
 import { IEditExclusivePlanUseCase } from '../interfaces/IEditExclusivePlanUseCase';
@@ -15,11 +15,11 @@ export class EditExclusivePlanUseCase implements IEditExclusivePlanUseCase {
       return {
         success: true,
       };
-    } catch (err: any) {
-      console.log('Error in EditExclusivePlanUseCase: ', err.message);
+    } catch (err) {
+      console.log('Error in EditExclusivePlanUseCase: ', err);
       return {
         success: false,
-        data: { message: err.message },
+        data: { message: (err as Error).message },
       };
     }
   }

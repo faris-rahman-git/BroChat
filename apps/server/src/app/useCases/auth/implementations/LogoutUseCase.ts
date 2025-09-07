@@ -1,4 +1,4 @@
-import { ResponseDTO } from '../../../../domain/dtos/return/ResponseDTO';
+import { ResponseDTO } from '../../../../domain/entity/return/ResponseDTO';
 import { ILogoutUseCase } from '../interfaces/ILogoutUseCase';
 import { IEventQueueService } from '../../../providers/socket/IEventQueueService';
 
@@ -12,10 +12,10 @@ export class LogoutUseCase implements ILogoutUseCase {
       return {
         success: true,
       };
-    } catch (err: any) {
-      console.log('Error in LogoutUseCase: ', err.message);
+    } catch (err) {
+      console.log('Error in LogoutUseCase: ', err);
 
-      return { data: { message: err.message }, success: false };
+      return { data: { message: (err as Error).message }, success: false };
     }
   }
 }

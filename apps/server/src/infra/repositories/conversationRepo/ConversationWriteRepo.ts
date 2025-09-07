@@ -1,6 +1,6 @@
 import conversationModel from '../../databases/mongo/db/conversationModel';
 import { IConversationWriteRepo } from '../../../app/repositories/conversation/IConversationWriteRepo';
-import { CreateGroupType } from '../../../domain/dtos/user/ConversationRepoTypes';
+import { CreateGroupType } from '../../../domain/entity/user/ConversationRepoTypes';
 import { updateGroupInfoType } from '@bro/shared';
 
 export class ConversationWriteRepo implements IConversationWriteRepo {

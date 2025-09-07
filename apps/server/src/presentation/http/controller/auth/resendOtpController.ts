@@ -7,7 +7,7 @@ import { HttpErrors } from '../../helpers/implementations/HttpErrors';
 import { HttpResponse } from '../../helpers/implementations/HttpResponse';
 import { HttpSuccess } from '../../helpers/implementations/HttpSuccess';
 import { IRegisterUserUseCase } from '../../../../app/useCases/auth/interfaces/IRegisterUserUseCase';
-import { ResponseDTO } from '../../../../domain/dtos/return/ResponseDTO';
+import { ResponseDTO } from '../../../../domain/entity/return/ResponseDTO';
 
 export class resendOtpController implements IController {
   constructor(

@@ -1,4 +1,4 @@
-import { ResponseDTO } from '../../../../../domain/dtos/return/ResponseDTO';
+import { ResponseDTO } from '../../../../../domain/entity/return/ResponseDTO';
 import { IReportReadRepo } from '../../../../repositories/report/IReportReadRepo';
 import { IGetDeletedRepotsUseCase } from '../interfaces/IGetDeletedRepotsUseCase';
 
@@ -19,11 +19,11 @@ export class GetDeletedRepotsUseCase implements IGetDeletedRepotsUseCase {
             totalPages: reportList.totalPages,
           },
       };
-    } catch (err: any) {
-      console.log('Error in GetDeletedRepotsUseCase: ', err.message);
+    } catch (err) {
+      console.log('Error in GetDeletedRepotsUseCase: ', err);
       return {
         success: false,
-        data: { message: err.message },
+        data: { message: (err as Error).message },
       };
     }
   }

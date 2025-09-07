@@ -1,4 +1,4 @@
-import { ResponseDTO } from '../../../../../domain/dtos/return/ResponseDTO';
+import { ResponseDTO } from '../../../../../domain/entity/return/ResponseDTO';
 import { UserMessages } from '../../../../../domain/enums/user/UserMessages';
 import { ICheckAuthorityService } from '../../../../providers/user/ICheckAuthorityService';
 import { iReceiverService } from '../../../../providers/common/iReceiverService';
@@ -56,11 +56,11 @@ export class UpdateGroupInfoUseCase implements IUpdateGroupInfoUseCase {
         success: true,
         data: { groupInfo },
       };
-    } catch (err: any) {
-      console.log('Error in UpdateGroupInfoUseCase: ', err.message);
+    } catch (err) {
+      console.log('Error in UpdateGroupInfoUseCase: ', err);
       return {
         success: false,
-        data: { message: err.message },
+        data: { message: (err as Error).message },
       };
     }
   }

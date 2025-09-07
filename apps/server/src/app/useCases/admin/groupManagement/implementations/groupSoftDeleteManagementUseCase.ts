@@ -1,4 +1,4 @@
-import { ResponseDTO } from '../../../../../domain/dtos/return/ResponseDTO';
+import { ResponseDTO } from '../../../../../domain/entity/return/ResponseDTO';
 import { IQueryService } from '../../../../providers/admin/IQueryService';
 import { IEventQueueService } from '../../../../providers/socket/IEventQueueService';
 import { IConversationDeleteRepo } from '../../../../repositories/conversation/IConversationDeleteRepo';
@@ -65,11 +65,11 @@ export class groupSoftDeleteManagementUseCase
           totalPages: updatedGroupList.totalPages,
         },
       };
-    } catch (err: any) {
-      console.log('Error in groupSoftDeleteManagementUseCase: ', err.message);
+    } catch (err) {
+      console.log('Error in groupSoftDeleteManagementUseCase: ', err);
       return {
         success: false,
-        data: { message: err.message },
+        data: { message: (err as Error).message },
       };
     }
   }

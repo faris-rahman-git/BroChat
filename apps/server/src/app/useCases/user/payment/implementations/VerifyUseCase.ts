@@ -1,5 +1,5 @@
 import { VerifyInType } from '@bro/shared';
-import { ResponseDTO } from '../../../../../domain/dtos/return/ResponseDTO';
+import { ResponseDTO } from '../../../../../domain/entity/return/ResponseDTO';
 import { PaymentMessages } from '../../../../../domain/enums/user/PaymentMessages';
 import { IPaymentService } from '../../../../providers/user/IPaymentService';
 import { IPremiumUpdateService } from '../../../../providers/user/IPremiumUpdateService';
@@ -67,11 +67,11 @@ export class VerifyUseCase implements IVerifyUseCase {
         success: true,
         data: {},
       };
-    } catch (err: any) {
-      console.log('Error in VerifyUseCase: ', err.message);
+    } catch (err) {
+      console.log('Error in VerifyUseCase: ', err);
       return {
         success: false,
-        data: { message: err.message },
+        data: { message: (err as Error).message },
       };
     }
   }

@@ -33,8 +33,8 @@ export class StopTypingUseCase implements IStopTypingUseCase {
       });
 
       return true;
-    } catch (err: any) {
-      console.log('Error in StopTypingUseCase: ', err.message);
+    } catch (err) {
+      console.log('Error in StopTypingUseCase: ', err);
       return false;
     }
   }

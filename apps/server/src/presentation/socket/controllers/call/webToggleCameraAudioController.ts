@@ -1,6 +1,6 @@
 import { ISocketController } from '../../../../app/providers/controller/ISocketController';
 import { IWebToggleCameraAudioUseCase } from '../../../../app/socketUseCase/call/interfaces/IWebToggleCameraAudioUseCase';
-import { CustomPayloadType } from '../../../../domain/dtos/auth/authTypes';
+import { CustomPayloadType } from '../../../../domain/entity/auth/authTypes';
 import { ISocketRequest } from '../../socketHelper/ISocketRequest';
 
 export class webToggleCameraAudioController implements ISocketController {

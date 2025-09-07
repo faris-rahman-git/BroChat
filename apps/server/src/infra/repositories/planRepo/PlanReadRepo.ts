@@ -3,11 +3,18 @@ import { PaymentType, PlanType } from '@bro/shared';
 import planModel from '../../databases/mongo/db/planModel';
 
 export class PlanReadRepo implements IPlanReadRepo {
-  async findPlans(selectedChild: PaymentType): Promise<PlanType[]> {
-    const result = await planModel
-      .find({ PlanType: selectedChild })
-      .sort({ createdAt: -1 })
-      .lean();
+  async findPlans(
+    selectedChild: PaymentType,
+    isUserListSubscription = false
+  ): Promise<PlanType[]> {
+    let query;
+    if (isUserListSubscription) {
+      query = { PlanType: selectedChild, isActive: true };
+    } else {
+      query = { PlanType: selectedChild };
+    }
+
+    const result = await planModel.find(query).sort({ createdAt: -1 }).lean();
 
     return result.map((p) => ({
       _id: String(p._id),

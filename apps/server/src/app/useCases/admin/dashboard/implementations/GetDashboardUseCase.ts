@@ -1,4 +1,4 @@
-import { ResponseDTO } from '../../../../../domain/dtos/return/ResponseDTO';
+import { ResponseDTO } from '../../../../../domain/entity/return/ResponseDTO';
 import { IConversationReadRepo } from '../../../../repositories/conversation/IConversationReadRepo';
 import { IMessageReadRepo } from '../../../../repositories/message/IMessageReadRepo';
 import { IPaymentReadRepo } from '../../../../repositories/payment/IPaymentReadRepo';
@@ -40,11 +40,11 @@ export class GetDashboardUseCase implements IGetDashboardUseCase {
           revenueState,
         },
       };
-    } catch (err: any) {
-      console.log('Error in GetDashboardUseCase: ', err.message);
+    } catch (err) {
+      console.log('Error in GetDashboardUseCase: ', err);
       return {
         success: false,
-        data: { message: err.message },
+        data: { message: (err as Error).message as string },
       };
     }
   }

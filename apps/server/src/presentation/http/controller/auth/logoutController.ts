@@ -1,6 +1,6 @@
 import { IController } from '../../../../app/providers/controller/IController';
 import { ILogoutUseCase } from '../../../../app/useCases/auth/interfaces/ILogoutUseCase';
-import { CustomPayloadType } from '../../../../domain/dtos/auth/authTypes';
+import { CustomPayloadType } from '../../../../domain/entity/auth/authTypes';
 import { IHttpErrors } from '../../helpers/IHttpErrors';
 import { IHttpRequest } from '../../helpers/IHttpRequest';
 import { IHttpResponse } from '../../helpers/IHttpResponse';

@@ -1,6 +1,6 @@
 import { IOtpService } from '../../../app/providers/auth/IOtpService';
 import { IOtpManagementRepo } from '../../../app/repositories/redis/IOtpManagementRepo';
-import { ResponseDTO } from '../../../domain/dtos/return/ResponseDTO';
+import { ResponseDTO } from '../../../domain/entity/return/ResponseDTO';
 import { AuthMessages } from '../../../domain/enums/auth/AuthMessages';
 
 export class OtpService implements IOtpService {
@@ -23,10 +23,10 @@ export class OtpService implements IOtpService {
           success: true,
         };
       }
-    } catch (err: any) {
+    } catch (err) {
       return {
         success: false,
-        data: { message: err.message },
+        data: { message: (err as Error).message },
       };
     }
   }

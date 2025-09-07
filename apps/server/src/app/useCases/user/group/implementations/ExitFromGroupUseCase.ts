@@ -1,4 +1,4 @@
-import { ResponseDTO } from '../../../../../domain/dtos/return/ResponseDTO';
+import { ResponseDTO } from '../../../../../domain/entity/return/ResponseDTO';
 import { iReceiverService } from '../../../../providers/common/iReceiverService';
 import { IConversationWriteRepo } from '../../../../repositories/conversation/IConversationWriteRepo';
 import { IEventQueueService } from '../../../../providers/socket/IEventQueueService';
@@ -17,7 +17,7 @@ export class ExitFromGroupUseCase implements IExitFromGroupUseCase {
 
   async execute(conversationId: string, userId: string): Promise<ResponseDTO> {
     try {
-      let randomNewAdmin: string = '';
+      let randomNewAdmin = '';
       const adminIds = await this.conReadRepo.findGroupAdminIds(conversationId);
       const isAdmin = adminIds.includes(userId);
 
@@ -60,11 +60,11 @@ export class ExitFromGroupUseCase implements IExitFromGroupUseCase {
       return {
         success: true,
       };
-    } catch (err: any) {
-      console.log('Error in ExitFromGroupUseCase: ', err.message);
+    } catch (err) {
+      console.log('Error in ExitFromGroupUseCase: ', err);
       return {
         success: false,
-        data: { message: err.message },
+        data: { message: (err as Error).message },
       };
     }
   }

@@ -1,4 +1,4 @@
-import { ResponseDTO } from '../../../../../domain/dtos/return/ResponseDTO';
+import { ResponseDTO } from '../../../../../domain/entity/return/ResponseDTO';
 import { IEventQueueService } from '../../../../providers/socket/IEventQueueService';
 import { ICallWriteRepo } from '../../../../repositories/call/ICallWriteRepo';
 import { ICallRejectUseCase } from '../interfaces/ICallRejectUseCase';
@@ -26,11 +26,11 @@ export class CallRejectUseCase implements ICallRejectUseCase {
       return {
         success: true,
       };
-    } catch (err: any) {
-      console.log('Error in CallRejectUseCase: ', err.message);
+    } catch (err) {
+      console.log('Error in CallRejectUseCase: ', err);
       return {
         success: false,
-        data: { message: err.message },
+        data: { message: (err as Error).message },
       };
     }
   }

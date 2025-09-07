@@ -12,7 +12,7 @@ const CallPage = () => {
   return (
     <div className="w-full h-screen bg-gray-900 text-white flex items-center justify-center">
       <CallPanel
-        roomId={roomID!}
+        roomId={roomID}
         currentUserId={userDetails.id}
         name={userDetails.name}
         userAvatar={userDetails.avatar || ""}

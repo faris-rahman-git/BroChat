@@ -1,6 +1,7 @@
 import { IEventQueueService } from '../../../providers/socket/IEventQueueService';
 import { ICallRoomRepo } from '../../../repositories/redis/ICallRoomRepo';
 import { IWebCallUserUseCase } from '../interfaces/IWebCallUserUseCase';
+import Peer from 'simple-peer';
 
 export class WebCallUserUseCase implements IWebCallUserUseCase {
   constructor(
@@ -11,7 +12,7 @@ export class WebCallUserUseCase implements IWebCallUserUseCase {
   async execute(
     userToCall: string,
     from: string,
-    signal: any
+    signal: Peer.SignalData
   ): Promise<boolean> {
     try {
 
@@ -23,8 +24,8 @@ export class WebCallUserUseCase implements IWebCallUserUseCase {
         data: { signal, from, info: fromUser },
       });
       return true;
-    } catch (err: any) {
-      console.log('Error in WebCallUserUseCase: ', err.message);
+    } catch (err) {
+      console.log('Error in WebCallUserUseCase: ', err);
       return false;
     }
   }

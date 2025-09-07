@@ -6,9 +6,8 @@ import { PersistGate } from 'redux-persist/integration/react';
 
 import { Buffer } from 'buffer';
 import process from 'process';
-
-(window as any).Buffer = Buffer;
-(window as any).process = process;
+window.Buffer = Buffer;
+window.process = process;
 
 const queryClient = new QueryClient();
 import './index.css';

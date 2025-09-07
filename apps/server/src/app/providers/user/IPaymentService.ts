@@ -1,4 +1,4 @@
-import { CreateOrderType, verifyPaymentType } from '../../../domain/dtos/user/PaymentTypes';
+import { CreateOrderType, verifyPaymentType } from '../../../domain/entity/user/PaymentTypes';
 
 export interface IPaymentService {
   createOrder(amount: number): Promise<CreateOrderType>;

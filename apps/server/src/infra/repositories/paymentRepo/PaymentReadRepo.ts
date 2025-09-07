@@ -9,6 +9,7 @@ import {
   StatsReturn,
 } from '@bro/shared';
 import { PipelineStage } from 'mongoose';
+import { IPaymentDocumentPopulated } from '../../types/paymentDocument';
 
 export class PaymentReadRepo implements IPaymentReadRepo {
   async getAllTransactions(
@@ -55,16 +56,24 @@ export class PaymentReadRepo implements IPaymentReadRepo {
     totalCount: number;
     totalAmount: number;
   }> {
-    const transactions = await paymentModel
-      .find({
-        feature: 'exclusive_user_customer',
-        'exclusiveDetails.exclusiveUserId': userId,
-      })
+    const transactions = (await paymentModel
+      .find(
+        {
+          feature: 'exclusive_user_customer',
+          'exclusiveDetails.exclusiveUserId': userId,
+        },
+        {
+          userId: 1,
+          createdAt: 1,
+          exclusiveDetails: 1,
+        }
+      )
       .populate('userId', '_id name avatar username')
       .sort({ createdAt: -1 })
-      .lean();
+      .lean()) as unknown as IPaymentDocumentPopulated[];
+
     const data: findAllExclusiveUserCustomersTransactionsType[] =
-      transactions.map((transaction: any) => ({
+      transactions.map((transaction) => ({
         userDetails: {
           _id: String(transaction.userId?._id),
           name: transaction.userId?.name,
@@ -73,7 +82,8 @@ export class PaymentReadRepo implements IPaymentReadRepo {
         },
         createdAt: transaction.createdAt,
         amount: transaction.exclusiveDetails?.userShare,
-      }));
+      })) as findAllExclusiveUserCustomersTransactionsType[];
+
     const totalCount = data.length;
 
     const totalAmount = data.reduce((sum, t) => sum + (t.amount || 0), 0);
@@ -432,24 +442,24 @@ export class PaymentReadRepo implements IPaymentReadRepo {
 
     // Convert results to maps
     const dayMap = new Map<number, number>(); // keyed by truncated hour (0,4,8,...)
-    (dayAgg || []).forEach((r: any) => {
+    (dayAgg || []).forEach((r) => {
       const d = r._id instanceof Date ? r._id : new Date(r._id);
       const hour = d.getUTCHours();
       dayMap.set(hour, Math.round(r.total ?? 0));
     });
 
     const weekMap = new Map<number, number>(); // 1..7
-    (weekAgg || []).forEach((r: any) =>
+    (weekAgg || []).forEach((r) =>
       weekMap.set(Number(r._id), Math.round(r.total ?? 0))
     );
 
     const monthMap = new Map<number, number>(); // week indexes 1..N
-    (monthAgg || []).forEach((r: any) =>
+    (monthAgg || []).forEach((r) =>
       monthMap.set(Number(r._id), Math.round(r.total ?? 0))
     );
 
     const yearMap = new Map<number, number>(); // 1..4
-    (yearAgg || []).forEach((r: any) =>
+    (yearAgg || []).forEach((r) =>
       yearMap.set(Number(r._id), Math.round(r.total ?? 0))
     );
 

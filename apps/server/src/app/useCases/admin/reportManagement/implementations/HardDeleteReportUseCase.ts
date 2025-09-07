@@ -1,4 +1,4 @@
-import { ResponseDTO } from '../../../../../domain/dtos/return/ResponseDTO';
+import { ResponseDTO } from '../../../../../domain/entity/return/ResponseDTO';
 import { IReportDeleteRepo } from '../../../../repositories/report/IReportDeleteRepo';
 import { IHardDeleteReportUseCase } from '../interfaces/IHardDeleteReportUseCase';
 
@@ -13,11 +13,11 @@ export class HardDeleteReportUseCase implements IHardDeleteReportUseCase {
         success: true,
         data: { reportId },
       };
-    } catch (err: any) {
-      console.log('Error in hardDeleteReportUseCase: ', err.message);
+    } catch (err) {
+      console.log('Error in hardDeleteReportUseCase: ', err);
       return {
         success: false,
-        data: { message: err.message },
+        data: { message: (err as Error).message },
       };
     }
   }

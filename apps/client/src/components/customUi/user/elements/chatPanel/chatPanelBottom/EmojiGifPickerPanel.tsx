@@ -2,6 +2,7 @@ import React from 'react';
 import EmojiPicker from 'emoji-picker-react';
 import { Grid } from '@giphy/react-components';
 import { Input } from '@client/components/ui/input';
+import { GifsResult } from '@giphy/js-fetch-api';
 
 interface EmojiGifPickerPanelProps {
   pickerRef: React.RefObject<HTMLDivElement | null>;
@@ -11,7 +12,7 @@ interface EmojiGifPickerPanelProps {
   onGifSearchChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   searchTerm: string;
   searchGifInput: string;
-  fetchGifs: (offset: number) => Promise<any>;
+  fetchGifs: (offset: number) => Promise<GifsResult>;
   onGifSend: (gifUrl: string) => void;
   disabled: boolean;
 }

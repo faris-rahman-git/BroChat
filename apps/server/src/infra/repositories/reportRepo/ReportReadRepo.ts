@@ -66,24 +66,22 @@ export class ReportReadRepo implements IReportReadRepo {
     const total = countResult[0]?.total || 0;
 
     // Format to match ReportResponse[]
-    const formattedReports: ReportSubResponse[] = reports.map(
-      (report: any) => ({
-        _id: report._id.toString(),
-        reporterId: {
-          _id: report.reporterId._id.toString(),
-          username: report.reporterId.username,
-        },
-        reportedUserId: {
-          _id: report.reportedUserId._id.toString(),
-          username: report.reportedUserId.username,
-          isBlocked: report.reportedUserId.isBlocked,
-          isDeleted: report.reportedUserId.isDeleted,
-        },
-        conversationId: report.conversationId?.toString() || '',
-        reason: report.reason,
-        createdAt: report.createdAt,
-      })
-    );
+    const formattedReports: ReportSubResponse[] = reports.map((report) => ({
+      _id: report._id.toString(),
+      reporterId: {
+        _id: report.reporterId._id.toString(),
+        username: report.reporterId.username,
+      },
+      reportedUserId: {
+        _id: report.reportedUserId._id.toString(),
+        username: report.reportedUserId.username,
+        isBlocked: report.reportedUserId.isBlocked,
+        isDeleted: report.reportedUserId.isDeleted,
+      },
+      conversationId: report.conversationId?.toString() || '',
+      reason: report.reason,
+      createdAt: report.createdAt,
+    }));
 
     return {
       data: formattedReports,
@@ -198,27 +196,25 @@ export class ReportReadRepo implements IReportReadRepo {
 
     const total = countResult[0]?.total || 0;
 
-    const formattedReports: ReportSubResponse[] = reports.map(
-      (report: any) => ({
-        _id: report._id.toString(),
-        reporterId: {
-          _id: report.reporterId._id.toString(),
-          username: report.reporterId.username,
-        },
-        reportedUserId: {
-          _id: report.reportedUserId._id.toString(),
-          username: report.reportedUserId.username,
-          isBlocked: report.reportedUserId.isBlocked,
-          isDeleted: report.reportedUserId.isDeleted,
-        },
-        conversationId: report.conversationId?.toString() || '',
-        reason: report.reason,
-        takenAction: report.takenAction,
-        note: report.note,
-        actionTakeAt: report.actionTakeAt,
-        createdAt: report.createdAt,
-      })
-    );
+    const formattedReports: ReportSubResponse[] = reports.map((report) => ({
+      _id: report._id.toString(),
+      reporterId: {
+        _id: report.reporterId._id.toString(),
+        username: report.reporterId.username,
+      },
+      reportedUserId: {
+        _id: report.reportedUserId._id.toString(),
+        username: report.reportedUserId.username,
+        isBlocked: report.reportedUserId.isBlocked,
+        isDeleted: report.reportedUserId.isDeleted,
+      },
+      conversationId: report.conversationId?.toString() || '',
+      reason: report.reason,
+      takenAction: report.takenAction,
+      note: report.note,
+      actionTakeAt: report.actionTakeAt,
+      createdAt: report.createdAt,
+    }));
 
     return {
       data: formattedReports,
@@ -334,27 +330,25 @@ export class ReportReadRepo implements IReportReadRepo {
 
     const total = countResult[0]?.total || 0;
 
-    const formattedReports: ReportSubResponse[] = reports.map(
-      (report: any) => ({
-        _id: report._id.toString(),
-        reporterId: {
-          _id: report.reporterId._id.toString(),
-          username: report.reporterId.username,
-        },
-        reportedUserId: {
-          _id: report.reportedUserId._id.toString(),
-          username: report.reportedUserId.username,
-          isBlocked: report.reportedUserId.isBlocked,
-          isDeleted: report.reportedUserId.isDeleted,
-        },
-        conversationId: report.conversationId?.toString() || '',
-        reason: report.reason,
-        takenAction: report.takenAction,
-        note: report.note,
-        actionTakeAt: report.actionTakeAt,
-        createdAt: report.createdAt,
-      })
-    );
+    const formattedReports: ReportSubResponse[] = reports.map((report) => ({
+      _id: report._id.toString(),
+      reporterId: {
+        _id: report.reporterId._id.toString(),
+        username: report.reporterId.username,
+      },
+      reportedUserId: {
+        _id: report.reportedUserId._id.toString(),
+        username: report.reportedUserId.username,
+        isBlocked: report.reportedUserId.isBlocked,
+        isDeleted: report.reportedUserId.isDeleted,
+      },
+      conversationId: report.conversationId?.toString() || '',
+      reason: report.reason,
+      takenAction: report.takenAction,
+      note: report.note,
+      actionTakeAt: report.actionTakeAt,
+      createdAt: report.createdAt,
+    }));
 
     return {
       data: formattedReports,

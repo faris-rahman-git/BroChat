@@ -25,9 +25,9 @@ export class MediaService implements IMediaService {
       ContentType: fileType,
     });
 
-    const uploadUrl = await getSignedUrl(this.s3, command, { expiresIn: 60 });
+    const signedUrl = await getSignedUrl(this.s3, command, { expiresIn: 60 });
 
-    return uploadUrl;
+    return signedUrl;
   }
 
   async mediaRemove(imageUrl: string): Promise<void> {

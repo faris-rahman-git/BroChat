@@ -5,7 +5,7 @@ import {
   GroupChatType,
   StatsReturn,
 } from '@bro/shared';
-import { usersList } from '../../../domain/dtos/user/ConversationRepoTypes';
+import { usersList } from '../../../domain/entity/user/ConversationRepoTypes';
 
 export interface IConversationReadRepo {
   findDMs(userId: string): Promise<usersList[]>;

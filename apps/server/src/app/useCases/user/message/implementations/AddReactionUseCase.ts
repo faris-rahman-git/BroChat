@@ -1,4 +1,4 @@
-import { ResponseDTO } from '../../../../../domain/dtos/return/ResponseDTO';
+import { ResponseDTO } from '../../../../../domain/entity/return/ResponseDTO';
 import { iReceiverService } from '../../../../providers/common/iReceiverService';
 import { IEventQueueService } from '../../../../providers/socket/IEventQueueService';
 import { IMessageWriteRepo } from '../../../../repositories/message/IMessageWriteRepo';
@@ -55,11 +55,11 @@ export class AddReactionUseCase implements IAddReactionUseCase {
           ...payload,
         },
       };
-    } catch (err: any) {
-      console.log('Error in AddReactionUseCase: ', err.message);
+    } catch (err) {
+      console.log('Error in AddReactionUseCase: ', err);
       return {
         success: false,
-        data: { message: err.message },
+        data: { message: (err as Error).message },
       };
     }
   }

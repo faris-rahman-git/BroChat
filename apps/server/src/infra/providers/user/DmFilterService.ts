@@ -1,7 +1,7 @@
 import { IDmFilterService } from '../../../app/providers/user/IDmFilterService';
-import { usersList } from '../../../domain/dtos/user/ConversationRepoTypes';
+import { usersList } from '../../../domain/entity/user/ConversationRepoTypes';
 import { SearchResultType } from '@bro/shared';
-import { SearchRawType } from '../../../domain/dtos/user/UserRepoTypes';
+import { SearchRawType } from '../../../domain/entity/user/UserRepoTypes';
 import { IConversationReadRepo } from '../../../app/repositories/conversation/IConversationReadRepo';
 import { IUserManagementRepo } from '../../../app/repositories/redis/IUserManagementRepo';
 

@@ -16,7 +16,7 @@ export function getOtherUserCallDurationFormatted(call: callListType): string {
 
   // I’m the caller → get the one receiver who’s not me
   const nonCaller = call.receivers.find(
-    (r: any) => r.userId._id !== call.callerId._id
+    (r: { userId: { _id: string } }) => r.userId._id !== call.callerId._id
   );
   durationMs = nonCaller ? Number(nonCaller.duration) || 0 : 0;
 

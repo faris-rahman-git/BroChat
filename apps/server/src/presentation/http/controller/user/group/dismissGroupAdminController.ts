@@ -1,5 +1,5 @@
 import { IController } from '../../../../../app/providers/controller/IController';
-import { ResponseDTO } from '../../../../../domain/dtos/return/ResponseDTO';
+import { ResponseDTO } from '../../../../../domain/entity/return/ResponseDTO';
 import { IHttpErrors } from '../../../helpers/IHttpErrors';
 import { HttpErrors } from '../../../helpers/implementations/HttpErrors';
 import { IHttpRequest } from '../../../helpers/IHttpRequest';
@@ -8,7 +8,7 @@ import { HttpResponse } from '../../../helpers/implementations/HttpResponse';
 import { IHttpSuccess } from '../../../helpers/IHttpSuccess';
 import { HttpSuccess } from '../../../helpers/implementations/HttpSuccess';
 
-import { CustomPayloadType } from '../../../../../domain/dtos/auth/authTypes';
+import { CustomPayloadType } from '../../../../../domain/entity/auth/authTypes';
 import { IDismissGroupAdminUseCase } from '../../../../../app/useCases/user/group/interfaces/IDismissGroupAdminUseCase';
 
 export class dismissGroupAdminController implements IController {

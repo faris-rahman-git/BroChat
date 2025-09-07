@@ -6,7 +6,7 @@ import { HttpErrors } from '../../helpers/implementations/HttpErrors';
 import { HttpResponse } from '../../helpers/implementations/HttpResponse';
 import { HttpSuccess } from '../../helpers/implementations/HttpSuccess';
 import {  forgotPasswordSchema } from '@bro/shared';
-import { ResponseDTO } from '../../../../domain/dtos/return/ResponseDTO';
+import { ResponseDTO } from '../../../../domain/entity/return/ResponseDTO';
 import { IForgotPasswordUseCase } from '../../../../app/useCases/auth/interfaces/IForgotPasswordUseCase';
 import { IController } from '../../../../app/providers/controller/IController';
 

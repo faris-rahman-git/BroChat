@@ -13,7 +13,6 @@ const SubscriptionPlansModal = ({
   onClose,
   setShowThankYouModal,
 }: SubscriptionPlansModalProps) => {
-  
   const { handleSubscribe, subscriptionPlan } = useSubscriptionPlansModalHook(
     open,
     onClose,
@@ -24,11 +23,11 @@ const SubscriptionPlansModal = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center px-4"
+      className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4 "
       onClick={onClose}
     >
       <div
-        className="relative bg-white rounded-2xl shadow-xl max-w-5xl mx-auto w-[800px] p-6 sm:p-10"
+        className="relative bg-white rounded-2xl overflow-scroll custom-scrollbar-hidden max-h-[96%] shadow-xl max-w-5xl mx-auto w-[800px] p-6 sm:p-10"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close Button */}
@@ -51,7 +50,10 @@ const SubscriptionPlansModal = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/*  Card */}
           {subscriptionPlan.map((plan) => (
-            <div key={plan._id} className="border rounded-xl p-6 shadow hover:shadow-lg transition-all flex flex-col justify-between bg-gray-50">
+            <div
+              key={plan._id}
+              className="border rounded-xl p-6 shadow hover:shadow-lg transition-all flex flex-col justify-between bg-gray-50"
+            >
               <div>
                 <h3 className="text-lg font-bold mb-3 text-center">
                   {plan.name}

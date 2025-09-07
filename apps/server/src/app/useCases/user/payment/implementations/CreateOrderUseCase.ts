@@ -1,4 +1,4 @@
-import { ResponseDTO } from '../../../../../domain/dtos/return/ResponseDTO';
+import { ResponseDTO } from '../../../../../domain/entity/return/ResponseDTO';
 import { IPaymentService } from '../../../../providers/user/IPaymentService';
 import { ICreateOrderUseCase } from '../interfaces/ICreateOrderUseCase';
 
@@ -13,11 +13,11 @@ export class CreateOrderUseCase implements ICreateOrderUseCase {
         success: true,
         data: { order },
       };
-    } catch (err: any) {
-      console.log('Error in CreateOrderUseCase: ', err.message);
+    } catch (err) {
+      console.log('Error in CreateOrderUseCase: ', err);
       return {
         success: false,
-        data: { message: err.message },
+        data: { message: (err as Error).message },
       };
     }
   }

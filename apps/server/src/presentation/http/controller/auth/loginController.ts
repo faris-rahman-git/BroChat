@@ -5,7 +5,7 @@ import { IHttpSuccess } from '../../helpers/IHttpSuccess';
 import { HttpErrors } from '../../helpers/implementations/HttpErrors';
 import { HttpResponse } from '../../helpers/implementations/HttpResponse';
 import { HttpSuccess } from '../../helpers/implementations/HttpSuccess';
-import { ResponseDTO } from '../../../../domain/dtos/return/ResponseDTO';
+import { ResponseDTO } from '../../../../domain/entity/return/ResponseDTO';
 import { loginSchema, LoginSchemaType } from '@bro/shared';
 import { ILoginUseCase } from '../../../../app/useCases/auth/interfaces/ILoginUseCase';
 import { IController } from '../../../../app/providers/controller/IController';

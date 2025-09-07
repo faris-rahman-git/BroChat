@@ -157,14 +157,14 @@ export const useCallPanelHook = (
     try {
       // Set speaker for user's own video element
       if (userVideoRef.current && 'setSinkId' in userVideoRef.current) {
-        await (userVideoRef.current as any).setSinkId(deviceId);
+        await userVideoRef.current.setSinkId(deviceId);
       }
 
       // Set speaker for all peer video elements
       peersRef.current.forEach(({ peer }) => {
-        const videoElement = (peer as any).videoElement;
+        const videoElement = peer.videoElement;
         if (videoElement && 'setSinkId' in videoElement) {
-          (videoElement as any).setSinkId(deviceId);
+          videoElement.setSinkId(deviceId);
         }
       });
 
@@ -257,11 +257,11 @@ export const useCallPanelHook = (
         if (findPeer(userId)) return; // already connected
 
         // only the *new joiner* calls createPeer
-        const peer = createPeer(userId, currentUserId, userStream.current!);
+        const peer = createPeer(userId, currentUserId, userStream.current!) as CustomPeerInstance;
 
-        (peer as any).userName = info.userName;
-        (peer as any).userAvatar = info.userAvatar;
-        (peer as any).peerID = userId;
+        peer.userName = info.userName;
+        peer.userAvatar = info.userAvatar;
+        peer.peerID = userId;
 
         peersRef.current.push({
           peerID: userId,
@@ -288,7 +288,7 @@ export const useCallPanelHook = (
       from,
       info,
     }: {
-      signal: any;
+      signal: Peer.SignalData;
       from: string;
       info: callInfoType;
     }) => {
@@ -300,11 +300,11 @@ export const useCallPanelHook = (
         return;
       }
 
-      const peer = addPeer(signal, from, userStream.current!);
+      const peer = addPeer(signal, from, userStream.current!) as CustomPeerInstance;
 
-      (peer as any).userName = info.userName;
-      (peer as any).userAvatar = info.userAvatar;
-      (peer as any).peerID = from;
+      peer.userName = info.userName;
+      peer.userAvatar = info.userAvatar;
+      peer.peerID = from;
 
       peersRef.current.push({
         peerID: from,
@@ -327,7 +327,7 @@ export const useCallPanelHook = (
       signal,
       answerId,
     }: {
-      signal: any;
+      signal: Peer.SignalData;
       answerId: string;
     }) => {
       const peerInfo = findPeer(answerId);
@@ -342,7 +342,7 @@ export const useCallPanelHook = (
 
       peerInfo.peer.destroy();
       peersRef.current = peersRef.current.filter((p) => p.peerID !== userId);
-      setPeers((prev) => prev.filter((p: any) => p.peerID !== userId));
+      setPeers((prev) => prev.filter((p) => p.peerID !== userId));
     };
 
     const handleToggleCamera = ({
@@ -453,7 +453,7 @@ export const useCallPanelHook = (
   }
 
   function addPeer(
-    incomingSignal: any,
+    incomingSignal: Peer.SignalData,
     callerId: string,
     stream: MediaStream
   ): PeerInstance {
@@ -496,7 +496,7 @@ export const useCallPanelHook = (
     navigate('/');
   };
 
-  const toggleCameraAudio = (e: any) => {
+  const toggleCameraAudio = (e: React.MouseEvent) => {
     const socket = getSocket();
     const target = e.currentTarget.getAttribute('data-switch') as
       | 'video'
@@ -512,7 +512,6 @@ export const useCallPanelHook = (
     toggleCameraAudio,
     goToBack,
     userVideoRef,
-
     microphones,
     cameras,
     speakers,

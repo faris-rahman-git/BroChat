@@ -1,4 +1,4 @@
-import { ResponseDTO } from '../../../../../domain/dtos/return/ResponseDTO';
+import { ResponseDTO } from '../../../../../domain/entity/return/ResponseDTO';
 import { IReportReadRepo } from '../../../../repositories/report/IReportReadRepo';
 import { IGetResolvedRepotsUseCase } from '../interfaces/IGetResolvedRepotsUseCase';
 
@@ -19,11 +19,11 @@ export class GetResolvedRepotsUseCase implements IGetResolvedRepotsUseCase {
             totalPages: reportList.totalPages,
           },
       };
-    } catch (err: any) {
-      console.log('Error in GetResolvedRepotsUseCase: ', err.message);
+    } catch (err) {
+      console.log('Error in GetResolvedRepotsUseCase: ', err);
       return {
         success: false,
-        data: { message: err.message },
+        data: { message: (err as Error).message },
       };
     }
   }

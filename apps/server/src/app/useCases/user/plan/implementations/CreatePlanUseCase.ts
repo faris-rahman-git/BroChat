@@ -1,4 +1,4 @@
-import { ResponseDTO } from '../../../../../domain/dtos/return/ResponseDTO';
+import { ResponseDTO } from '../../../../../domain/entity/return/ResponseDTO';
 import { IPlanReadRepo } from '../../../../repositories/plan/IPlanReadRepo';
 import { IPlanWriteRepo } from '../../../../repositories/plan/IPlanWriteRepo';
 import { ICreatePlanUseCase } from '../interfaces/ICreatePlanUseCase';
@@ -21,11 +21,11 @@ export class CreatePlanUseCase implements ICreatePlanUseCase {
         success: true,
         data: { planList },
       };
-    } catch (err: any) {
-      console.log('Error in CreatePlanUseCase: ', err.message);
+    } catch (err) {
+      console.log('Error in CreatePlanUseCase: ', err);
       return {
         success: false,
-        data: { message: err.message },
+        data: { message: (err as Error).message },
       };
     }
   }

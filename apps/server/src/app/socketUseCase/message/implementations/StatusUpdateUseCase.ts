@@ -30,7 +30,7 @@ export class StatusUpdateUseCase implements IStatusUpdateUseCase {
       }
 
       return true;
-    } catch (err: any) {
+    } catch (err) {
       console.log('Error in StatusUpdateUseCase: ', err.message);
       return false;
     }

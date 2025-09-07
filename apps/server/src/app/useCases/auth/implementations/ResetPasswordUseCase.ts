@@ -1,4 +1,4 @@
-import { ResponseDTO } from '../../../../domain/dtos/return/ResponseDTO';
+import { ResponseDTO } from '../../../../domain/entity/return/ResponseDTO';
 import { IOtpService } from '../../../providers/auth/IOtpService';
 import { IPasswordService } from '../../../providers/auth/IPasswordService';
 import { IUserWriteRepo } from '../../../repositories/user/IUserWriteRepo';
@@ -26,9 +26,9 @@ export class ResetPasswordUseCase implements IResetPasswordUseCase {
       await this.userWriteRepo.updateUserPassword(user.email, hashedPassword);
 
       return { success: true };
-    } catch (err: any) {
-      console.log('Error in ResetPasswordUseCase: ', err.message);
-      return { data: { message: err.message }, success: false };
+    } catch (err) {
+      console.log('Error in ResetPasswordUseCase: ', err);
+      return { data: { message: (err as Error).message }, success: false };
     }
   }
 }

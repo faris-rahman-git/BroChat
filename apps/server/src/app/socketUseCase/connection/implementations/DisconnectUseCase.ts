@@ -20,8 +20,8 @@ export class DisconnectUseCase implements IDisconnectUseCase {
       }
 
       return true;
-    } catch (err: any) {
-      console.log('Error in DisconnectUseCase: ', err.message);
+    } catch (err) {
+      console.log('Error in DisconnectUseCase: ', err);
       return false;
     }
   }

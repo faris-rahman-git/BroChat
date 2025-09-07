@@ -1,4 +1,4 @@
-import { ResponseDTO } from '../../../../domain/dtos/return/ResponseDTO';
+import { ResponseDTO } from '../../../../domain/entity/return/ResponseDTO';
 import { ILoginUseCase } from '../interfaces/ILoginUseCase';
 import { LoginSchemaType } from '@bro/shared';
 import { IUserReadRepo } from '../../../repositories/user/IUserReadRepo';
@@ -66,11 +66,11 @@ export class LoginUseCase implements ILoginUseCase {
         data: { user: userDetails },
         cookies: { accessToken, refreshToken },
       };
-    } catch (err: any) {
-      console.log('Error in LoginUseCase: ', err.message);
+    } catch (err) {
+      console.log('Error in LoginUseCase: ', err);
       return {
         success: false,
-        data: { message: err.message },
+        data: { message: (err as Error).message },
       };
     }
   }

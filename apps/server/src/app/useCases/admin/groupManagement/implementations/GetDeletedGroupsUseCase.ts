@@ -1,4 +1,4 @@
-import { ResponseDTO } from '../../../../../domain/dtos/return/ResponseDTO';
+import { ResponseDTO } from '../../../../../domain/entity/return/ResponseDTO';
 import { IConversationReadRepo } from '../../../../repositories/conversation/IConversationReadRepo';
 import { GetDeletedGroupsParams } from '@bro/shared';
 import { IGetDeletedGroupsUseCase } from '../interfaces/IGetDeletedGroupsUseCase';
@@ -17,11 +17,11 @@ export class GetDeletedGroupsUseCase implements IGetDeletedGroupsUseCase {
         success: true,
         data: { groupList: groupList.data, totalPages: groupList.totalPages },
       };
-    } catch (err: any) {
-      console.log('Error in GetDeletedGroupsUseCase: ', err.message);
+    } catch (err) {
+      console.log('Error in GetDeletedGroupsUseCase: ', err);
       return {
         success: false,
-        data: { message: err.message },
+        data: { message: (err as Error).message },
       };
     }
   }

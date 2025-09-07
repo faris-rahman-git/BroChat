@@ -56,7 +56,7 @@ export class WebJoinRoomUseCase implements IWebJoinRoomUseCase {
       });
 
       return true;
-    } catch (err: any) {
+    } catch (err) {
       console.log('Error in WebJoinRoomUseCase: ', err);
       return false;
     }

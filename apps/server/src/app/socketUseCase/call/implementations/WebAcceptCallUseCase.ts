@@ -1,12 +1,13 @@
 import { IEventQueueService } from '../../../providers/socket/IEventQueueService';
 import { IWebAcceptCallUseCase } from '../interfaces/IWebAcceptCallUseCase';
+import Peer from 'simple-peer';
 
 export class WebAcceptCallUseCase implements IWebAcceptCallUseCase {
   constructor(
     private eventQueueService: IEventQueueService,
   ) {}
 
-  async execute(signal: any, to: string, answerId: string): Promise<boolean> {
+  async execute(signal: Peer.SignalData, to: string, answerId: string): Promise<boolean> {
     try {
 
       await this.eventQueueService.emitWithoutQueue({
@@ -16,8 +17,8 @@ export class WebAcceptCallUseCase implements IWebAcceptCallUseCase {
       });
 
       return true;
-    } catch (err: any) {
-      console.log('Error in WebAcceptCallUseCase: ', err.message);
+    } catch (err) {
+      console.log('Error in WebAcceptCallUseCase: ', err);
       return false;
     }
   }

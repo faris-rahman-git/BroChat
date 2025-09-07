@@ -1,5 +1,5 @@
 import { updateGroupInfoType } from '@bro/shared';
-import { CreateGroupType } from '../../../domain/dtos/user/ConversationRepoTypes';
+import { CreateGroupType } from '../../../domain/entity/user/ConversationRepoTypes';
 
 export interface IConversationWriteRepo {
   createNewConversation(userId: string, receiverId: string): Promise<string>;

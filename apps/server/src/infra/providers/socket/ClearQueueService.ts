@@ -8,7 +8,7 @@ export class ClearQueueService implements IClearQueueService {
     const length = await this.offlineQueueRepo.getQueueLength(userId);
     if (length === 0) return;
     for (let i = 0; i < length; i++) {
-      let rawItem = await this.offlineQueueRepo.removeFirstEvent(userId);
+      const rawItem = await this.offlineQueueRepo.removeFirstEvent(userId);
 
       if (!rawItem) break;
 

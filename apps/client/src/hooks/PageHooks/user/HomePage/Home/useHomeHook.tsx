@@ -67,7 +67,7 @@ import { toast } from 'react-toastify';
 import CallInviteToast from '../../../../../components/customUi/commonElemets/CallInviteToast';
 
 export const useHomeHook = () => {
-  const toastIds = useRef(new Map<any, any>());
+  const toastIds = useRef(new Map<string, number | string>());
 
   const dispatch = useAppDispatch();
   const navigate = useNavigate();

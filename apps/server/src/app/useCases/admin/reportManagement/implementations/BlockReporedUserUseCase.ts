@@ -1,4 +1,4 @@
-import { ResponseDTO } from '../../../../../domain/dtos/return/ResponseDTO';
+import { ResponseDTO } from '../../../../../domain/entity/return/ResponseDTO';
 import { AuthMessages } from '../../../../../domain/enums/auth/AuthMessages';
 import { IEventQueueService } from '../../../../providers/socket/IEventQueueService';
 import { IReportWriteRepo } from '../../../../repositories/report/IReportWriteRepo';
@@ -38,11 +38,11 @@ export class BlockReporedUserUseCase implements IBlockReporedUserUseCase {
         success: true,
         data: { reportId },
       };
-    } catch (err: any) {
-      console.log('Error in BlockReporedUserUseCase: ', err.message);
+    } catch (err) {
+      console.log('Error in BlockReporedUserUseCase: ', err);
       return {
         success: false,
-        data: { message: err.message },
+        data: { message: (err as Error).message },
       };
     }
   }

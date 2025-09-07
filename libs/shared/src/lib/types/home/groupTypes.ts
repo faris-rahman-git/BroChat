@@ -8,7 +8,7 @@ export type GroupChatListType = {
   createdBy: string;
   avatar?: string | null;
   isPaid?: boolean;
-  isBlocked: boolean;
+  isBlocked?: boolean;
   blockedAt?: Date | null;
 };
 

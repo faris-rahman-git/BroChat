@@ -28,7 +28,7 @@ export class WebToggleCameraAudioUseCase
       await this.callRoomRepo.saveUser(
         userId,
         user.userName,
-        user.avatar,
+        user.userAvatar,
         user.video,
         user.audio
       );
@@ -45,8 +45,8 @@ export class WebToggleCameraAudioUseCase
         )
       );
       return true;
-    } catch (err: any) {
-      console.log('Error in WebToggleCameraAudioUseCase: ', err.message);
+    } catch (err) {
+      console.log('Error in WebToggleCameraAudioUseCase: ', err);
       return false;
     }
   }

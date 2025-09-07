@@ -8,7 +8,7 @@ import { HttpResponse } from '../../helpers/implementations/HttpResponse';
 import { HttpSuccess } from '../../helpers/implementations/HttpSuccess';
 import { IRegisterUserUseCase } from '../../../../app/useCases/auth/interfaces/IRegisterUserUseCase';
 import { registerSchema } from '@bro/shared';
-import { ResponseDTO } from '../../../../domain/dtos/return/ResponseDTO';
+import { ResponseDTO } from '../../../../domain/entity/return/ResponseDTO';
 
 export class registerController implements IController {
   constructor(

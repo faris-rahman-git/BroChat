@@ -1,4 +1,4 @@
-import { ResponseDTO } from '../../../../domain/dtos/return/ResponseDTO';
+import { ResponseDTO } from '../../../../domain/entity/return/ResponseDTO';
 import { IRefreshUseCase } from '../interfaces/IRefreshUseCase';
 import { ITokenService } from '../../../providers/auth/ITokenService';
 import { AuthMessages } from '../../../../domain/enums/auth/AuthMessages';
@@ -30,9 +30,9 @@ export class RefreshUseCase implements IRefreshUseCase {
         success: true,
         cookies: { accessToken: newAccessToken, refreshToken: newRefreshToken },
       };
-    } catch (err: any) {
-      console.log('Error in RefreshUseCase: ', err.message);
-      return { data: { message: err.message }, success: false };
+    } catch (err) {
+      console.log('Error in RefreshUseCase: ', err);
+      return { data: { message: (err as Error).message }, success: false };
     }
   }
 }

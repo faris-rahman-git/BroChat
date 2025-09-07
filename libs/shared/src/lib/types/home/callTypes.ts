@@ -17,12 +17,12 @@ export type rejectCallApiType = {
   roomId: string;
 };
 
-type receiversType = {
+export type receiversType = {
   userId: userDetailstype;
   status: 'missed' | 'accepted' | 'rejected';
   joinedAt: Date;
   leftAt: Date;
-  duration: Number;
+  duration: number;
 };
 
 type userDetailstype = {
@@ -42,7 +42,7 @@ export type callListType = {
   initiatedAt: Date;
   startedAt: Date;
   endedAt: Date;
-  duration: Number;
+  duration: number;
 };
 
 export type callInfoType = {
