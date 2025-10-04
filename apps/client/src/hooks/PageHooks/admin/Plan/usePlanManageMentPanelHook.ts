@@ -79,12 +79,12 @@ export const usePlanManageMentPanelHook = (selectedChild: string) => {
       return;
     }
 
-    if (formData.name.trim().length > 20) {
-      setErrorMessage('Plan name must be less than 20 characters.');
+    if (formData.name.trim().length > 30) {
+      setErrorMessage('Plan name must be less than 30 characters.');
       return;
     }
 
-    if (formData.description.trim().length > 50) {
+    if (formData.description.trim().length > 200) {
       setErrorMessage('Plan description must be less than 50 characters.');
       return;
     }

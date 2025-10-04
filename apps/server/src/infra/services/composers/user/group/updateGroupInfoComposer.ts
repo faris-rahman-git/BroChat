@@ -20,14 +20,16 @@ import { TypingQueueRepo } from '../../../../repositories/redisRepo/TypingQueueR
 import { UserManagementRepo } from '../../../../repositories/redisRepo/UserManagementRepo';
 import { UserReadRepo } from '../../../../repositories/userRepo/UserReadRepo';
 import { CheckAuthorityService } from '../../../../providers/user/CheckAuthorityService';
+import { PaymentReadRepo } from '../../../../repositories/paymentRepo/PaymentReadRepo';
 
 export function updateGroupInfoComposer(): IController {
   const conWriteRepo: IConversationWriteRepo = new ConversationWriteRepo();
   const conReadRepo: IConversationReadRepo = new ConversationReadRepo();
   const checkAdminService: ICheckAuthorityService = new CheckAuthorityService(
-    conReadRepo
+    conReadRepo,
+    new PaymentReadRepo()
   );
-    const userReadRepo: IUserReadRepo = new UserReadRepo();
+  const userReadRepo: IUserReadRepo = new UserReadRepo();
   const userManagementRepo: IUserManagementRepo = new UserManagementRepo();
   const offlineQueueRepo: IOfflineQueueRepo = new OfflineQueueRepo();
   const typingQueueRepo: ITypingQueueRepo = new TypingQueueRepo();

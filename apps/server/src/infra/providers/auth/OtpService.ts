@@ -12,6 +12,12 @@ export class OtpService implements IOtpService {
 
   async validateOtp(email: string, otp: string): Promise<ResponseDTO> {
     try {
+      if (!otp) {
+        return {
+          success: false,
+          data: { message: AuthMessages.InvalidOtp },
+        };
+      }
       const storedOtp = await this.otpRepository.getOtp(email);
       if (storedOtp && storedOtp !== otp) {
         return {

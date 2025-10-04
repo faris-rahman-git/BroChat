@@ -1,23 +1,45 @@
-import { PlanType } from '@bro/shared';
+import { planSchema, PlanSchemaType, PlanType } from '@bro/shared';
 import { useEditExclusivePlan } from '@client/hooks/home/planHookes/api/useEditExclusivePlan';
-import { useEffect, useState } from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
 
 export const useEditExclusivePlanHook = (
   onClose: () => void,
   exclusivePlan: PlanType | null,
   setExclusivePlan: (plan: PlanType | null) => void
 ) => {
-  const [customPlan, setCustomPlan] = useState({
-    planName: '',
-    description: '',
-    price: '',
-    offerPrice: '',
+  const { mutate: editExclusivePlanMutate } = useEditExclusivePlan();
+
+  const handleSave = (data: PlanSchemaType) => {
+    editExclusivePlanMutate({
+      data,
+      exclusivePlanId: exclusivePlan?._id as string,
+    });
+
+    setExclusivePlan({
+      ...exclusivePlan,
+      name: data.planName,
+      description: data.description,
+      price: Number(data.price),
+      offerPrice: Number(data.offerPrice),
+    } as PlanType);
+
+    onClose();
+  };
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<PlanSchemaType>({
+    resolver: zodResolver(planSchema),
   });
-  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     if (exclusivePlan) {
-      setCustomPlan({
+      reset({
         planName: exclusivePlan.name,
         description: exclusivePlan.description,
         price: String(exclusivePlan.price),
@@ -26,43 +48,10 @@ export const useEditExclusivePlanHook = (
     }
   }, [exclusivePlan]);
 
-  const { mutate: editExclusivePlanMutate } = useEditExclusivePlan();
-
-  const handleSave = () => {
-    if (!customPlan.planName.trim() || !customPlan.description.trim()) {
-      setErrorMessage('Plan name and description are required.');
-      return;
-    }
-    if (!customPlan.price || Number(customPlan.price) <= 0) {
-      setErrorMessage('Please enter a valid price.');
-      return;
-    }
-    setErrorMessage('');
-
-    // Save updated plan
-    editExclusivePlanMutate({
-      _id: exclusivePlan?._id as string,
-      name: customPlan.planName,
-      description: customPlan.description,
-      price: Number(customPlan.price),
-      offerPrice: Number(customPlan.offerPrice),
-    });
-
-    setExclusivePlan({
-      ...exclusivePlan,
-      name: customPlan.planName,
-      description: customPlan.description,
-      price: Number(customPlan.price),
-      offerPrice: Number(customPlan.offerPrice),
-    } as PlanType);
-
-    onClose();
-  };
-
   return {
-    customPlan,
-    setCustomPlan,
-    errorMessage,
     handleSave,
+    errors,
+    register,
+    handleSubmit,
   };
 };

@@ -27,7 +27,6 @@ export class OtpAndPasswordUseCase implements IOtpAndPasswordUseCase {
           data: { message: AuthMessages.EmailAlreadyTaken },
         };
       }
-
       const otpRes = await this.otpService.validateOtp(user?.email, user?.otp);
       if (!otpRes.success) {
         return otpRes;

@@ -30,10 +30,12 @@ export class PlanWriteRepo implements IPlanWriteRepo {
   }
 
   async updateExclusiveCustomerPlan(
-    data: ExclusivePlanType & { _id: string }
+    exclusivePlanId: string,
+    data: ExclusivePlanType,
+    userId: string
   ): Promise<void> {
     await planModel.updateOne(
-      { _id: data._id },
+      { _id: exclusivePlanId, exclusiveUserId: userId },
       {
         $set: {
           name: data.name,

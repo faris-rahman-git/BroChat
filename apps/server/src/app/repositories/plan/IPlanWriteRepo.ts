@@ -12,5 +12,9 @@ export interface IPlanWriteRepo {
     userId: string
   ): Promise<void>;
 
-  updateExclusiveCustomerPlan(data: ExclusivePlanType & { _id: string }): Promise<void>;
+  updateExclusiveCustomerPlan(
+    exclusivePlanId: string,
+    data: ExclusivePlanType,
+    userId: string
+  ): Promise<void>;
 }

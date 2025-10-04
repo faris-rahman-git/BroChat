@@ -28,8 +28,12 @@ planRoute.post('/createplan', authExpress, async (request, response) => {
   await expressAdapter(request, response, createPlanComposer());
 });
 
-planRoute.put('/editExclusivePlan', authExpress, async (request, response) => {
-  await expressAdapter(request, response, editExclusivePlanComposer());
-});
+planRoute.put(
+  '/editExclusivePlan/:exclusivePlanId',
+  authExpress,
+  async (request, response) => {
+    await expressAdapter(request, response, editExclusivePlanComposer());
+  }
+);
 
 export default planRoute;

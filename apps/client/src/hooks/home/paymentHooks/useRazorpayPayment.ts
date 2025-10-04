@@ -7,7 +7,6 @@ import {
   setPaymentInProgress,
   setPaymentNotInProgress,
 } from '@client/redux/features/userSlices/homeSlices/paymentSlice/paymentWindowSlice';
-import { useEffect } from 'react';
 import { toast } from 'react-toastify';
 const PAYMENT_API = '/user/payment';
 
@@ -26,10 +25,6 @@ export function useRazorpayPayment() {
     (state: RootState) => state.paymentWindow.inProgress
   );
   const dispatch = useAppDispatch();
-
-  useEffect(() => {
-    console.log('useRazorpayPayment', isPaymentInProgress);
-  }, [isPaymentInProgress]);
 
   const startPayment = async ({
     amount,

@@ -17,12 +17,8 @@ function EditExclusivePlan({
   exclusivePlan: PlanType | null;
   setExclusivePlan: (plan: PlanType | null) => void;
 }) {
-  const {
-    customPlan,
-    setCustomPlan,
-    errorMessage,
-    handleSave,
-  } = useEditExclusivePlanHook(onClose, exclusivePlan, setExclusivePlan);
+  const { handleSave, errors, register, handleSubmit } =
+    useEditExclusivePlanHook(onClose, exclusivePlan, setExclusivePlan);
 
   if (!open) return null;
 
@@ -40,25 +36,16 @@ function EditExclusivePlan({
         </CardHeader>
 
         <CardContent className="space-y-4">
-          {errorMessage && (
-            <div className="text-red-600 text-sm mt-1 text-center">
-              {errorMessage}
-            </div>
-          )}
-
           <div className="space-y-2">
             <Label htmlFor="planName">Plan Name</Label>
             <Input
               id="planName"
               placeholder="Enter your plan name"
-              value={customPlan.planName}
-              onChange={(e) =>
-                setCustomPlan((prev) => ({
-                  ...prev,
-                  planName: e.target.value,
-                }))
-              }
+              {...register('planName')}
             />
+            <span className="text-[#FF0000] text-[12px] block capitalize">
+              {String(errors['planName']?.message ?? '\u00A0')}
+            </span>
           </div>
 
           <div className="space-y-2">
@@ -66,15 +53,12 @@ function EditExclusivePlan({
             <Textarea
               id="description"
               placeholder="Describe your plan features and benefits"
-              value={customPlan.description}
-              onChange={(e) =>
-                setCustomPlan((prev) => ({
-                  ...prev,
-                  description: e.target.value,
-                }))
-              }
+              {...register('description')}
               rows={3}
             />
+            <span className="text-[#FF0000] text-[12px] block capitalize">
+              {String(errors['description']?.message ?? '\u00A0')}
+            </span>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -84,14 +68,11 @@ function EditExclusivePlan({
                 id="price"
                 type="number"
                 placeholder="0.00"
-                value={customPlan.price}
-                onChange={(e) =>
-                  setCustomPlan((prev) => ({
-                    ...prev,
-                    price: e.target.value,
-                  }))
-                }
+                {...register('price')}
               />
+              <span className="text-[#FF0000] text-[12px] block capitalize">
+                {String(errors['price']?.message ?? '\u00A0')}
+              </span>
             </div>
 
             <div className="space-y-2">
@@ -100,14 +81,11 @@ function EditExclusivePlan({
                 id="offerPrice"
                 type="number"
                 placeholder="0.00"
-                value={customPlan.offerPrice}
-                onChange={(e) =>
-                  setCustomPlan((prev) => ({
-                    ...prev,
-                    offerPrice: e.target.value,
-                  }))
-                }
+                {...register('offerPrice')}
               />
+              <span className="text-[#FF0000] text-[12px] block capitalize">
+                {String(errors['offerPrice']?.message ?? '\u00A0')}
+              </span>
             </div>
           </div>
 
@@ -115,7 +93,7 @@ function EditExclusivePlan({
             <Button variant="outline" onClick={onClose}>
               Cancel
             </Button>
-            <Button onClick={handleSave}>Save Plan</Button>
+            <Button onClick={handleSubmit(handleSave)}>Save Plan</Button>
           </div>
         </CardContent>
       </Card>

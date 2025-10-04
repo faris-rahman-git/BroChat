@@ -22,13 +22,15 @@ import { EventQueueService } from '../../../../providers/socket/EventQueueServic
 import { SortGroupListService } from '../../../../providers/user/SortGroupListService';
 import { ISortGroupListService } from '../../../../../app/providers/user/ISortGroupListService';
 import { CheckAuthorityService } from '../../../../providers/user/CheckAuthorityService';
+import { PaymentReadRepo } from '../../../../repositories/paymentRepo/PaymentReadRepo';
 
 export function addGroupMembersComposer(): IController {
   const conWriteRepo: IConversationWriteRepo = new ConversationWriteRepo();
   const conReadRepo: IConversationReadRepo = new ConversationReadRepo();
   const userReadRepo: IUserReadRepo = new UserReadRepo();
   const checkAdminService: ICheckAuthorityService = new CheckAuthorityService(
-    conReadRepo
+    conReadRepo,
+    new PaymentReadRepo()
   );
   const userManagementRepo: IUserManagementRepo = new UserManagementRepo();
   const offlineQueueRepo: IOfflineQueueRepo = new OfflineQueueRepo();
@@ -40,7 +42,8 @@ export function addGroupMembersComposer(): IController {
     conReadRepo,
     userReadRepo
   );
-  const sortGroupListService: ISortGroupListService = new SortGroupListService();
+  const sortGroupListService: ISortGroupListService =
+    new SortGroupListService();
   const receiverService: iReceiverService = new ReceiverService(conReadRepo);
   const useCase: IAddGroupMembersUseCase = new AddGroupMembersUseCase(
     userReadRepo,

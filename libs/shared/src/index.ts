@@ -3,6 +3,7 @@ export * from './lib/schemas/auth/loginSchema.js';
 export * from './lib/schemas/auth/otpAndPasswordSchema.js';
 export * from './lib/schemas/auth/registerSchema.js';
 export * from './lib/schemas/home/searchSchema.js';
+export * from './lib/schemas/home/PlanSchema.js';
 
 // types
 export * from './lib/types/home/dmsTypes.js';

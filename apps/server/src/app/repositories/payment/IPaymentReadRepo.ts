@@ -27,5 +27,7 @@ export interface IPaymentReadRepo {
 
   findTotalRevenue(): Promise<{ totalRevenue: number; todayRevenue: number }>;
 
-  getRevenueStats(): Promise<StatsReturn>
+  getRevenueStats(): Promise<StatsReturn>;
+
+  findExclusivePayment(userId: string): Promise<string | undefined>;
 }

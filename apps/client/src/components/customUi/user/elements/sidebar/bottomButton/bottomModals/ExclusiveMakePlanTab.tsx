@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, useState } from 'react';
 import { Button } from '@client/components/ui/button';
 import { Input } from '@client/components/ui/input';
 import { Label } from '@client/components/ui/label';
@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader } from '@client/components/ui/card';
 import { PlanType } from '@bro/shared';
 import { UserReduxType } from '@client/types/ReduxTypes';
 import { useExclusiveMakePlanTabHook } from '@client/hooks/PageHooks/user/HomePage/HomeLayoutSideBar/BottomButtons/modal/useExclusiveMakePlanTabHook';
+import axios from 'axios';
 
 interface CustomPlanModalProps {
   open: boolean;
@@ -23,18 +24,29 @@ const ExclusiveMakePlanTab: FC<CustomPlanModalProps> = ({
   setExclusivePlanKid,
   setShowThankYouModal,
 }) => {
+  const [isProcessing, setIsProcessing] = useState(false);
+
   const {
-    errorMessage,
     exclusivePlan,
     handlePaymentAndSavePlan,
-    setCustomPlan,
-    customPlan,
+    register,
+    errors,
+    handleSubmit,
+    createPlanError,
   } = useExclusiveMakePlanTabHook(
     setExclusivePlanKid,
     setShowThankYouModal,
     onClose,
     userDetails
   );
+
+  const handlePaymentClick = handleSubmit(async (data) => {
+    if (isProcessing) return;
+
+    setIsProcessing(true);
+    await handlePaymentAndSavePlan(data, exclusivePlan?.offerPrice ?? 199);
+    setTimeout(() => setIsProcessing(false), 3000);
+  });
 
   if (!open) return <></>;
 
@@ -50,6 +62,14 @@ const ExclusiveMakePlanTab: FC<CustomPlanModalProps> = ({
           </p>
         </div>
 
+        {axios.isAxiosError(createPlanError) && (
+          <div className="mb-4">
+            <p className="text-sm text-red-500 text-center">
+              {createPlanError.response?.data?.message}
+            </p>
+          </div>
+        )}
+
         <Card className="border-2 mt-4">
           <CardHeader className="space-y-1">
             <h3 className="font-semibold leading-none">
@@ -61,24 +81,16 @@ const ExclusiveMakePlanTab: FC<CustomPlanModalProps> = ({
             </p>
           </CardHeader>
           <CardContent className=" space-y-4">
-            {errorMessage && (
-              <div className="text-red-600 text-sm mt-1 text-center p-0 m-0">
-                {errorMessage}
-              </div>
-            )}
             <div className="space-y-2">
               <Label htmlFor="planName">Plan Name</Label>
               <Input
                 id="planName"
                 placeholder="Enter your plan name"
-                value={customPlan.planName}
-                onChange={(e) =>
-                  setCustomPlan((prev) => ({
-                    ...prev,
-                    planName: e.target.value,
-                  }))
-                }
+                {...register('planName')}
               />
+              <span className="text-[#FF0000] text-[12px] block capitalize">
+                {String(errors['planName']?.message ?? '\u00A0')}
+              </span>
             </div>
 
             <div className="space-y-2">
@@ -86,15 +98,12 @@ const ExclusiveMakePlanTab: FC<CustomPlanModalProps> = ({
               <Textarea
                 id="description"
                 placeholder="Describe your plan features and benefits"
-                value={customPlan.description}
-                onChange={(e) =>
-                  setCustomPlan((prev) => ({
-                    ...prev,
-                    description: e.target.value,
-                  }))
-                }
                 rows={3}
+                {...register('description')}
               />
+              <span className="text-[#FF0000] text-[12px] block capitalize">
+                {String(errors['description']?.message ?? '\u00A0')}
+              </span>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -104,14 +113,11 @@ const ExclusiveMakePlanTab: FC<CustomPlanModalProps> = ({
                   id="price"
                   type="number"
                   placeholder="0.00"
-                  value={customPlan.price}
-                  onChange={(e) =>
-                    setCustomPlan((prev) => ({
-                      ...prev,
-                      price: e.target.value,
-                    }))
-                  }
+                  {...register('price')}
                 />
+                <span className="text-[#FF0000] text-[12px] block capitalize">
+                  {String(errors['price']?.message ?? '\u00A0')}
+                </span>
               </div>
 
               <div className="space-y-2">
@@ -120,14 +126,11 @@ const ExclusiveMakePlanTab: FC<CustomPlanModalProps> = ({
                   id="offerPrice"
                   type="number"
                   placeholder="0.00"
-                  value={customPlan.offerPrice}
-                  onChange={(e) =>
-                    setCustomPlan((prev) => ({
-                      ...prev,
-                      offerPrice: e.target.value,
-                    }))
-                  }
+                  {...register('offerPrice')}
                 />
+                <span className="text-[#FF0000] text-[12px] block capitalize">
+                  {String(errors['offerPrice']?.message ?? '\u00A0')}
+                </span>
               </div>
             </div>
           </CardContent>
@@ -138,12 +141,7 @@ const ExclusiveMakePlanTab: FC<CustomPlanModalProps> = ({
             <Button onClick={onClose} variant="outline">
               Cancel
             </Button>
-            <Button
-              onClick={() =>
-                handlePaymentAndSavePlan(exclusivePlan?.offerPrice ?? 199)
-              }
-              className="w-fit"
-            >
+            <Button onClick={handlePaymentClick} className="w-fit">
               Continue & Pay –{' '}
               <span className="text-gray-400 line-through text-sm">
                 ₹{exclusivePlan?.price}

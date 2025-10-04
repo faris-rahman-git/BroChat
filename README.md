@@ -1,101 +1,153 @@
-# Bro
+# 💬 BroChat
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+**BroChat** is a **real-time chat application** built using the **MERN stack** with **TypeScript**.  
+It allows users to send messages instantly, make audio/video calls, and access premium chat features through secure payments.  
+This system is designed for smooth real-time communication with a modern UI and reliable backend services.
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is ready ✨.
+---
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/nx-api/express?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+## 🚀 Features
 
-## Run tasks
+- 💬 **Instant Messaging** – Real-time one-on-one and group chat using **Socket.IO**
+- 📞 **Audio & Video Calls** – High-quality **WebRTC-based** calling system
+- 👤 **Authentication** – Secure login using **JWT** and **Passport OAuth** (Google, GitHub, Facebook)
+- 🪙 **Exclusive Membership** – Users can pay to become **Exclusive Users** for premium access
+  - Paid chat access with creators or mentors
+  - Razorpay payment gateway integration
+  - Exclusive chat features for subscribed members
+- ☁️ **File & Media Uploads** – Stored securely on **AWS S3**
+- 🔒 **Security** – Rate limiting, helmet, and secure token handling
+- 🧠 **Optimized State Handling** – **Redux Toolkit** + **TanStack Query** for caching and mutation
+- 🧩 **Custom Plan System** – Creators can design and sell their own chat access plans
+- ⚙️ **Performance Optimizations** – Redis caching for sessions and real-time data
+- 🧾 **Email Notifications** – Using Nodemailer for communication and verification
 
-To run the dev server for your app, use:
+---
 
-```sh
+## 🧰 Tech Stack
+
+### **Frontend**
+
+- React + TypeScript
+- Redux Toolkit
+- TanStack Query (React Query)
+- Tailwind CSS + ShadCN/UI
+- Axios
+- WebRTC
+- Socket.IO client
+- Framer Motion (animations)
+
+### **Backend**
+
+- Express + ts-node
+- MongoDB (Mongoose)
+- Redis (cache management)
+- AWS S3 (file storage)
+- Razorpay (payment gateway)
+- Passport (OAuth integrations)
+- JWT Authentication
+- Nodemailer
+- Socket.IO server
+- Helmet + Rate Limiting (security)
+
+---
+
+## 🌐 Live Demo
+
+👉 [**https://www.brochat.shop/**](https://www.brochat.shop/)
+
+---
+
+## ⚙️ Project Setup
+
+### 1. Clone Repository
+
+```bash
+git clone <your_repo_url>
+cd brochat
+```
+
+### 2. Install Dependencies
+
+```bash
+npm install
+```
+
+### 3. Setup Environment Variables
+
+### i - Frontend .env
+
+```bash
+VITE_BASE_API=
+VITE_SERVER_URL=
+VITE_RAZORPAY_KEY=
+```
+
+### ii - Backend .env
+
+```bash
+MONGO_URI=
+CLIENT_URL=http://localhost:4200
+
+PORT=5000
+NODEMAILER_EMAIL=
+NODEMAILER_PASS=
+
+JWT_ACCESS_SECRET=
+JWT_REFRESH_SECRET=
+
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GOOGLE_CALLBACK_URL=http://localhost:5000/api/auth/google/callback
+
+GITHUB_CLIENT_ID=
+GITHUB_CLIENT_SECRET=
+GITHUB_CALLBACK_URL=http://localhost:5000/api/auth/github/callback
+
+FACEBOOK_CLIENT_ID=
+FACEBOOK_CLIENT_SECRET=
+FACEBOOK_CALLBACK_URL=http://localhost:5000/api/auth/facebook/callback
+
+AWS_S3_ACCESS_KEY=
+AWS_S3_SECRET_KEY=
+AWS_S3_BUCKET_NAME=
+AWS_S3_REGION=
+
+RAZORPAY_KEY=
+RAZORPAY_SECRET=
+
+```
+
+### 4. Setup Redis
+
+- Ensure Redis is running locally or accessible remotely for caching and session management.
+- (Example: use Docker or a managed Redis service.)
+
+### 5. Run
+
+### i - Frontend
+
+```bash
+npx nx serve client
+```
+
+### ii - Backend
+
+```bash
 npx nx serve server
 ```
 
-To create a production bundle:
+- Visit http://localhost:4200 in your browser.
 
-```sh
+### 6. Build for Production
+
+```bash
+npx nx build client
 npx nx build server
 ```
 
-To see all available targets to run for a project, run:
+## 👨‍💻 Author
 
-```sh
-npx nx show project server
-```
-
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
-
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Add new projects
-
-While you could add new projects to your workspace manually, you might want to leverage [Nx plugins](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) and their [code generation](https://nx.dev/features/generate-code?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) feature.
-
-Use the plugin's generator to create new projects.
-
-To generate a new application, use:
-
-```sh
-npx nx g @nx/express:app demo
-```
-
-To generate a new library, use:
-
-```sh
-npx nx g @nx/node:lib mylib
-```
-
-You can use `npx nx list` to get a list of installed plugins. Then, run `npx nx list <plugin-name>` to learn about more specific capabilities of a particular plugin. Alternatively, [install Nx Console](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) to browse plugins and generators in your IDE.
-
-[Learn more about Nx plugins &raquo;](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) | [Browse the plugin registry &raquo;](https://nx.dev/plugin-registry?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Set up CI!
-
-### Step 1
-
-To connect to Nx Cloud, run the following command:
-
-```sh
-npx nx connect
-```
-
-Connecting to Nx Cloud ensures a [fast and scalable CI](https://nx.dev/ci/intro/why-nx-cloud?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) pipeline. It includes features such as:
-
-- [Remote caching](https://nx.dev/ci/features/remote-cache?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task distribution across multiple machines](https://nx.dev/ci/features/distribute-task-execution?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Automated e2e test splitting](https://nx.dev/ci/features/split-e2e-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task flakiness detection and rerunning](https://nx.dev/ci/features/flaky-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-### Step 2
-
-Use the following command to configure a CI workflow for your workspace:
-
-```sh
-npx nx g ci-workflow
-```
-
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Install Nx Console
-
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
-
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Useful links
-
-Learn more:
-
-- [Learn more about this workspace setup](https://nx.dev/nx-api/express?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-And join the Nx community:
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+**Faris Rahman**  
+🚀 Built with ❤️ using MERN + TypeScript  
+🌐 [https://www.brochat.shop/](https://www.brochat.shop/)

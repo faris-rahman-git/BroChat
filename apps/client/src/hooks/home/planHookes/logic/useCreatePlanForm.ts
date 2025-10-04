@@ -15,7 +15,7 @@ export const useCreatePlanForm = (
 ) => {
   const dispatch = useAppDispatch();
 
-  const { isPending, isSuccess, data, mutate } = useCreatePlan();
+  const { isPending, isSuccess, data, mutate, error } = useCreatePlan();
 
   useEffect(() => {
     if (isSuccess) {
@@ -32,5 +32,6 @@ export const useCreatePlanForm = (
 
   return {
     createPlanMutate: mutate,
+    createPlanError: error,
   };
 };

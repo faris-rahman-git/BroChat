@@ -1,6 +1,6 @@
 import { ResponseDTO } from '../../../../../domain/entity/return/ResponseDTO';
-import { ExclusivePlanType } from '@bro/shared';
+import {  PlanSchemaType } from '@bro/shared';
 
 export interface ICreatePlanUseCase {
-  execute(data: ExclusivePlanType, userId: string): Promise<ResponseDTO>;
+  execute(data: PlanSchemaType, userId: string): Promise<ResponseDTO>;
 }

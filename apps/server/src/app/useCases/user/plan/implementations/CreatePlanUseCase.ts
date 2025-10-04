@@ -1,18 +1,37 @@
 import { ResponseDTO } from '../../../../../domain/entity/return/ResponseDTO';
+import { ICheckAuthorityService } from '../../../../providers/user/ICheckAuthorityService';
 import { IPlanReadRepo } from '../../../../repositories/plan/IPlanReadRepo';
 import { IPlanWriteRepo } from '../../../../repositories/plan/IPlanWriteRepo';
 import { ICreatePlanUseCase } from '../interfaces/ICreatePlanUseCase';
-import { ExclusivePlanType } from '@bro/shared';
+import { PlanSchemaType } from '@bro/shared';
 
 export class CreatePlanUseCase implements ICreatePlanUseCase {
   constructor(
     private planWriteRepo: IPlanWriteRepo,
-    private planReadRepo: IPlanReadRepo
+    private planReadRepo: IPlanReadRepo,
+    private checkAuthService: ICheckAuthorityService
   ) {}
 
-  async execute(data: ExclusivePlanType, userId: string): Promise<ResponseDTO> {
+  async execute(data: PlanSchemaType, userId: string): Promise<ResponseDTO> {
     try {
-      await this.planWriteRepo.createNewExclusiveUserCustomerPlan(data, userId);
+      const isValid = await this.checkAuthService.verifyExclusivePlanPayment(
+        userId
+      );
+      if (!isValid) {
+        return {
+          success: false,
+          data: { message: 'payment not verified' },
+        };
+      }
+      await this.planWriteRepo.createNewExclusiveUserCustomerPlan(
+        {
+          description: data.description,
+          name: data.planName,
+          price: Number(data.price),
+          offerPrice: Number(data.offerPrice),
+        },
+        userId
+      );
       const planList = await this.planReadRepo.findExclusiveUserCustomer(
         userId
       );

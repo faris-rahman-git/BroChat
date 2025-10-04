@@ -1,12 +1,14 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 export const registerSchema = z.object({
-  name: z.string().min(3, "Name must be at least 3 characters"),
-  email: z.string().email("Invalid email address"),
+  name: z
+    .string()
+    .regex(/^[A-Za-z\s]+$/, 'Name can only contain letters and spaces')
+    .min(3, 'Name must be at least 3 characters'),
+  email: z.string().email('Invalid email address'),
   phoneNumber: z
     .string()
-    .min(10, "Phone number must be 10 digits")
-    .max(10, "Phone number must be 10 digits"),
+    .regex(/^[6-9]\d{9}$/, 'Phone number must be a valid 10-digit number'),
 });
 
 export type RegisterSchemaType = z.infer<typeof registerSchema>;

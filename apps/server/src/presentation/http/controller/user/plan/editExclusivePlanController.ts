@@ -7,8 +7,9 @@ import { IHttpResponse } from '../../../helpers/IHttpResponse';
 import { HttpResponse } from '../../../helpers/implementations/HttpResponse';
 import { IHttpSuccess } from '../../../helpers/IHttpSuccess';
 import { HttpSuccess } from '../../../helpers/implementations/HttpSuccess';
-import { ExclusivePlanType } from '@bro/shared';
+import { planSchema, PlanSchemaType } from '@bro/shared';
 import { IEditExclusivePlanUseCase } from '../../../../../app/useCases/user/plan/interfaces/IEditExclusivePlanUseCase';
+import { CustomPayloadType } from '../../../../../domain/entity/auth/authTypes';
 
 export class editExclusivePlanController implements IController {
   constructor(
@@ -22,9 +23,24 @@ export class editExclusivePlanController implements IController {
     let response: ResponseDTO;
 
     try {
-      const data = httpRequest.body as ExclusivePlanType & { _id: string };
+      const parsed = planSchema.safeParse(httpRequest.body);
 
-      response = await this.editExclusivePlanUseCase.execute(data);
+      if (!parsed.success) {
+        error = this.httpErrors.error_400();
+        return new HttpResponse(error.statusCode, parsed.error.format());
+      }
+      const data = parsed.data as PlanSchemaType;
+      const { id: userId } = httpRequest.user as CustomPayloadType;
+
+      const { exclusivePlanId } = httpRequest.path as {
+        exclusivePlanId: string;
+      };
+
+      response = await this.editExclusivePlanUseCase.execute(
+        data,
+        exclusivePlanId,
+        userId
+      );
 
       const success = this.httpSuccess.success_200(response.data);
       return new HttpResponse(success.statusCode, success.body);

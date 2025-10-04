@@ -518,4 +518,12 @@ export class PaymentReadRepo implements IPaymentReadRepo {
       year: yearBuckets,
     };
   }
+
+  async findExclusivePayment(userId: string): Promise<string | undefined> {
+    const transactions = await paymentModel.findOne(
+      { userId, feature: 'exclusive_user' },
+      { _id: 1 }
+    );
+    return transactions ? String(transactions?._id) : undefined;
+  }
 }

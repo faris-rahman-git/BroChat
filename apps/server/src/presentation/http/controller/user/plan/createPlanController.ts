@@ -8,7 +8,7 @@ import { HttpResponse } from '../../../helpers/implementations/HttpResponse';
 import { IHttpSuccess } from '../../../helpers/IHttpSuccess';
 import { HttpSuccess } from '../../../helpers/implementations/HttpSuccess';
 import { ICreatePlanUseCase } from '../../../../../app/useCases/user/plan/interfaces/ICreatePlanUseCase';
-import { ExclusivePlanType } from '@bro/shared';
+import { planSchema, PlanSchemaType } from '@bro/shared';
 import { CustomPayloadType } from '../../../../../domain/entity/auth/authTypes';
 
 export class createPlanController implements IController {
@@ -23,10 +23,22 @@ export class createPlanController implements IController {
     let response: ResponseDTO;
 
     try {
+      const parsed = planSchema.safeParse(httpRequest.body);
+
+      if (!parsed.success) {
+        error = this.httpErrors.error_400();
+        return new HttpResponse(error.statusCode, parsed.error.format());
+      }
+      const data = parsed.data as PlanSchemaType;
+
       const { id: userId } = httpRequest.user as CustomPayloadType;
-      const data = httpRequest.body as ExclusivePlanType;
 
       response = await this.createPlanUseCase.execute(data, userId);
+
+      if (!response.success) {
+        error = this.httpErrors.error_403();
+        return new HttpResponse(error.statusCode, response.data);
+      }
 
       const success = this.httpSuccess.success_200(response.data);
       return new HttpResponse(success.statusCode, success.body);
