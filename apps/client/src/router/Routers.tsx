@@ -14,6 +14,7 @@ import VideoPlayerPage from '@client/pages/user/VideoPlayerPage';
 import DashboardPage from '@client/pages/admin/DashboardPage';
 import { useSocket } from '@client/hooks/socket/useSocket';
 import CallPage from '@client/pages/user/CallPage';
+import IntroPage from '@client/pages/intro/IntroPage';
 
 function Routers() {
   useAxiosAuth();
@@ -30,6 +31,8 @@ function Routers() {
     <>
       <ClearErrorOnBackForward />
       <Routes>
+        <Route path="/intro" element={<IntroPage />} />
+
         {/* auth Routes start */}
         <Route
           path="/register"
@@ -87,7 +90,7 @@ function Routers() {
         {/* User Routes start*/}
         <Route
           path="/"
-          element={role == 'user' ? <HomePage /> : <Navigate to="/login" />}
+          element={role == 'user' ? <HomePage /> : <Navigate to="/intro" />}
         />
         <Route path="/video-player" element={<VideoPlayerPage />} />
         <Route path="/call/:roomID" element={<CallPage />} />
@@ -97,7 +100,7 @@ function Routers() {
         <Route
           path="/admin/dashboard"
           element={
-            role == 'admin' ? <DashboardPage /> : <Navigate to="/login" />
+            role == 'admin' ? <DashboardPage /> : <Navigate to="/intro" />
           }
         />
         {/* Admin Routes end*/}
